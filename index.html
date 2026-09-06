@@ -1043,7 +1043,9 @@ function renderMiles(){
      (mdraft?'<button class="btn pri" id="m-save">Lưu thay đổi</button><button class="btn" id="m-cancel">Huỷ bỏ</button>'+
         '<span class="tiny" style="color:var(--st-pending);font-weight:600">Có thay đổi chưa lưu</span>':
         '<span class="tiny muted">Mốc kiểm soát hiện thành hình thoi trên sơ đồ Gantt. Sửa xong nhớ bấm Lưu thay đổi.</span>')+"</div>";
+  var _mv=$("#view")?$("#view").scrollTop:0;
   $("#view").innerHTML=v;bindHead();
+  if($("#view"))$("#view").scrollTop=_mv;
   all("[data-mf]").forEach(function(el){el.onchange=function(){
     mTouch();mdraft[+el.dataset.mi][el.dataset.mf]=el.value;render()}});
   all("[data-mdone]").forEach(function(el){el.onchange=function(){
@@ -1149,6 +1151,8 @@ function visibleRows(){
 }
 function renderGantt(){
   var m=meta(cur);
+  var _tt=$("#tt"),_vw=$("#view");
+  var _keep=_tt?{t:_tt.scrollTop,l:_tt.scrollLeft,v:_vw?_vw.scrollTop:0}:null;
   var v=head(m,"Tiến độ & sơ đồ Gantt");
   if(!tasks().length){v+=emptyPlan();$("#view").innerHTML=v;bindHead();bindEmpty();return}
   var PPD={day:24,week:8.5,month:3.2}[ui.zoom];
@@ -1227,6 +1231,10 @@ function renderGantt(){
   if(!rows.length)v+='<div class="empty">Không có đầu việc nào khớp bộ lọc.</div>';
   v+="</div>";
   $("#view").innerHTML=v;bindHead();
+  if(_keep){
+    var t2=$("#tt");if(t2){t2.scrollTop=_keep.t;t2.scrollLeft=_keep.l}
+    var v2=$("#view");if(v2)v2.scrollTop=_keep.v;
+  }
   $("#q").oninput=function(){ui.q=this.value;var p=this.selectionStart;renderGantt();var q2=$("#q");q2.focus();q2.setSelectionRange(p,p)};
   $("#fl").onchange=function(){ui.lead=this.value;renderGantt()};
   all("[data-st]").forEach(function(b){b.onclick=function(){ui.st=ui.st===b.dataset.st?"":b.dataset.st;renderGantt()}});
@@ -1245,7 +1253,7 @@ function renderGantt(){
   $("#imp").onclick=importModal;
   $("#exp").onclick=exportXlsx;
   all(".trow[data-id]").forEach(function(r){r.onclick=function(){openDrawer(r.dataset.id)}});
-  scrollToday();
+  if(!_keep)scrollToday();
 }
 function scrollToday(){
   var tt=$("#tt"),n=document.querySelector(".now"),lf=tt&&tt.querySelector(".lft");

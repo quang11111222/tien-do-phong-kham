@@ -318,7 +318,7 @@ var ST={todo:["Chưa bắt đầu","p-todo","--st-todo"],doing:["Đang thực hi
 var STK=["todo","doing","done","late"];
 var STALL=["todo","doing","done","late","pending"];
 var metas=[], plan=null, logs={byTask:{}}, cur=null, bstate="init";
-var ui={page:"home",zoom:"week",q:"",lead:"",st:"",sel:null,closed:{}};
+var ui={page:"home",zoom:"week",showArch:false,q:"",lead:"",st:"",sel:null,closed:{}};
 
 function $(s){return document.querySelector(s)}
 function all(s){return Array.prototype.slice.call(document.querySelectorAll(s))}
@@ -348,8 +348,9 @@ function rebuild(){
   plan.tasks=out;
 }
 function addGroupAt(name){
-  plan.tasks.push({id:uid(),lv:1,pid:null,wbs:"",name:name,lead:"",coop:[],start:null,end:null,st:"todo"});
-  rebuild();savePlan();
+  var id=uid();
+  plan.tasks.push({id:id,lv:1,pid:null,wbs:"",name:name,lead:"",coop:[],start:null,end:null,st:"todo",ev:[]});
+  rebuild();savePlan();return id;
 }
 function addChild(gid,name,st0,en0){
   var g=byId(gid),k=kids(gid);
@@ -361,10 +362,15 @@ function addChild(gid,name,st0,en0){
   plan.tasks.splice(i+1,0,t);
   rebuild();savePlan();return t.id;
 }
+function projLog(text){
+  if(!logs.byTask._project)logs.byTask._project={entries:[]};
+  logs.byTask._project.entries.push({at:TODAY,by:who(),text:text,kind:"sys"});
+}
 function delTask(id){
   var t=byId(id);if(!t)return;
   var ids=[id];
   if(t.lv===1)kids(id).forEach(function(c){ids.push(c.id)});
+  projLog("Xoá "+(t.lv===1?"hạng mục":"công việc")+" “"+t.wbs+". "+t.name+"”"+(t.lv===1?" cùng "+(ids.length-1)+" công việc con":"")+".");
   plan.tasks=tasks().filter(function(x){return ids.indexOf(x.id)<0});
   ids.forEach(function(i){delete logs.byTask[i]});
   rebuild();savePlan();saveLogs();
@@ -527,12 +533,15 @@ function enter(pid){openProject(pid);ui.page="gantt";ui.q="";ui.lead="";ui.st=""
 
 /* ---------- home: danh mục dự án ---------- */
 function renderHome(){
-  var n=metas.length, noplan=metas.filter(function(m){return !m.nTasks}).length;
-  var late=metas.filter(function(m){return m.nLate>0}).length;
-  var nodate=metas.filter(function(m){return !m.planEnd}).length;
+  var arch=metas.filter(function(m){return m.archived}),liveP=metas.filter(function(m){return !m.archived});
+  var rows=ui.showArch?metas:liveP;
+  var n=liveP.length, noplan=liveP.filter(function(m){return !m.nTasks}).length;
+  var late=liveP.filter(function(m){return m.nLate>0}).length;
+  var nodate=liveP.filter(function(m){return !m.planEnd}).length;
   var v='<div class="ovhead"><div><div class="eyebrow">Quản lý khảo sát mặt bằng</div>'+
     '<h1>Danh mục dự án phòng khám</h1><div class="muted tiny">Theo dõi tiến độ toàn bộ dự án phòng khám do Phòng PTPK làm đầu mối.</div></div>'+
-    '<div class="row2"><button class="btn" id="rst">Khôi phục dữ liệu mẫu</button><button class="btn pri" id="new">+ Thêm dự án</button></div></div>';
+    '<div class="row2">'+(arch.length?'<button class="btn'+(ui.showArch?" pri":"")+'" id="arch">Đã lưu trữ ('+arch.length+')</button>':"")+
+    '<button class="btn" id="rst">Khôi phục dữ liệu mẫu</button><button class="btn pri" id="new">+ Thêm dự án</button></div></div>';
   v+='<div class="note offline">Bản dùng thử để góp ý. Mọi thay đổi bạn nhập được lưu trên trình duyệt của chính bạn — người khác mở link này vẫn thấy dữ liệu gốc.</div>';
   v+='<div class="stats">'+
     '<div class="stat"><b>'+n+'</b><span>Dự án đang theo dõi</span></div>'+
@@ -543,13 +552,14 @@ function renderHome(){
   v+='<div class="card" style="overflow-x:auto"><table class="ptab"><thead><tr>'+
     "<th>Dự án</th><th>Địa điểm</th><th>Bắt đầu</th><th>Hạn hoàn thành</th><th>Còn lại</th>"+
     '<th style="min-width:150px">Tiến độ</th><th class="hcol">Trễ</th><th></th></tr></thead><tbody>';
-  if(!n)v+='<tr><td colspan="8"><div class="empty"><h3>Chưa có dự án nào</h3>Bấm “Thêm dự án” để bắt đầu.</div></td></tr>';
-  metas.forEach(function(m){
+  if(!rows.length)v+='<tr><td colspan="8"><div class="empty"><h3>Chưa có dự án nào</h3>Bấm “Thêm dự án” để bắt đầu.</div></td></tr>';
+  rows.forEach(function(m){
     var left=m.planEnd?diffd(TODAY,m.planEnd):null;
     var lcls=left===null?"":(left<0?"dl":(left<=30?"dw":""));
     var pct=pctOf(m);
-    v+='<tr data-open="'+esc(m.code)+'">'+
-      '<td><span class="pname">'+esc(m.name)+'</span><span class="pcode">'+esc(m.code)+"</span></td>"+
+    v+='<tr data-open="'+esc(m.code)+'"'+(m.archived?' style="opacity:.55"':"")+'>'+
+      '<td><span class="pname">'+esc(m.name)+(m.archived?' <span class="pill p-todo"><i></i>Đã lưu trữ</span>':"")+
+      '</span><span class="pcode">'+esc(m.code)+"</span></td>"+
       "<td>"+esc(m.site||"—")+"</td>"+
       '<td class="num">'+vn(m.planStart)+"</td>"+
       '<td class="num">'+(m.planEnd?vn(m.planEnd):'<span class="dw">chưa chốt</span>')+"</td>"+
@@ -558,10 +568,13 @@ function renderHome(){
         '<span class="pill p-todo"><i></i>Chưa lập tiến độ</span>')+"</td>"+
       '<td class="hcol num">'+(m.nLate?'<span class="pill p-late"><i></i>'+m.nLate+"</span>":'<span class="muted">0</span>')+"</td>"+
       '<td><div class="rowact"><button class="btn sm" data-edit="'+esc(m.code)+'">Sửa</button>'+
-      '<button class="btn sm dgr" data-del="'+esc(m.code)+'">Xoá</button></div></td></tr>';
+      (m.archived?'<button class="btn sm" data-unarch="'+esc(m.code)+'">Khôi phục</button>'+
+        (m.nTasks?"":'<button class="btn sm dgr" data-del="'+esc(m.code)+'">Xoá</button>')
+       :'<button class="btn sm" data-arch="'+esc(m.code)+'">Lưu trữ</button>')+"</div></td></tr>";
   });
   v+="</tbody></table></div>";
-  v+='<div class="note" style="margin-top:12px">Dự án mới có thể <b>nhân bản bộ 25 hạng mục chuẩn</b> từ một dự án đã có — hệ thống tự dịch toàn bộ ngày theo mốc bắt đầu mới, chỉ còn việc chỉnh lại các mốc đặc thù.</div>';
+  v+='<div class="note" style="margin-top:12px">Dự án đã kết thúc thì <b>Lưu trữ</b>, không xoá — giữ nguyên tiến độ và nhật ký để đối chiếu về sau. Chỉ dự án chưa lập tiến độ mới xoá vĩnh viễn được.</div>';
+  v+='<div class="note" style="margin-top:8px">Dự án mới có thể <b>nhân bản bộ 25 hạng mục chuẩn</b> từ một dự án đã có — hệ thống tự dịch toàn bộ ngày theo mốc bắt đầu mới, chỉ còn việc chỉnh lại các mốc đặc thù.</div>';
   $("#view").innerHTML=v;
   $("#new").onclick=function(){projectModal(null)};
   $("#rst").onclick=function(){if(confirm("Xoá mọi thay đổi bạn đã nhập và quay lại dữ liệu mẫu ban đầu?"))resetAll()};
@@ -570,7 +583,12 @@ function renderHome(){
   all("[data-edit]").forEach(function(b){b.onclick=function(e){e.stopPropagation();projectModal(meta(b.dataset.edit))}});
   all("[data-del]").forEach(function(b){b.onclick=function(e){e.stopPropagation();
     var m=meta(b.dataset.del);
-    if(confirm("Xoá dự án “"+m.name+"”?\nToàn bộ tiến độ và nhật ký diễn biến của dự án này sẽ mất."))delProject(m.code)}});
+    if(confirm("Xoá vĩnh viễn dự án “"+m.name+"”?\nDự án này chưa lập tiến độ nên không mất dữ liệu công việc."))delProject(m.code)}});
+  all("[data-arch]").forEach(function(b){b.onclick=function(e){e.stopPropagation();
+    var m=meta(b.dataset.arch);m.archived=true;m.archivedAt=TODAY;m.archivedBy=who();saveMeta(m,false,null)}});
+  all("[data-unarch]").forEach(function(b){b.onclick=function(e){e.stopPropagation();
+    var m=meta(b.dataset.unarch);delete m.archived;delete m.archivedAt;delete m.archivedBy;saveMeta(m,false,null)}});
+  if($("#arch"))$("#arch").onclick=function(){ui.showArch=!ui.showArch;render()};
 }
 
 /* ---------- modal thêm/sửa dự án ---------- */
@@ -867,7 +885,7 @@ function bindEmpty(){
 }
 function addGroup(){
   if(!plan)plan={tasks:[]};
-  promptModal("Thêm hạng mục","Tên hạng mục (VD: CHUẨN BỊ – THIẾT KẾ)","",function(v){addGroupAt(v.toUpperCase());render()});
+  var id=addGroupAt("HẠNG MỤC MỚI");render();openDrawer(id,true);
 }
 function cloneModal(){
   var src=metas.filter(function(x){return x.nTasks>0&&x.code!==cur});
@@ -902,14 +920,15 @@ function cloneModal(){
 function renderLog(){
   var m=meta(cur),arr=[];
   Object.keys(logs.byTask).forEach(function(tid){
-    var t=tasks().filter(function(x){return x.id===tid})[0];
-    (logs.byTask[tid].entries||[]).forEach(function(e){arr.push({t:t,e:e})});
+    var t=tid==="_project"?null:tasks().filter(function(x){return x.id===tid})[0];
+    (logs.byTask[tid].entries||[]).forEach(function(e){arr.push({t:t,e:e,sys:tid==="_project"})});
   });
   arr.sort(function(a,b){return a.e.at<b.e.at?1:-1});
   var v=head(m,"Nhật ký diễn biến");
   v+='<div class="card" style="padding:14px 16px">'+(arr.length?'<div class="log">'+arr.map(function(x){
-      return '<div class="li"><div class="dot"></div><div><div class="m">'+vn(x.e.at)+" · "+esc(x.e.by)+
-        ' · <a href="#" data-id="'+(x.t?x.t.id:"")+'" class="jump" style="color:var(--brand)">'+esc(x.t?x.t.name:"—")+"</a></div><p>"+esc(x.e.text)+"</p></div></div>"
+      return '<div class="li"><div class="dot"'+(x.sys?' style="background:var(--ink-3)"':"")+'></div><div><div class="m">'+vn(x.e.at)+" · "+esc(x.e.by)+" · "+
+        (x.t?'<a href="#" data-id="'+x.t.id+'" class="jump" style="color:var(--brand)">'+esc(x.t.name)+"</a>":'<span style="color:var(--ink-3)">Toàn dự án</span>')+
+        "</div><p>"+esc(x.e.text)+"</p></div></div>"
     }).join("")+"</div>":'<div class="empty">Chưa có diễn biến nào được ghi cho dự án này.</div>')+"</div>";
   $("#view").innerHTML=v;bindHead();
   all(".jump").forEach(function(a){a.onclick=function(ev){ev.preventDefault();openDrawer(a.dataset.id)}});
@@ -1014,8 +1033,8 @@ function renderGantt(){
   };
   all(".exp").forEach(function(b){b.onclick=function(e){e.stopPropagation();ui.closed[b.dataset.x]=!ui.closed[b.dataset.x];renderGantt()}});
   all("[data-add]").forEach(function(b){b.onclick=function(e){e.stopPropagation();
-    promptModal("Thêm công việc","Tên công việc",'',function(v){
-      ui.closed[b.dataset.add]=false;var nid=addChild(b.dataset.add,v);render();openDrawer(nid)})}});
+    ui.closed[b.dataset.add]=false;
+    var nid=addChild(b.dataset.add,"Công việc mới");render();openDrawer(nid,true)}});
   $("#addg2").onclick=addGroup;
   $("#imp").onclick=importModal;
   $("#exp").onclick=exportXlsx;
@@ -1032,7 +1051,7 @@ function scrollToday(){
 }
 
 /* ---------- drawer ---------- */
-function openDrawer(id){
+function openDrawer(id,focusName){
   var t=tasks().filter(function(x){return x.id===id})[0];if(!t)return;
   ui.sel=id;
   var sp=span(t),st=stOf(t),n=sp.s&&sp.e?days(sp.s,sp.e):0,k=kids(t.id);
@@ -1110,6 +1129,7 @@ function openDrawer(id){
   $("#dwrap").innerHTML=h;
   $("#drawer").classList.add("on");$("#drawer").setAttribute("aria-hidden","false");$("#scrim").classList.add("on");
   bindDrawer(t);
+  if(focusName){var nm=document.getElementById("d-name");if(nm){nm.focus();nm.select()}}
   if(ui.page==="gantt")renderGantt();
 }
 function closeDrawer(){$("#drawer").classList.remove("on");$("#drawer").setAttribute("aria-hidden","true");$("#scrim").classList.remove("on");ui.sel=null;if(ui.page==="gantt")renderGantt()}
@@ -1138,8 +1158,8 @@ function bindDrawer(t){
   g("d-down").onclick=function(){moveTask(t.id,1);render();openDrawer(t.id)};
   if(g("d-dup"))g("d-dup").onclick=function(){var id=dupTask(t.id);render();if(id)openDrawer(id)};
   if(g("d-addc"))g("d-addc").onclick=function(){
-    promptModal("Thêm công việc","Tên công việc","",function(v){
-      ui.closed[t.id]=false;var id=addChild(t.id,v);render();openDrawer(id)})};
+    ui.closed[t.id]=false;
+    var id=addChild(t.id,"Công việc mới");render();openDrawer(id,true);};
   g("d-del").onclick=function(){
     if(!confirm("Xoá “"+t.name+"”?"+(t.lv===1?"\nCả "+k.length+" công việc con cũng bị xoá.":"")))return;
     delTask(t.id);closeDrawer();render();

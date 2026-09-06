@@ -1,0 +1,948 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<style>:root{color-scheme:light dark}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Tiến độ Phòng khám TTH</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+:root{
+  --brand:#1668C4; --brand-d:#0F4E97; --brand-soft:#E9F2FC; --brand-line:#CFE2F7;
+  --ground:#F2F6FB; --surface:#FFFFFF; --surface-2:#F8FBFE; --line:#E1EAF4; --line-2:#EDF3F9;
+  --ink:#12263F; --ink-2:#4E6787; --ink-3:#8A9CB4;
+  --st-todo:#94A6BC; --st-doing:#1668C4; --st-pending:#C0790A; --st-done:#1C8A5B; --st-late:#C8393B;
+  --st-todo-bg:#EEF2F7; --st-doing-bg:#E4EFFB; --st-pending-bg:#FBF1DF; --st-done-bg:#E3F3EB; --st-late-bg:#FBE8E8;
+  --shadow:0 1px 2px rgba(18,38,63,.06), 0 8px 24px -12px rgba(18,38,63,.18);
+  --weekend:#F4F7FB; --today:#C8393B;
+  --row:36px; --lw:700px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --brand:#4E9BE8; --brand-d:#7FB9F0; --brand-soft:#17293D; --brand-line:#23405C;
+    --ground:#0C1420; --surface:#141E2C; --surface-2:#18242F; --line:#243346; --line-2:#1D2A3A;
+    --ink:#E7EEF7; --ink-2:#9FB3CB; --ink-3:#6E8299;
+    --st-todo:#7F93AC; --st-doing:#4E9BE8; --st-pending:#DCA33F; --st-done:#43B183; --st-late:#E4696B;
+    --st-todo-bg:#1B2634; --st-doing-bg:#152C44; --st-pending-bg:#33280F; --st-done-bg:#122E23; --st-late-bg:#361A1C;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+    --weekend:#101A27; --today:#E4696B;
+  }
+}
+:root[data-theme="dark"]{
+  --brand:#4E9BE8; --brand-d:#7FB9F0; --brand-soft:#17293D; --brand-line:#23405C;
+  --ground:#0C1420; --surface:#141E2C; --surface-2:#18242F; --line:#243346; --line-2:#1D2A3A;
+  --ink:#E7EEF7; --ink-2:#9FB3CB; --ink-3:#6E8299;
+  --st-todo:#7F93AC; --st-doing:#4E9BE8; --st-pending:#DCA33F; --st-done:#43B183; --st-late:#E4696B;
+  --st-todo-bg:#1B2634; --st-doing-bg:#152C44; --st-pending-bg:#33280F; --st-done-bg:#122E23; --st-late-bg:#361A1C;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
+  --weekend:#101A27; --today:#E4696B;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{overflow:hidden}
+body{background:var(--ground);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.app{display:flex;height:100%;min-height:0}
+.side{width:238px;flex:0 0 238px;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;height:100%}
+.brandbox{margin:14px 12px 10px;padding:10px;border:1px solid var(--line);border-radius:12px;display:flex;gap:10px;align-items:center;background:var(--surface-2)}
+.logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(160deg,var(--brand),var(--brand-d));color:#fff;display:grid;place-items:center;font-weight:700;font-size:11px}
+.brandbox b{display:block;font-size:12.5px;font-weight:700}
+.brandbox span{display:block;font-size:11px;color:var(--ink-3)}
+.navwrap{overflow-y:auto;flex:1;padding:0 10px 10px}
+.navlabel{font-size:10px;font-weight:700;letter-spacing:.9px;color:var(--brand);text-transform:uppercase;padding:8px 8px 6px}
+.nav{display:flex;flex-direction:column;gap:1px}
+.nav a{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:12.8px;cursor:default}
+.nav a svg{flex:0 0 15px;opacity:.75}
+.nav a.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.nav a.on svg{opacity:1}
+.sub{display:flex;flex-direction:column;gap:1px;margin:3px 0 6px 10px;padding-left:11px;border-left:1.5px solid var(--brand-line)}
+.sub button{text-align:left;background:none;border:0;padding:6px 9px;border-radius:7px;color:var(--ink-2);font-size:12.5px;cursor:pointer}
+.sub button:hover{background:var(--line-2)}
+.sub button.on{background:var(--brand);color:#fff;font-weight:600}
+.sub .cap{font-size:9.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--ink-3);padding:7px 9px 3px;font-weight:700}
+.clock{margin:10px 12px 14px;background:#132438;color:#DCE9F8;border-radius:11px;padding:9px 12px;text-align:center}
+:root[data-theme="dark"] .clock{background:#0A1220}
+.clock b{display:block;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:17px;letter-spacing:1px}
+.clock span{font-size:10.5px;color:#7E9AC0}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.top{flex:0 0 auto;z-index:30;background:var(--ground);padding:12px 18px 10px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--line)}
+.search{flex:1;max-width:400px;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:7px 10px;color:var(--ink-3);font-size:12.5px}
+.kbd{margin-left:auto;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:10.5px;font-family:"JetBrains Mono",monospace}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--ink-2);font-weight:500}
+.whoami{display:flex;align-items:center;gap:7px;margin-left:auto;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:4px 6px 4px 10px}
+.whoami input{border:0;background:none;width:140px;font-size:12.5px;font-weight:600}
+.whoami input:focus{outline:none}
+.av{width:26px;height:26px;border-radius:7px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-weight:700;font-size:11px}
+.view{padding:16px 18px 40px;flex:1;overflow-y:auto;min-height:0}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:13px}
+h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-.2px;text-wrap:balance}
+.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:1px;color:var(--brand);text-transform:uppercase}
+.crumb{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-3);margin-bottom:3px}
+.crumb button{border:0;background:none;padding:0;color:var(--brand);font-size:11.5px;font-weight:600;cursor:pointer}
+.muted{color:var(--ink-2)} .tiny{font-size:11.5px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:500;cursor:pointer}
+.btn:hover{border-color:var(--brand-line);color:var(--brand)}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+.btn.pri:hover{background:var(--brand-d);border-color:var(--brand-d);color:#fff}
+.btn.ok{background:var(--st-done);border-color:var(--st-done);color:#fff;font-weight:600}
+.btn.ok:hover{filter:brightness(1.08);color:#fff}
+.btn.dgr{color:var(--st-late);border-color:var(--st-late)}
+.btn.dgr:hover{background:var(--st-late-bg);color:var(--st-late);border-color:var(--st-late)}
+.btn.sm{padding:4px 9px;font-size:11.5px}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.pill i{width:6px;height:6px;border-radius:50%;background:currentColor;flex:0 0 6px}
+.p-todo{background:var(--st-todo-bg);color:var(--st-todo)} .p-doing{background:var(--st-doing-bg);color:var(--st-doing)}
+.p-pending{background:var(--st-pending-bg);color:var(--st-pending)} .p-done{background:var(--st-done-bg);color:var(--st-done)}
+.p-late{background:var(--st-late-bg);color:var(--st-late)}
+
+.ovhead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:11px 13px}
+.stat b{display:block;font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.stat span{font-size:11.5px;color:var(--ink-2)}
+.stat.hi{border-color:var(--st-late);background:var(--st-late-bg)} .stat.hi b{color:var(--st-late)}
+.stat.wr{border-color:var(--st-pending);background:var(--st-pending-bg)} .stat.wr b{color:var(--st-pending)}
+
+/* project list */
+.ptab{width:100%;border-collapse:collapse}
+.ptab th{text-align:left;font-size:10.5px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--ink-3);padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.ptab td{padding:11px 12px;border-bottom:1px solid var(--line-2);font-size:12.8px;vertical-align:middle}
+.ptab tbody tr{cursor:pointer}
+.ptab tbody tr:hover{background:var(--surface-2)}
+.ptab tbody tr:last-child td{border-bottom:0}
+.pname{font-weight:600;display:block}
+.pcode{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--ink-3)}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.mini{width:88px;height:6px;border-radius:99px;background:var(--line-2);overflow:hidden;display:inline-block;vertical-align:middle;margin-right:7px}
+.mini i{display:block;height:100%;background:var(--st-done)}
+.rowact{display:flex;gap:5px;justify-content:flex-end}
+.dl{color:var(--st-late);font-weight:600}
+.dw{color:var(--st-pending);font-weight:600}
+
+.bar{height:9px;border-radius:99px;background:var(--line-2);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:9px}
+.legend span{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-2)}
+.legend s{width:9px;height:9px;border-radius:3px;text-decoration:none}
+.pcard{padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center}
+.grpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:9px;margin-top:14px}
+.grpc{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--st-todo);border-radius:10px;padding:10px 12px;cursor:pointer;text-align:left;width:100%}
+.grpc:hover{border-color:var(--brand-line);border-left-color:var(--brand)}
+.grpc b{font-size:12.5px;font-weight:600;display:block;line-height:1.35}
+.grpc .m{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums;margin-top:5px;display:flex;justify-content:space-between}
+
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.tools input[type=search],.tools select{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12.5px}
+.seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:none;padding:6px 11px;font-size:12.5px;cursor:pointer;color:var(--ink-2)}
+.seg button.on{background:var(--brand);color:#fff;font-weight:600}
+.fchip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:600;cursor:pointer;color:var(--ink-2)}
+.fchip.on{border-color:currentColor}
+
+.tt{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:auto;max-height:calc(100vh - 300px);min-height:260px;position:relative}
+.trow{display:flex;min-width:min-content;height:var(--row)}
+.lft{position:sticky;left:0;z-index:12;width:var(--lw);flex:0 0 var(--lw);display:flex;align-items:center;background:var(--surface);border-right:1px solid var(--line)}
+.thead{position:sticky;top:0;z-index:20;height:46px}
+.thead .lft{z-index:22;background:var(--surface-2);border-bottom:1px solid var(--line);font-size:10.5px;font-weight:700;letter-spacing:.6px;color:var(--ink-3);text-transform:uppercase}
+.time{position:relative;flex:0 0 auto}
+.thead .time{background:var(--surface-2);border-bottom:1px solid var(--line)}
+.mo{position:absolute;top:0;height:23px;border-left:1px solid var(--line);font-size:11px;font-weight:600;color:var(--ink-2);padding-left:6px;display:flex;align-items:center;white-space:nowrap;overflow:hidden}
+.dy{position:absolute;top:23px;height:23px;font-size:9.5px;color:var(--ink-3);display:flex;align-items:center;justify-content:center;font-family:"JetBrains Mono",monospace}
+.trow:not(.thead){border-bottom:1px solid var(--line-2);cursor:pointer}
+.trow:not(.thead):hover .lft,.trow:not(.thead):hover .time{background:var(--surface-2)}
+.trow.g .lft{background:var(--surface-2)}
+.trow.g:hover .lft{background:var(--brand-soft)}
+.trow.sel .lft,.trow.sel .time{background:var(--brand-soft)!important}
+.cell{padding:0 8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:12.5px}
+.c-wbs{width:54px;flex:0 0 54px;color:var(--ink-3);font-size:11px;font-family:"JetBrains Mono",monospace;display:flex;align-items:center;gap:3px}
+.c-name{flex:1 1 auto;min-width:0}
+.trow.g .c-name{font-weight:700;font-size:12px;letter-spacing:.2px;text-transform:uppercase}
+.c-lead{width:104px;flex:0 0 104px;color:var(--ink-2);font-size:11.5px}
+.c-d{width:88px;flex:0 0 88px;padding:0 6px;font-variant-numeric:tabular-nums;color:var(--ink-2);font-size:11px}
+.c-n{width:56px;flex:0 0 56px;text-align:right;font-variant-numeric:tabular-nums;font-weight:600;font-size:11.5px}
+.c-st{width:100px;flex:0 0 100px;display:flex;align-items:center;justify-content:flex-end}
+.c-act{width:44px;flex:0 0 44px;display:flex;align-items:center;justify-content:center;padding:0}
+.rowbtn{border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:6px;width:24px;height:22px;font-size:14px;line-height:1;cursor:pointer;opacity:.5;padding:0}
+.trow:hover .rowbtn{opacity:1}
+.rowbtn:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
+.sum{display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 15px;margin-bottom:11px}
+.sum .u{display:flex;flex-direction:column;gap:1px;min-width:78px}
+.sum .u b{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.sum .u span{font-size:10.5px;color:var(--ink-3);letter-spacing:.3px}
+.sum .grow{flex:1 1 190px;min-width:150px}
+.sum .grow .bar{margin-top:6px}
+.alist{display:flex;flex-direction:column}
+.ai{display:grid;grid-template-columns:104px 1fr auto;gap:12px;align-items:center;padding:8px 2px;border-bottom:1px solid var(--line-2);cursor:pointer;text-align:left;background:none;border-left:0;border-right:0;border-top:0;width:100%}
+.ai:last-child{border-bottom:0}
+.ai:hover{background:var(--surface-2)}
+.ai .nm{font-size:12.8px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ai .sb{font-size:11px;color:var(--ink-3)}
+.ai .rt{font-size:11.5px;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.secthead{display:flex;justify-content:space-between;align-items:baseline;margin:18px 0 8px}
+.secthead h2{margin:0;font-size:14.5px;font-weight:700}
+.exp{border:0;background:none;padding:0;width:13px;color:var(--ink-3);cursor:pointer;font-size:9px}
+.gbar{position:absolute;top:9px;height:18px;border-radius:5px;display:flex;align-items:center;padding:0 6px;font-size:10.5px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+.gbar.pbar{top:14px;height:8px;border-radius:2px;background:var(--brand-d)}
+.gbar.pbar::before,.gbar.pbar::after{content:"";position:absolute;bottom:-5px;border:5px solid transparent;border-top-color:var(--brand-d)}
+.gbar.pbar::before{left:0;border-right-width:0}
+.gbar.pbar::after{right:0;border-left-width:0}
+.prog{position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,.32);border-right:1.5px solid rgba(255,255,255,.6)}
+.now{position:absolute;top:0;bottom:0;width:1.5px;background:var(--today);z-index:8;pointer-events:none}
+.nowlab{position:absolute;top:26px;transform:translateX(-50%);background:var(--today);color:#fff;font-size:9.5px;font-weight:700;padding:0 5px;border-radius:4px;z-index:21;white-space:nowrap}
+.empty{padding:36px;text-align:center;color:var(--ink-3)}
+.empty h3{margin:0 0 6px;font-size:14px;color:var(--ink)}
+
+.scrim{position:fixed;inset:0;background:rgba(12,26,44,.35);z-index:60;opacity:0;pointer-events:none;transition:opacity .18s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(470px,100%);background:var(--surface);border-left:1px solid var(--line);z-index:61;transform:translateX(100%);transition:transform .22s ease;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--shadow)}
+.drawer.on{transform:none}
+.dhead{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start}
+.dhead h2{margin:0;font-size:15px;font-weight:700;line-height:1.35;text-wrap:balance}
+.dbody{overflow-y:auto;padding:14px 16px 30px;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:14px}
+#dwrap{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+.dhead{flex:0 0 auto}
+.sec{border:1px solid var(--line);border-radius:11px;padding:12px 13px;background:var(--surface-2)}
+.sec>h3{margin:0 0 9px;font-size:10.5px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--ink-3)}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.f label{display:block;font-size:11px;color:var(--ink-3);margin-bottom:3px;font-weight:500}
+.f input,.f select,.f textarea{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-size:12.5px}
+.f textarea{resize:vertical;min-height:60px}
+.f.ro input{background:var(--line-2);color:var(--ink-2)}
+.wide{grid-column:1/-1}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
+.kv:last-child{border:0}
+.kv b{font-weight:600;font-variant-numeric:tabular-nums}
+.note{border-left:3px solid var(--brand);background:var(--brand-soft);border-radius:0 8px 8px 0;padding:8px 11px;font-size:11.8px;color:var(--ink-2)}
+.note.warn{border-left-color:var(--st-pending);background:var(--st-pending-bg)}
+.log{display:flex;flex-direction:column}
+.li{display:grid;grid-template-columns:14px 1fr;gap:9px;padding-bottom:11px;position:relative}
+.li::before{content:"";position:absolute;left:6px;top:14px;bottom:0;width:1px;background:var(--line)}
+.li:last-child::before{display:none}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--brand);margin-top:5px;border:2px solid var(--surface-2);box-sizing:content-box}
+.li .m{font-size:10.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.li p{margin:1px 0 0;font-size:12.5px}
+.row2{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+.modal{position:fixed;inset:0;z-index:70;display:none;align-items:flex-start;justify-content:center;padding:6vh 16px;overflow-y:auto;background:rgba(12,26,44,.4)}
+.modal.on{display:flex}
+.mbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;width:min(560px,100%);box-shadow:var(--shadow)}
+.mbox header{padding:14px 17px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.mbox header h2{margin:0;font-size:15.5px;font-weight:700}
+.mbody{padding:15px 17px;display:flex;flex-direction:column;gap:11px}
+.mfoot{padding:12px 17px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);background:#132438;color:#fff;padding:8px 16px;border-radius:9px;font-size:12.5px;z-index:90;opacity:0;transition:.2s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.offline{margin-bottom:12px}
+@media (max-width:1180px){ :root{--lw:452px} .c-lead,.c-d{display:none} .hcol{display:none} }
+@media (max-width:860px){ .side{display:none} :root{--lw:260px} .c-n{display:none} }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brandbox"><div class="logo">TTH</div><div><b>TTH GROUP</b><span>Nền tảng điều hành số</span></div></div>
+    <div class="navwrap"><div class="navlabel">TTH GROUP</div><nav class="nav" id="nav"></nav></div>
+    <div class="clock"><b id="clk">--:--:--</b><span id="clkd">—</span></div>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <div class="search"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg>Tìm nhanh module, báo cáo…<span class="kbd">Ctrl+K</span></div>
+      <div class="chip">CN, 06/09</div>
+      <div class="whoami"><label for="who" class="tiny muted">Bạn:</label><input id="who" value="Nguyễn Hào Quang" aria-label="Tên người dùng"><div class="av" id="avi">HQ</div></div>
+    </header>
+    <main class="view" id="view"></main>
+  </div>
+</div>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true"><div id="dwrap"></div></aside>
+<div class="modal" id="modal"><div class="mbox" id="mbox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+var TODAY="2026-09-06";
+var SEED={"metas":{"PK-KHETRE":{"code":"PK-KHETRE","name":"Phòng khám Khe Tre","site":"Khe Tre, Nam Đông","lead":"Phòng Phát triển Phòng khám","anchor":"2026-08-01","planStart":"2026-08-01","planEnd":"2026-12-10","note":"Thủ tục sau 10/12/2026 (giấy phép hoạt động, ký HĐ KCB BHYT) theo dõi đến 10/02/2027","source":"TIẾN ĐỘ KHE TRE 25.8.xlsx","nTasks":132,"nDone":15,"nLate":2,"updatedAt":"2026-09-06"},"PK-QNGAI":{"code":"PK-QNGAI","name":"Phòng khám Quảng Ngãi","site":"Kho Lương thực, Quảng Ngãi","lead":"Phòng Phát triển Phòng khám","anchor":"2026-08-12","planStart":"2026-08-12","planEnd":"2027-03-12","note":"Chốt tại giao ban 17/08/2026","source":"Biên bản 176.BBTTH","nTasks":0,"nDone":0,"nLate":0,"updatedAt":"2026-08-17"},"PK-NVHOA":{"code":"PK-NVHOA","name":"Phòng khám Nhà văn hoá","site":"Bệnh viện Mắt Nguyên Phúc","lead":"Phòng Phát triển Phòng khám","anchor":"","planStart":"","planEnd":"2027-02-12","note":"Chưa chốt ngày bắt đầu","source":"Biên bản 176.BBTTH","nTasks":0,"nDone":0,"nLate":0,"updatedAt":"2026-08-17"},"PK-SONTAY":{"code":"PK-SONTAY","name":"Phòng khám Sơn Tây","site":"Hà Tĩnh","lead":"Phòng Phát triển Phòng khám","anchor":"2026-08-12","planStart":"2026-08-12","planEnd":"","note":"Chưa chốt hạn hoàn thành","source":"Biên bản 176.BBTTH","nTasks":0,"nDone":0,"nLate":0,"updatedAt":"2026-08-17"},"PK-CAOBANG":{"code":"PK-CAOBANG","name":"Phòng khám Cao Bằng","site":"Cao Bằng","lead":"Phòng Phát triển Phòng khám","anchor":"2026-08-12","planStart":"2026-08-12","planEnd":"","note":"Chưa chốt hạn hoàn thành","source":"Biên bản 176.BBTTH","nTasks":0,"nDone":0,"nLate":0,"updatedAt":"2026-08-17"}},"plans":{"PK-KHETRE":{"tasks":[{"id":"G01","lv":1,"pid":null,"wbs":"I","name":"CHUẨN BỊ – THIẾT KẾ","lead":"","coop":[],"start":null,"end":null,"st":"todo"},{"id":"G01-01","lv":2,"pid":"G01","wbs":"1","name":"Rà soát hiện trạng, yêu cầu sử dụng và phạm vi cải tạo","lead":"Phòng Thiết kế","coop":[],"start":"2026-08-01","end":"2026-08-02","st":"done","reportedAt":"2026-08-02","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-02","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G01-02","lv":2,"pid":"G01","wbs":"2","name":"Triển khai phương án thiết kế, mặt bằng và giải pháp kỹ thuật","lead":"Phòng Thiết kế","coop":[],"start":"2026-08-02","end":"2026-08-05","st":"done","reportedAt":"2026-08-05","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-05","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G01-03","lv":2,"pid":"G01","wbs":"3","name":"Hoàn thiện bản vẽ, thuyết minh và hồ sơ thiết kế","lead":"Phòng Thiết kế","coop":[],"start":"2026-08-05","end":"2026-08-07","st":"done","reportedAt":"2026-08-07","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-07","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G01-04","lv":2,"pid":"G01","wbs":"4","name":"Rà soát, chỉnh sửa và chốt hồ sơ thiết kế","lead":"Phòng Thiết kế","coop":[],"start":"2026-08-07","end":"2026-08-10","st":"done","reportedAt":"2026-08-10","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-10","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G02","lv":1,"pid":null,"wbs":"II","name":"LẬP DỰ TOÁN","lead":"","coop":[],"start":null,"end":null,"st":"todo"},{"id":"G02-01","lv":2,"pid":"G02","wbs":"1","name":"Bóc tách khối lượng từ hồ sơ thiết kế","lead":"Phòng Kỹ thuật","coop":[],"start":"2026-08-11","end":"2026-08-12","st":"done","reportedAt":"2026-08-12","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-12","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G02-02","lv":2,"pid":"G02","wbs":"2","name":"Xác lập đơn giá, chi phí vật tư, nhân công, máy","lead":"Phòng Kỹ thuật","coop":[],"start":"2026-08-12","end":"2026-08-13","st":"done","reportedAt":"2026-08-13","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-13","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G02-03","lv":2,"pid":"G02","wbs":"3","name":"Kiểm tra, hoàn thiện và phê duyệt dự toán","lead":"Phòng Kỹ thuật","coop":[],"start":"2026-08-14","end":"2026-08-15","st":"done","reportedAt":"2026-08-15","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-15","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G03","lv":1,"pid":null,"wbs":"III","name":"MỜI CHÀO & LỰA CHỌN NHÀ THẦU","lead":"","coop":[],"start":null,"end":null,"st":"todo"},{"id":"G03-01","lv":2,"pid":"G03","wbs":"1","name":"Hoàn thiện HSMT/BOQ, yêu cầu kỹ thuật và tiêu chí đánh giá","lead":"Phòng HCTH","coop":[],"start":"2026-08-16","end":"2026-08-25","st":"late"},{"id":"G03-02","lv":2,"pid":"G03","wbs":"2","name":"Phê duyệt hồ sơ và danh sách nhà thầu","lead":"Phòng HCTH","coop":[],"start":"2026-08-26","end":"2026-08-26","st":"done","reportedAt":"2026-08-26","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-26","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G03-03","lv":2,"pid":"G03","wbs":"3","name":"Phát hành mời chào/báo giá, khảo sát và làm rõ","lead":"Phòng HCTH","coop":[],"start":"2026-08-27","end":"2026-08-29","st":"done","reportedAt":"2026-08-29","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-29","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G03-04","lv":2,"pid":"G03","wbs":"4","name":"Nhận và đánh giá hồ sơ chào giá","lead":"Phòng HCTH","coop":[],"start":"2026-08-30","end":"2026-09-01","st":"done","reportedAt":"2026-09-01","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-09-01","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G03-05","lv":2,"pid":"G03","wbs":"5","name":"Đàm phán, phê duyệt kết quả và hoàn tất lựa chọn","lead":"Phòng HCTH","coop":[],"start":"2026-09-02","end":"2026-09-04","st":"pending"},{"id":"G04","lv":1,"pid":null,"wbs":"IV","name":"PHẦN PHÁ DỠ NHÀ 4 TẦNG","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G04-01","lv":2,"pid":"G04","wbs":"1","name":"Phá dỡ tường xây","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-04","end":"2026-09-08","st":"doing","pct":40},{"id":"G04-02","lv":2,"pid":"G04","wbs":"2","name":"Tháo dỡ cửa và các cấu kiện cần tháo dỡ","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-06","end":"2026-09-10","st":"doing","pct":10},{"id":"G04-03","lv":2,"pid":"G04","wbs":"3","name":"Cắt tường tạo cửa","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-09","end":"2026-09-11","st":"todo"},{"id":"G04-04","lv":2,"pid":"G04","wbs":"4","name":"Thu gom, vận chuyển phế liệu ra khỏi công trình","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-04","end":"2026-09-15","st":"doing","pct":15},{"id":"G04-05","lv":2,"pid":"G04","wbs":"5","name":"Biện pháp an toàn tháo dỡ, che chắn, vệ sinh và bàn giao mặt bằng","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-04","end":"2026-09-15","st":"doing","pct":15},{"id":"G05","lv":1,"pid":null,"wbs":"V","name":"PHẦN CẢI TẠO NHÀ 4 TẦNG","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G05-01","lv":2,"pid":"G05","wbs":"1","name":"Xây tường, xây bậc tam cấp, bồn hoa","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-09","end":"2026-09-19","st":"todo"},{"id":"G05-02","lv":2,"pid":"G05","wbs":"2","name":"Trát tường trong và hoàn thiện bề mặt xây","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-14","end":"2026-09-23","st":"todo"},{"id":"G05-03","lv":2,"pid":"G05","wbs":"3","name":"Ốp gạch tường, thành bồn hoa và ốp đá tam cấp","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-18","end":"2026-09-28","st":"todo"},{"id":"G05-04","lv":2,"pid":"G05","wbs":"4","name":"Bả, sơn trong nhà; cạo sơn cũ và sơn ngoài nhà","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-18","end":"2026-10-03","st":"todo"},{"id":"G05-05","lv":2,"pid":"G05","wbs":"5","name":"Lát nền, sàn gạch 800x800 và 600x600","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-21","end":"2026-10-01","st":"todo"},{"id":"G05-06","lv":2,"pid":"G05","wbs":"6","name":"Cửa đi, cửa kính, cửa nhôm kính, vách nhôm kính, cửa gỗ, cửa chì","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-23","end":"2026-10-07","st":"todo"},{"id":"G05-07","lv":2,"pid":"G05","wbs":"7","name":"Trần thạch cao khung nổi và khung chìm","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-25","end":"2026-10-07","st":"todo"},{"id":"G05-08","lv":2,"pid":"G05","wbs":"8","name":"Bàn đá, khung bàn đá, bê tông nền và biển hiệu","lead":"P.Kỹ thuật, MKT","coop":["BQLDA"],"start":"2026-10-01","end":"2026-10-10","st":"todo"},{"id":"G05-09","lv":2,"pid":"G05","wbs":"9","name":"Kiểm tra, sửa lỗi và hoàn thiện kiến trúc","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-08","end":"2026-10-13","st":"todo"},{"id":"G06","lv":1,"pid":null,"wbs":"VI","name":"PHẦN CẢI TẠO NHÀ 1 TẦNG","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G06-01","lv":2,"pid":"G06","wbs":"1","name":"Cạo bỏ lớp sơn cũ ngoài nhà","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-09","end":"2026-09-13","st":"todo"},{"id":"G06-02","lv":2,"pid":"G06","wbs":"2","name":"Sơn ngoài nhà 1 nước lót, 2 nước phủ","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-14","end":"2026-09-21","st":"todo"},{"id":"G06-03","lv":2,"pid":"G06","wbs":"3","name":"Ốp đá","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-21","end":"2026-09-28","st":"todo"},{"id":"G07","lv":1,"pid":null,"wbs":"VII","name":"PHẦN HÀNG RÀO VÀ CỔNG","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G07-01","lv":2,"pid":"G07","wbs":"1","name":"Dọn dẹp mặt bằng, nhổ cỏ","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-09","end":"2026-09-13","st":"todo"},{"id":"G07-02","lv":2,"pid":"G07","wbs":"2","name":"Sơn lại cổng, hàng rào và hoàn thiện","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-28","end":"2026-10-03","st":"todo"},{"id":"G08","lv":1,"pid":null,"wbs":"VIII","name":"HỆ THỐNG ĐIỆN","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G08-01","lv":2,"pid":"G08","wbs":"1","name":"Cắt đục tường/sàn, tạo rãnh và lỗ chờ","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-14","end":"2026-09-23","st":"todo"},{"id":"G08-02","lv":2,"pid":"G08","wbs":"2","name":"Lắp ống luồn dây âm tường/âm sàn, hộp âm, hộp chia và ống chờ","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-19","end":"2026-10-01","st":"todo"},{"id":"G08-03","lv":2,"pid":"G08","wbs":"3","name":"Lắp máng cáp, thang cáp, giá đỡ và tuyến cáp kỹ thuật","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-25","end":"2026-10-08","st":"todo"},{"id":"G08-04","lv":2,"pid":"G08","wbs":"4","name":"Tủ điện tổng, tủ điện tầng, tủ thiết bị, MCCB/MCB","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-14","end":"2026-09-28","st":"todo"},{"id":"G08-05","lv":2,"pid":"G08","wbs":"5","name":"Ống luồn dây PVC, ống ruột gà, hộp chia, máng cáp và phụ kiện","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-18","end":"2026-10-08","st":"todo"},{"id":"G08-06","lv":2,"pid":"G08","wbs":"6","name":"Kéo rải dây dẫn các loại và dây tiếp địa","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-28","end":"2026-10-15","st":"todo"},{"id":"G08-07","lv":2,"pid":"G08","wbs":"7","name":"Đèn, công tắc, ổ cắm, quạt và thiết bị điện","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-08","end":"2026-10-22","st":"todo"},{"id":"G08-08","lv":2,"pid":"G08","wbs":"8","name":"Đấu nối, đo kiểm, chạy thử và khắc phục tồn tại","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-23","end":"2026-10-29","st":"todo"},{"id":"G09","lv":1,"pid":null,"wbs":"IX","name":"HỆ THỐNG NƯỚC","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G09-01","lv":2,"pid":"G09","wbs":"1","name":"Cắt đục tường/sàn, tạo rãnh và lỗ chờ cấp thoát nước","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-14","end":"2026-09-23","st":"todo"},{"id":"G09-02","lv":2,"pid":"G09","wbs":"2","name":"Lắp ống cấp PPR âm tường/âm sàn, ống thoát và phụ kiện","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-19","end":"2026-10-05","st":"todo"},{"id":"G09-03","lv":2,"pid":"G09","wbs":"3","name":"Lắp ống đứng, tuyến ống chính, giá đỡ và đầu chờ thiết bị","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-28","end":"2026-10-13","st":"todo"},{"id":"G09-04","lv":2,"pid":"G09","wbs":"4","name":"Lắp đặt chậu rửa, lavabo, vòi, thiết bị cảm ứng và máy sấy tay","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-14","end":"2026-10-03","st":"todo"},{"id":"G09-05","lv":2,"pid":"G09","wbs":"5","name":"Cút, tê, măng sông, van, quang treo, ty ren và phụ kiện PPR","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-18","end":"2026-10-08","st":"todo"},{"id":"G09-06","lv":2,"pid":"G09","wbs":"6","name":"Lắp đặt tuyến ống PPR và ống thoát","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-28","end":"2026-10-19","st":"todo"},{"id":"G09-07","lv":2,"pid":"G09","wbs":"7","name":"Thử áp, thử kín, súc xả và nghiệm thu","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-20","end":"2026-10-29","st":"todo"},{"id":"G10","lv":1,"pid":null,"wbs":"X","name":"HỆ THỐNG ĐIỆN NHẸ","lead":"P.TBTN","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G10-01","lv":2,"pid":"G10","wbs":"1","name":"Cắt đục, tạo lỗ chờ và tuyến ống âm","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-09-28","end":"2026-10-08","st":"todo"},{"id":"G10-02","lv":2,"pid":"G10","wbs":"2","name":"Lắp ống luồn, hộp kỹ thuật, máng/thang cáp và dây chờ CAT6/cáp quang","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-03","end":"2026-10-15","st":"todo"},{"id":"G10-03","lv":2,"pid":"G10","wbs":"3","name":"Hạ tầng cáp CAT5E/CAT6/AWG, cáp quang, nẹp, máng, thang cáp và phụ kiện","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-09-28","end":"2026-10-15","st":"todo"},{"id":"G10-04","lv":2,"pid":"G10","wbs":"4","name":"Camera, Wifi, loa, Amply, Micro, máy chấm công và hệ thống hiển thị","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-08","end":"2026-10-29","st":"todo"},{"id":"G10-05","lv":2,"pid":"G10","wbs":"5","name":"Tủ mạng, switch, router, ODF, UPS, NVR, máy chủ và phụ kiện","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-15","end":"2026-11-01","st":"todo"},{"id":"G10-06","lv":2,"pid":"G10","wbs":"6","name":"Máy tính, máy in, tivi, màn hình, giá treo và thiết bị đầu cuối","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-22","end":"2026-11-03","st":"todo"},{"id":"G10-07","lv":2,"pid":"G10","wbs":"7","name":"Đấu nối, cấu hình, kiểm tra và chạy thử toàn hệ thống","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-11-02","end":"2026-11-08","st":"todo"},{"id":"G11","lv":1,"pid":null,"wbs":"XI","name":"HỆ THỐNG KHÍ Y TẾ","lead":"P.TBTN","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G11-01","lv":2,"pid":"G11","wbs":"1","name":"Cắt đục tường/sàn, tạo rãnh và lỗ chờ","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-09-28","end":"2026-10-05","st":"todo"},{"id":"G11-02","lv":2,"pid":"G11","wbs":"2","name":"Lắp ống đồng/ống khí y tế, giá đỡ, phụ kiện và tuyến ống chính","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-03","end":"2026-10-19","st":"todo"},{"id":"G11-03","lv":2,"pid":"G11","wbs":"3","name":"Lắp van khu vực, hộp khí, đầu chờ và hoàn trả rãnh","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-15","end":"2026-10-26","st":"todo"},{"id":"G11-04","lv":2,"pid":"G11","wbs":"4","name":"Ống đồng, ống PPR, cút, tê, van và phụ kiện","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-09-28","end":"2026-10-15","st":"todo"},{"id":"G11-05","lv":2,"pid":"G11","wbs":"5","name":"Bộ hạ áp, máy sấy khí, bình khí, máy nén khí và tủ cấp nguồn","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-15","end":"2026-10-26","st":"todo"},{"id":"G11-06","lv":2,"pid":"G11","wbs":"6","name":"Bộ gộp khí, hộp khí, đấu nối và hoàn thiện","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-22","end":"2026-10-29","st":"todo"},{"id":"G11-07","lv":2,"pid":"G11","wbs":"7","name":"Thử kín, thử áp, kiểm tra chất lượng và nghiệm thu","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-30","end":"2026-11-03","st":"todo"},{"id":"G12","lv":1,"pid":null,"wbs":"XII","name":"HỆ THỐNG PCCC","lead":"P.TBTN","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G12-01","lv":2,"pid":"G12","wbs":"1","name":"Cắt đục, khoan xuyên tường/sàn, tạo lỗ chờ","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-09-28","end":"2026-10-08","st":"todo"},{"id":"G12-02","lv":2,"pid":"G12","wbs":"2","name":"Lắp ống kẽm PCCC, giá đỡ, ty treo, van và phụ kiện","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-03","end":"2026-10-24","st":"todo"},{"id":"G12-03","lv":2,"pid":"G12","wbs":"3","name":"Lắp ống luồn dây báo cháy, hộp kỹ thuật và dây chờ","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-08","end":"2026-10-22","st":"todo"},{"id":"G12-04","lv":2,"pid":"G12","wbs":"4","name":"Bịt xuyên sàn và hoàn trả xây dựng","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-15","end":"2026-10-29","st":"todo"},{"id":"G12-05","lv":2,"pid":"G12","wbs":"5","name":"Kéo rải dây tín hiệu và ống PVC/ống mềm luồn dây","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-09-28","end":"2026-10-15","st":"todo"},{"id":"G12-06","lv":2,"pid":"G12","wbs":"6","name":"Đầu báo, chuông đèn, module, hộp kỹ thuật và tủ báo cháy","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-08","end":"2026-10-29","st":"todo"},{"id":"G12-07","lv":2,"pid":"G12","wbs":"7","name":"Bình chữa cháy, đèn thoát hiểm, đèn sự cố, biển chỉ dẫn","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-15","end":"2026-11-03","st":"todo"},{"id":"G12-08","lv":2,"pid":"G12","wbs":"8","name":"Đấu nối, lập trình, kiểm tra liên động, chạy thử và hoàn thiện hồ sơ","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-30","end":"2026-11-13","st":"todo"},{"id":"G13","lv":1,"pid":null,"wbs":"XIII","name":"HỆ THỐNG ĐIỀU HÒA THÔNG GIÓ","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G13-01","lv":2,"pid":"G13","wbs":"1","name":"Cắt đục, khoan xuyên tường/sàn và tạo lỗ chờ","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-03","end":"2026-10-13","st":"todo"},{"id":"G13-02","lv":2,"pid":"G13","wbs":"2","name":"Lắp ống đồng gas, giá đỡ và tuyến ống chính","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-08","end":"2026-10-26","st":"todo"},{"id":"G13-03","lv":2,"pid":"G13","wbs":"3","name":"Lắp ống nước ngưng và bảo ôn","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-15","end":"2026-10-29","st":"todo"},{"id":"G13-04","lv":2,"pid":"G13","wbs":"4","name":"Lắp ống gió, giá treo và phụ kiện thông gió","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-08","end":"2026-10-29","st":"todo"},{"id":"G13-05","lv":2,"pid":"G13","wbs":"5","name":"Lắp đặt dàn nóng ODU và giá đỡ","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-03","end":"2026-10-19","st":"todo"},{"id":"G13-06","lv":2,"pid":"G13","wbs":"6","name":"Lắp đặt dàn lạnh các công suất","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-15","end":"2026-11-03","st":"todo"},{"id":"G13-07","lv":2,"pid":"G13","wbs":"7","name":"Lắp đặt ống gió, phụ kiện và hệ thống liên quan","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-15","end":"2026-11-03","st":"todo"},{"id":"G13-08","lv":2,"pid":"G13","wbs":"8","name":"Đấu nối, bảo ôn, kiểm tra, chạy thử và cân chỉnh","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-11-04","end":"2026-11-18","st":"todo"},{"id":"G14","lv":1,"pid":null,"wbs":"XIV","name":"HỆ THỐNG RO","lead":"P.TBTN","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G14-01","lv":2,"pid":"G14","wbs":"1","name":"Lắp đặt tuyến ống cấp nước RO, ống hồi và giá đỡ","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-20","end":"2026-10-31","st":"todo"},{"id":"G14-02","lv":2,"pid":"G14","wbs":"2","name":"Lắp đặt cụm xử lý RO: tiền xử lý, màng RO, bồn chứa và bơm","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-25","end":"2026-11-08","st":"todo"},{"id":"G14-03","lv":2,"pid":"G14","wbs":"3","name":"Lắp đặt tủ điện, điều khiển, cảm biến và đấu nối hệ thống RO","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-11-01","end":"2026-11-10","st":"todo"},{"id":"G14-04","lv":2,"pid":"G14","wbs":"4","name":"Súc rửa, khử trùng, kiểm tra chất lượng nước, chạy thử và nghiệm thu","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-11-09","end":"2026-11-15","st":"todo"},{"id":"G15","lv":1,"pid":null,"wbs":"XV","name":"THI CÔNG TRẠM BIẾN ÁP 300 kVA","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G15-01","lv":2,"pid":"G15","wbs":"1","name":"Thi công móng bệ TBA, rãnh cáp và hệ thống tiếp địa","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-21","end":"2026-10-02","st":"todo"},{"id":"G15-02","lv":2,"pid":"G15","wbs":"2","name":"Lắp đặt tủ trung thế, máy biến áp 300 kVA và tủ điện hạ thế","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-03","end":"2026-10-15","st":"todo"},{"id":"G15-03","lv":2,"pid":"G15","wbs":"3","name":"Thi công cáp trung thế/hạ thế, đầu cáp và đấu nối","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-10","end":"2026-10-24","st":"todo"},{"id":"G15-04","lv":2,"pid":"G15","wbs":"4","name":"Hoàn thiện tiếp địa, chống sét và kiểm tra hệ thống bảo vệ","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-18","end":"2026-10-28","st":"todo"},{"id":"G15-05","lv":2,"pid":"G15","wbs":"5","name":"Thí nghiệm điện, kiểm định, đóng điện và nghiệm thu TBA","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-29","end":"2026-11-05","st":"todo"},{"id":"G16","lv":1,"pid":null,"wbs":"XVI","name":"THI CÔNG KẾT CẤU BỂ XLNT","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G16-01","lv":2,"pid":"G16","wbs":"1","name":"Định vị, đào đất, xử lý nền và chuẩn bị mặt bằng","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-09","end":"2026-09-18","st":"todo"},{"id":"G16-02","lv":2,"pid":"G16","wbs":"2","name":"Bê tông lót, cốt thép và cốp pha đáy bể","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-19","end":"2026-09-28","st":"todo"},{"id":"G16-03","lv":2,"pid":"G16","wbs":"3","name":"Đổ bê tông đáy bể, xử lý mạch ngừng và chống thấm","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-09-29","end":"2026-10-03","st":"todo"},{"id":"G16-04","lv":2,"pid":"G16","wbs":"4","name":"Cốt thép, cốp pha và đổ bê tông thành bể/vách ngăn","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-01","end":"2026-10-13","st":"todo"},{"id":"G16-05","lv":2,"pid":"G16","wbs":"5","name":"Nắp bể, cổ ống, lỗ thăm và chi tiết chờ thiết bị công nghệ","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-11","end":"2026-10-19","st":"todo"},{"id":"G16-06","lv":2,"pid":"G16","wbs":"6","name":"Chống thấm, thử nước và hoàn thiện kết cấu bể","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-10-15","end":"2026-10-24","st":"todo"},{"id":"G17","lv":1,"pid":null,"wbs":"XVII","name":"HỆ THỐNG XLNT CÔNG SUẤT 15 m³/NGÀY ĐÊM","lead":"P.TBTN","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G17-01","lv":2,"pid":"G17","wbs":"1","name":"Lắp bơm, thiết bị tiền xử lý và thiết bị cơ khí trong bể","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-25","end":"2026-11-03","st":"todo"},{"id":"G17-02","lv":2,"pid":"G17","wbs":"2","name":"Lắp đường ống công nghệ, van, giá đỡ và phụ kiện","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-10-29","end":"2026-11-08","st":"todo"},{"id":"G17-03","lv":2,"pid":"G17","wbs":"3","name":"Lắp máy thổi khí, đường khí và hệ thống phân phối khí","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-11-03","end":"2026-11-13","st":"todo"},{"id":"G17-04","lv":2,"pid":"G17","wbs":"4","name":"Lắp tủ điện điều khiển, cáp nguồn, cáp tín hiệu và đấu nối","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-11-08","end":"2026-11-16","st":"todo"},{"id":"G17-05","lv":2,"pid":"G17","wbs":"5","name":"Lắp thiết bị đo, điều khiển và thiết bị phụ trợ","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-11-11","end":"2026-11-18","st":"todo"},{"id":"G17-06","lv":2,"pid":"G17","wbs":"6","name":"Vệ sinh hệ thống, kiểm tra kín nước và hoàn thiện","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-11-14","end":"2026-11-19","st":"todo"},{"id":"G17-07","lv":2,"pid":"G17","wbs":"7","name":"Chạy thử không tải, có tải và hiệu chỉnh công nghệ","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-11-14","end":"2026-11-23","st":"todo"},{"id":"G17-08","lv":2,"pid":"G17","wbs":"8","name":"Lấy mẫu, hoàn thiện hồ sơ vận hành và nghiệm thu","lead":"P.TBTN","coop":["BQLDA"],"start":"2026-11-21","end":"2026-11-25","st":"todo"},{"id":"G18","lv":1,"pid":null,"wbs":"XVIII","name":"CHẠY THỬ ĐỒNG BỘ, HOÀN CÔNG, BÀN GIAO","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":null,"end":null,"st":"todo"},{"id":"G18-01","lv":2,"pid":"G18","wbs":"1","name":"Đo kiểm điện, thử áp nước, thử kín khí y tế, kiểm tra PCCC","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-11-19","end":"2026-11-25","st":"todo"},{"id":"G18-02","lv":2,"pid":"G18","wbs":"2","name":"Chạy thử điều hòa – thông gió và cân chỉnh","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-11-20","end":"2026-11-25","st":"todo"},{"id":"G18-03","lv":2,"pid":"G18","wbs":"3","name":"Chạy thử điện nhẹ và cấu hình hệ thống","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-11-21","end":"2026-11-26","st":"todo"},{"id":"G18-04","lv":2,"pid":"G18","wbs":"4","name":"Hoàn thiện QA/QC, CO/CQ, bản vẽ hoàn công, hồ sơ vận hành","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-11-22","end":"2026-11-29","st":"todo"},{"id":"G18-05","lv":2,"pid":"G18","wbs":"5","name":"Nghiệm thu tổng thể","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-11-27","end":"2026-12-01","st":"todo"},{"id":"G18-06","lv":2,"pid":"G18","wbs":"6","name":"Vệ sinh, bàn giao hồ sơ và đưa công trình vào sử dụng","lead":"P.Kỹ thuật","coop":["BQLDA"],"start":"2026-12-02","end":"2026-12-03","st":"todo"},{"id":"G19","lv":1,"pid":null,"wbs":"XIX","name":"TUYỂN DỤNG","lead":"","coop":[],"start":null,"end":null,"st":"todo"},{"id":"G19-01","lv":2,"pid":"G19","wbs":"1","name":"Xác định cơ cấu nhân sự, định biên và mô tả vị trí","lead":"Phòng PTPK","coop":[],"start":"2026-08-10","end":"2026-08-19","st":"done","reportedAt":"2026-08-19","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-19","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G19-02","lv":2,"pid":"G19","wbs":"2","name":"Đăng tuyển, tiếp nhận và sàng lọc hồ sơ","lead":"Phòng PTPK","coop":[],"start":"2026-08-20","end":"2026-09-10","st":"doing","pct":75},{"id":"G19-03","lv":2,"pid":"G19","wbs":"3","name":"Phỏng vấn, kiểm tra chuyên môn và lựa chọn","lead":"Phòng PTPK","coop":[],"start":"2026-09-11","end":"2026-10-05","st":"todo"},{"id":"G19-04","lv":2,"pid":"G19","wbs":"4","name":"Hoàn thiện hồ sơ, ký hợp đồng và tiếp nhận nhân sự","lead":"Phòng PTPK","coop":[],"start":"2026-10-06","end":"2026-11-28","st":"todo"},{"id":"G20","lv":1,"pid":null,"wbs":"XX","name":"MÁY MÓC, THIẾT BỊ Y TẾ","lead":"","coop":[],"start":null,"end":null,"st":"todo"},{"id":"G20-01","lv":2,"pid":"G20","wbs":"1","name":"Chốt danh mục, thông số kỹ thuật và nhu cầu","lead":"Phòng TBYT","coop":["Cung ứng"],"start":"2026-08-20","end":"2026-08-23","st":"done","reportedAt":"2026-08-23","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-23","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G20-02","lv":2,"pid":"G20","wbs":"2","name":"Lập yêu cầu báo giá, thẩm định cấu hình và lựa chọn nhà cung cấp","lead":"Phòng Cung ứng","coop":[],"start":"2026-08-21","end":"2026-09-10","st":"doing","pct":75},{"id":"G20-03","lv":2,"pid":"G20","wbs":"3","name":"Đặt hàng, sản xuất/giao hàng","lead":"Phòng Cung ứng","coop":[],"start":"2026-09-11","end":"2026-10-31","st":"todo"},{"id":"G20-04","lv":2,"pid":"G20","wbs":"4","name":"Lắp đặt, kiểm tra, chạy thử và nghiệm thu","lead":"Phòng TBYT","coop":[],"start":"2026-11-01","end":"2026-11-23","st":"todo"},{"id":"G21","lv":1,"pid":null,"wbs":"XXI","name":"DƯỢC & VẬT TƯ Y TẾ","lead":"","coop":[],"start":null,"end":null,"st":"todo"},{"id":"G21-01","lv":2,"pid":"G21","wbs":"1","name":"Rà soát danh mục, định mức và nhu cầu tồn kho","lead":"Phòng Cung ứng","coop":[],"start":"2026-08-10","end":"2026-08-20","st":"done","reportedAt":"2026-08-20","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-20","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G21-02","lv":2,"pid":"G21","wbs":"2","name":"Lập danh mục, tiêu chuẩn, hồ sơ mua sắm","lead":"Phòng Cung ứng","coop":[],"start":"2026-08-21","end":"2026-09-05","st":"late"},{"id":"G21-03","lv":2,"pid":"G21","wbs":"3","name":"Chào giá/lựa chọn nhà cung cấp và đặt hàng","lead":"Phòng Cung ứng","coop":[],"start":"2026-09-06","end":"2026-10-10","st":"doing","pct":10},{"id":"G21-04","lv":2,"pid":"G21","wbs":"4","name":"Giao nhận, kiểm nhập, sắp xếp kho và hoàn thiện hồ sơ","lead":"Phòng Cung ứng","coop":[],"start":"2026-10-11","end":"2026-12-10","st":"todo"},{"id":"G22","lv":1,"pid":null,"wbs":"XXII","name":"TRUYỀN THÔNG, MARKETING","lead":"","coop":[],"start":null,"end":null,"st":"todo"},{"id":"G22-01","lv":2,"pid":"G22","wbs":"1","name":"Xây dựng kế hoạch truyền thông, nhận diện và thông điệp khai trương","lead":"Phòng Marketing","coop":[],"start":"2026-08-10","end":"2026-08-20","st":"done","reportedAt":"2026-08-20","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-20","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G22-02","lv":2,"pid":"G22","wbs":"2","name":"Chuẩn bị nội dung, hình ảnh, kênh truyền thông và lịch triển khai","lead":"Phòng Marketing","coop":[],"start":"2026-08-21","end":"2026-09-20","st":"doing","pct":50},{"id":"G22-03","lv":2,"pid":"G22","wbs":"3","name":"Triển khai truyền thông trước khai trương","lead":"Phòng Marketing","coop":[],"start":"2026-09-21","end":"2026-11-10","st":"todo"},{"id":"G22-04","lv":2,"pid":"G22","wbs":"4","name":"Truyền thông cao điểm, phối hợp khai trương và tối ưu chiến dịch","lead":"Phòng Marketing","coop":[],"start":"2026-11-11","end":"2026-12-04","st":"todo"},{"id":"G23","lv":1,"pid":null,"wbs":"XXIII","name":"WEBSITE, HỆ THỐNG MAIL, HIS","lead":"","coop":[],"start":null,"end":null,"st":"todo"},{"id":"G23-01","lv":2,"pid":"G23","wbs":"1","name":"Khảo sát yêu cầu, kiến trúc hệ thống và phân quyền","lead":"Phòng Số hóa","coop":[],"start":"2026-08-10","end":"2026-08-20","st":"done","reportedAt":"2026-08-20","reportedBy":"Nguyễn Thị Lan (PTPK)","validatedAt":"2026-08-20","validatedBy":"Thái Hữu Đặng (TP.PTPK)"},{"id":"G23-02","lv":2,"pid":"G23","wbs":"2","name":"Thiết kế website, mail và cấu hình HIS","lead":"Phòng Số hóa","coop":[],"start":"2026-08-21","end":"2026-09-30","st":"doing","pct":35},{"id":"G23-03","lv":2,"pid":"G23","wbs":"3","name":"Tích hợp, nhập dữ liệu, cấu hình quy trình nghiệp vụ","lead":"Phòng Số hóa","coop":[],"start":"2026-10-01","end":"2026-11-10","st":"todo"},{"id":"G23-04","lv":2,"pid":"G23","wbs":"4","name":"Kiểm thử, đào tạo người dùng, nghiệm thu và vận hành thử","lead":"Phòng Số hóa","coop":[],"start":"2026-11-11","end":"2026-11-29","st":"todo"},{"id":"G24","lv":1,"pid":null,"wbs":"XXIV","name":"THỦ TỤC SAU 10/12/2026","lead":"","coop":[],"start":null,"end":null,"st":"todo"},{"id":"G24-01","lv":2,"pid":"G24","wbs":"1","name":"Chuẩn bị và nộp hồ sơ xin Giấy phép hoạt động","lead":"Phòng NVY","coop":[],"start":"2026-12-11","end":"2026-12-17","st":"todo"},{"id":"G24-02","lv":2,"pid":"G24","wbs":"2","name":"Bổ sung/giải trình hồ sơ và phối hợp thẩm định","lead":"Phòng NVY","coop":["Các đơn vị"],"start":"2026-12-18","end":"2026-12-31","st":"todo"},{"id":"G24-03","lv":2,"pid":"G24","wbs":"3","name":"Nhận và hoàn tất Giấy phép hoạt động","lead":"Phòng NVY","coop":[],"start":"2027-01-01","end":"2027-01-10","st":"todo"},{"id":"G25","lv":1,"pid":null,"wbs":"XXV","name":"KÝ HỢP ĐỒNG KCB BHYT","lead":"","coop":[],"start":null,"end":null,"st":"todo"},{"id":"G25-01","lv":2,"pid":"G25","wbs":"1","name":"Chuẩn bị hồ sơ, rà soát điều kiện và biểu mẫu ký hợp đồng","lead":"Phòng NVY","coop":["PTPK"],"start":"2026-12-11","end":"2026-12-20","st":"todo"},{"id":"G25-02","lv":2,"pid":"G25","wbs":"2","name":"Hoàn thiện hồ sơ, danh mục dịch vụ, nhân lực và cơ sở vật chất","lead":"Phòng NVY","coop":["PTPK"],"start":"2026-12-21","end":"2027-01-10","st":"todo"},{"id":"G25-03","lv":2,"pid":"G25","wbs":"3","name":"Làm việc, bổ sung/giải trình hồ sơ với cơ quan BHXH","lead":"Phòng NVY","coop":["PTPK"],"start":"2027-01-11","end":"2027-01-31","st":"todo"},{"id":"G25-04","lv":2,"pid":"G25","wbs":"4","name":"Hoàn tất ký hợp đồng KCB BHYT","lead":"Phòng NVY","coop":["PTPK"],"start":"2027-02-01","end":"2027-02-10","st":"todo"}]}},"logs":{"PK-KHETRE":{"byTask":{"G01-01":{"entries":[{"at":"2026-08-01","by":"Nguyễn Thị Lan (PTPK)","text":"Đã khảo sát hiện trạng nhà 4 tầng và nhà 1 tầng, chụp 42 ảnh hiện trạng.","kind":"note"},{"at":"2026-08-02","by":"Nguyễn Thị Lan (PTPK)","text":"Chốt phạm vi cải tạo với Phòng Thiết kế. Hoàn thành.","kind":"note"}]},"G04-04":{"entries":[{"at":"2026-09-04","by":"Phạm Huy Hồng","text":"Bắt đầu thu gom phế liệu tầng 1–2.","kind":"note"},{"at":"2026-09-05","by":"Phạm Huy Hồng","text":"Xe vận chuyển bị vướng giấy phép ra vào, chậm 1 ngày. Nguyên nhân khách quan.","kind":"note"}]},"G03-05":{"entries":[{"at":"2026-09-02","by":"Phòng HCTH","text":"Đàm phán vòng 1 với 2 nhà thầu.","kind":"note"},{"at":"2026-09-04","by":"Phòng HCTH","text":"Đã có kết quả lựa chọn, đang trình phê duyệt.","kind":"note"}]},"G19-02":{"entries":[{"at":"2026-08-25","by":"Phòng PTPK","text":"Đăng tuyển trên 3 kênh, nhận 58 hồ sơ.","kind":"note"},{"at":"2026-09-03","by":"Phòng PTPK","text":"Sàng lọc còn 21 hồ sơ đạt vòng 1.","kind":"note"}]},"G23-02":{"entries":[{"at":"2026-09-01","by":"Phòng Số hóa","text":"Đã dựng khung website, đang chờ nội dung từ Marketing.","kind":"note"},{"at":"2026-09-05","by":"Phòng Số hóa","text":"Cấu hình HIS: xong danh mục khoa phòng, còn phân quyền.","kind":"note"}]}}}}};
+var STOREKEY="pk_tiendo_v2";
+var ST={todo:["Chưa bắt đầu","p-todo","--st-todo"],doing:["Đang thực hiện","p-doing","--st-doing"],
+        pending:["Chờ xác nhận","p-pending","--st-pending"],done:["Hoàn thành","p-done","--st-done"],
+        late:["Trễ hạn","p-late","--st-late"]};
+var STK=["todo","doing","pending","done","late"];
+var metas=[], plan=null, logs={byTask:{}}, cur=null, bstate="init";
+var ui={page:"home",zoom:"day",q:"",lead:"",st:"",sel:null,closed:{}};
+
+function $(s){return document.querySelector(s)}
+function all(s){return Array.prototype.slice.call(document.querySelectorAll(s))}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function D(s){var p=String(s).split("-");return new Date(+p[0],+p[1]-1,+p[2])}
+function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function vn(s){if(!s)return "—";var p=String(s).split("-");return p[2]+"/"+p[1]+"/"+p[0]}
+function vns(s){if(!s)return "—";var p=String(s).split("-");return p[2]+"/"+p[1]}
+function days(a,b){return Math.round((D(b)-D(a))/864e5)+1}
+function diffd(a,b){return Math.round((D(b)-D(a))/864e5)}
+function shift(s,n){if(!s)return s;return iso(new Date(D(s).getTime()+n*864e5))}
+function toast(m){var t=$("#toast");t.textContent=m;t.classList.add("on");clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove("on")},2200)}
+function who(){return ($("#who").value||"Người dùng").trim()}
+function initials(n){var p=n.trim().split(/\s+/);return ((p[0]||"")[0]||"")+((p[p.length-1]||"")[0]||"")}
+function meta(id){for(var i=0;i<metas.length;i++)if(metas[i].code===id)return metas[i];return null}
+function uid(){return "T"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36)}
+var ROMAN=["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII","XIII","XIV","XV","XVI","XVII","XVIII","XIX","XX","XXI","XXII","XXIII","XXIV","XXV","XXVI","XXVII","XXVIII","XXIX","XXX","XXXI","XXXII","XXXIII","XXXIV","XXXV"];
+function byId(id){var a=tasks();for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null}
+function rebuild(){
+  var gs=tasks().filter(function(t){return t.lv===1}),out=[];
+  gs.forEach(function(g,i){
+    g.wbs=ROMAN[i]||String(i+1);out.push(g);
+    kids(g.id).forEach(function(c,j){c.wbs=String(j+1);out.push(c)});
+  });
+  var ids={};gs.forEach(function(g){ids[g.id]=1});
+  tasks().forEach(function(t){if(t.lv===2&&!ids[t.pid])out.push(t)});
+  plan.tasks=out;
+}
+function addGroupAt(name){
+  plan.tasks.push({id:uid(),lv:1,pid:null,wbs:"",name:name,lead:"",coop:[],start:null,end:null,st:"todo"});
+  rebuild();savePlan();
+}
+function addChild(gid,name,st0,en0){
+  var g=byId(gid),k=kids(gid);
+  var t={id:uid(),lv:2,pid:gid,wbs:"",name:name,lead:g&&g.lead||"",coop:[],
+         start:st0||(k.length?k[k.length-1].end:null)||meta(cur).planStart||TODAY,
+         end:en0||null,st:"todo"};
+  if(!t.end)t.end=shift(t.start,2);
+  var i=plan.tasks.indexOf(k.length?k[k.length-1]:g);
+  plan.tasks.splice(i+1,0,t);
+  rebuild();savePlan();return t.id;
+}
+function delTask(id){
+  var t=byId(id);if(!t)return;
+  var ids=[id];
+  if(t.lv===1)kids(id).forEach(function(c){ids.push(c.id)});
+  plan.tasks=tasks().filter(function(x){return ids.indexOf(x.id)<0});
+  ids.forEach(function(i){delete logs.byTask[i]});
+  rebuild();savePlan();saveLogs();
+}
+function dupTask(id){
+  var t=byId(id);if(!t||t.lv!==2)return null;
+  var o=Object.assign({},t);o.id=uid();o.name=t.name+" (bản sao)";o.st="todo";
+  ["pct","reportedAt","reportedBy","validatedAt","validatedBy","validNote","cause","why"].forEach(function(k){delete o[k]});
+  plan.tasks.splice(tasks().indexOf(t)+1,0,o);rebuild();savePlan();return o.id;
+}
+function moveTask(id,dir){
+  var a=plan.tasks,t=byId(id),i=a.indexOf(t);
+  if(t.lv===2){
+    var j=i+dir;
+    if(j<0||j>=a.length)return;
+    if(a[j].lv!==2||a[j].pid!==t.pid)return;
+    a[i]=a[j];a[j]=t;
+  }else{
+    var gs=a.filter(function(x){return x.lv===1}),gi=gs.indexOf(t),gj=gi+dir;
+    if(gj<0||gj>=gs.length)return;
+    var tmp=gs[gi];gs[gi]=gs[gj];gs[gj]=tmp;
+    var out=[];gs.forEach(function(g){out.push(g);kids(g.id).forEach(function(c){out.push(c)})});
+    plan.tasks=out;
+  }
+  rebuild();savePlan();
+}
+function promptModal(title,label,val,cb){
+  $("#mbox").innerHTML='<header><h2>'+esc(title)+'</h2><button class="btn" id="mx">✕</button></header>'+
+    '<div class="mbody"><div class="f"><label for="p-v">'+esc(label)+'</label><textarea id="p-v" rows="2">'+esc(val||"")+'</textarea></div></div>'+
+    '<div class="mfoot"><button class="btn" id="mc">Huỷ</button><button class="btn pri" id="mo">Xong</button></div>';
+  $("#modal").classList.add("on");
+  var close=function(){$("#modal").classList.remove("on")};
+  $("#mx").onclick=close;$("#mc").onclick=close;
+  var el=document.getElementById("p-v");el.focus();
+  $("#mo").onclick=function(){var v=el.value.trim();if(!v){toast("Chưa nhập nội dung");return}close();cb(v)};
+}
+
+function tasks(){return plan&&plan.tasks?plan.tasks:[]}
+function kids(id){return tasks().filter(function(t){return t.pid===id})}
+function span(t){
+  if(t.lv===2)return {s:t.start,e:t.end};
+  var s=null,e=null;
+  kids(t.id).forEach(function(c){if(c.start&&(!s||c.start<s))s=c.start;if(c.end&&(!e||c.end>e))e=c.end});
+  return {s:s,e:e};
+}
+function gstatus(t){
+  var k=kids(t.id); if(!k.length)return "todo";
+  if(k.some(function(c){return c.st==="late"}))return "late";
+  if(k.every(function(c){return c.st==="done"}))return "done";
+  if(k.some(function(c){return c.st==="doing"||c.st==="pending"||c.st==="done"}))return "doing";
+  return "todo";
+}
+function stOf(t){return t.lv===1?gstatus(t):t.st}
+function leads(){var s={};tasks().forEach(function(t){if(t.lv===2&&t.lead)s[t.lead]=1});
+  metas.forEach(function(m){if(m.lead)s[m.lead]=1});return Object.keys(s).sort()}
+function rollup(){
+  var ch=tasks().filter(function(t){return t.lv===2});
+  return {nTasks:ch.length,nDone:ch.filter(function(t){return t.st==="done"}).length,
+          nLate:ch.filter(function(t){return t.st==="late"}).length};
+}
+function pctOf(m){return m.nTasks?Math.round(100*m.nDone/m.nTasks):0}
+
+/* ===ADAPTER-START=== */
+var DATA=null;
+function persist(){try{localStorage.setItem(STOREKEY,JSON.stringify(DATA))}catch(x){}}
+function syncMetas(){metas=Object.keys(DATA.metas).map(function(k){return DATA.metas[k]}).sort(function(a,b){return a.code<b.code?-1:1})}
+function boot(){
+  DATA=null;
+  try{var r=localStorage.getItem(STOREKEY);if(r){var o=JSON.parse(r);if(o&&o.metas)DATA=o}}catch(x){}
+  if(!DATA)DATA=JSON.parse(JSON.stringify(SEED));
+  if(!DATA.plans)DATA.plans={};if(!DATA.logs)DATA.logs={};
+  bstate="local";syncMetas();render();
+}
+function openProject(pid){
+  cur=pid;
+  plan=JSON.parse(JSON.stringify(DATA.plans[pid]||{tasks:[]}));
+  logs=JSON.parse(JSON.stringify(DATA.logs[pid]||{byTask:{}}));
+  render();
+}
+function savePlan(){
+  var m=meta(cur),r=rollup();
+  if(m){m.nTasks=r.nTasks;m.nDone=r.nDone;m.nLate=r.nLate;m.updatedAt=TODAY;DATA.metas[cur]=m}
+  DATA.plans[cur]={tasks:tasks()};persist();toast("Đã lưu");
+}
+function saveMeta(m,isNew,seedTasks){
+  DATA.metas[m.code]=m;
+  if(seedTasks)DATA.plans[m.code]={tasks:seedTasks};
+  syncMetas();persist();toast(isNew?"Đã tạo dự án":"Đã lưu dự án");render();
+}
+function saveLogs(){DATA.logs[cur]={byTask:logs.byTask};persist()}
+function delProject(pid){
+  delete DATA.metas[pid];delete DATA.plans[pid];delete DATA.logs[pid];
+  if(cur===pid){cur=null;plan=null;ui.page="home"}
+  syncMetas();persist();drawNav();render();toast("Đã xoá dự án");
+}
+function resetAll(){
+  try{localStorage.removeItem(STOREKEY)}catch(x){}
+  DATA=JSON.parse(JSON.stringify(SEED));cur=null;plan=null;ui.page="home";ui.sel=null;
+  syncMetas();drawNav();render();toast("Đã khôi phục dữ liệu mẫu");
+}
+/* ===ADAPTER-END=== */
+
+/* ---------- nav ---------- */
+var IC={box:'<rect x="2" y="2" width="12" height="12" rx="3"/>',chat:'<path d="M2.5 4.5h11v7h-6l-3 2.5v-2.5h-2z"/>',bell:'<path d="M4 7a4 4 0 0 1 8 0c0 3 1 4 1 4H3s1-1 1-4z"/><path d="M6.5 13.5h3"/>',doc:'<rect x="3.5" y="2" width="9" height="12" rx="2"/><path d="M6 5.5h4M6 8h4M6 10.5h2.5"/>',people:'<circle cx="6" cy="6" r="2.2"/><path d="M2.5 13c0-2 1.6-3.3 3.5-3.3S9.5 11 9.5 13"/><circle cx="11.5" cy="6.5" r="1.7"/>',map:'<path d="M2 4l4-1.5L10 4l4-1.5v9L10 13 6 11.5 2 13z"/><path d="M6 2.5v9M10 4v9"/>',chart:'<path d="M2.5 13.5h11"/><rect x="4" y="7" width="2.4" height="4.5"/><rect x="8" y="4" width="2.4" height="7.5"/>'};
+var MENU=[["Dashboard","box"],["Chat","chat"],["Chat với AI","chat"],["Thông báo","bell"],["Công việc","doc"],["Hành chính quản trị","doc"],["Quản lý Nhân sự","people"],["Sức khỏe nhân sự","people"],["Kế hoạch","chart"],["ESGV2 (Pilot)","box"],["Quản lý khảo sát mặt bằng","map"],["Nghiệp vụ Y","doc"],["Tòa nhà thông minh","box"],["Tài chính kế toán","chart"]];
+function svg(k){return '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round">'+IC[k]+'</svg>'}
+function drawNav(){
+  var h="";
+  MENU.forEach(function(m){
+    var on=m[0]==="Quản lý khảo sát mặt bằng";
+    h+='<a href="#" class="'+(on?"on":"")+'" onclick="return false">'+svg(m[1])+esc(m[0])+"</a>";
+    if(on){
+      h+='<div class="sub"><button data-p="home" class="'+(ui.page==="home"?"on":"")+'">Danh mục dự án</button>';
+      if(cur){
+        var m2=meta(cur);
+        h+='<div class="cap">'+esc(m2?m2.name:cur)+"</div>"+
+          '<button data-p="gantt" class="'+(ui.page==="gantt"?"on":"")+'">Tiến độ &amp; Gantt</button>'+
+          '<button data-p="ov" class="'+(ui.page==="ov"?"on":"")+'">Tổng quan dự án</button>'+
+          '<button data-p="log" class="'+(ui.page==="log"?"on":"")+'">Nhật ký diễn biến</button>';
+      }
+      h+="</div>";
+    }
+  });
+  $("#nav").innerHTML=h;
+  all(".sub button").forEach(function(b){b.onclick=function(){ui.page=b.dataset.p;ui.sel=null;drawNav();render()}});
+}
+function go(page){ui.page=page;drawNav();render()}
+function enter(pid){openProject(pid);ui.page="gantt";ui.q="";ui.lead="";ui.st="";ui.closed={};drawNav();render()}
+
+/* ---------- home: danh mục dự án ---------- */
+function renderHome(){
+  var n=metas.length, noplan=metas.filter(function(m){return !m.nTasks}).length;
+  var late=metas.filter(function(m){return m.nLate>0}).length;
+  var nodate=metas.filter(function(m){return !m.planEnd}).length;
+  var v='<div class="ovhead"><div><div class="eyebrow">Quản lý khảo sát mặt bằng</div>'+
+    '<h1>Danh mục dự án phòng khám</h1><div class="muted tiny">Theo dõi tiến độ toàn bộ dự án phòng khám do Phòng PTPK làm đầu mối.</div></div>'+
+    '<div class="row2"><button class="btn" id="rst">Khôi phục dữ liệu mẫu</button><button class="btn pri" id="new">+ Thêm dự án</button></div></div>';
+  v+='<div class="note offline">Bản dùng thử để góp ý. Mọi thay đổi bạn nhập được lưu trên trình duyệt của chính bạn — người khác mở link này vẫn thấy dữ liệu gốc.</div>';
+  v+='<div class="stats">'+
+    '<div class="stat"><b>'+n+'</b><span>Dự án đang theo dõi</span></div>'+
+    '<div class="stat'+(late?" hi":"")+'"><b>'+late+'</b><span>Dự án có việc trễ hạn</span></div>'+
+    '<div class="stat'+(noplan?" wr":"")+'"><b>'+noplan+'</b><span>Chưa lập tiến độ chi tiết</span></div>'+
+    '<div class="stat'+(nodate?" wr":"")+'"><b>'+nodate+'</b><span>Chưa chốt hạn hoàn thành</span></div></div>';
+
+  v+='<div class="card" style="overflow-x:auto"><table class="ptab"><thead><tr>'+
+    "<th>Dự án</th><th>Địa điểm</th><th>Bắt đầu</th><th>Hạn hoàn thành</th><th>Còn lại</th>"+
+    '<th style="min-width:150px">Tiến độ</th><th class="hcol">Trễ</th><th></th></tr></thead><tbody>';
+  if(!n)v+='<tr><td colspan="8"><div class="empty"><h3>Chưa có dự án nào</h3>Bấm “Thêm dự án” để bắt đầu.</div></td></tr>';
+  metas.forEach(function(m){
+    var left=m.planEnd?diffd(TODAY,m.planEnd):null;
+    var lcls=left===null?"":(left<0?"dl":(left<=30?"dw":""));
+    var pct=pctOf(m);
+    v+='<tr data-open="'+esc(m.code)+'">'+
+      '<td><span class="pname">'+esc(m.name)+'</span><span class="pcode">'+esc(m.code)+"</span></td>"+
+      "<td>"+esc(m.site||"—")+"</td>"+
+      '<td class="num">'+vn(m.planStart)+"</td>"+
+      '<td class="num">'+(m.planEnd?vn(m.planEnd):'<span class="dw">chưa chốt</span>')+"</td>"+
+      '<td class="num '+lcls+'">'+(left===null?"—":(left<0?Math.abs(left)+" ngày quá hạn":left+" ngày"))+"</td>"+
+      "<td>"+(m.nTasks?'<span class="mini"><i style="width:'+pct+'%"></i></span><span class="num">'+pct+"% · "+m.nDone+"/"+m.nTasks+"</span>":
+        '<span class="pill p-todo"><i></i>Chưa lập tiến độ</span>')+"</td>"+
+      '<td class="hcol num">'+(m.nLate?'<span class="pill p-late"><i></i>'+m.nLate+"</span>":'<span class="muted">0</span>')+"</td>"+
+      '<td><div class="rowact"><button class="btn sm" data-edit="'+esc(m.code)+'">Sửa</button>'+
+      '<button class="btn sm dgr" data-del="'+esc(m.code)+'">Xoá</button></div></td></tr>';
+  });
+  v+="</tbody></table></div>";
+  v+='<div class="note" style="margin-top:12px">Dự án mới có thể <b>nhân bản bộ 25 hạng mục chuẩn</b> từ một dự án đã có — hệ thống tự dịch toàn bộ ngày theo mốc bắt đầu mới, chỉ còn việc chỉnh lại các mốc đặc thù.</div>';
+  $("#view").innerHTML=v;
+  $("#new").onclick=function(){projectModal(null)};
+  $("#rst").onclick=function(){if(confirm("Xoá mọi thay đổi bạn đã nhập và quay lại dữ liệu mẫu ban đầu?"))resetAll()};
+  all("[data-open]").forEach(function(r){r.onclick=function(e){
+    if(e.target.closest("button"))return; enter(r.dataset.open)}});
+  all("[data-edit]").forEach(function(b){b.onclick=function(e){e.stopPropagation();projectModal(meta(b.dataset.edit))}});
+  all("[data-del]").forEach(function(b){b.onclick=function(e){e.stopPropagation();
+    var m=meta(b.dataset.del);
+    if(confirm("Xoá dự án “"+m.name+"”?\nToàn bộ tiến độ và nhật ký diễn biến của dự án này sẽ mất."))delProject(m.code)}});
+}
+
+/* ---------- modal thêm/sửa dự án ---------- */
+function projectModal(m){
+  var isNew=!m; m=m||{code:"",name:"",site:"",lead:"Phòng Phát triển Phòng khám",anchor:"",planStart:"",planEnd:"",note:"",source:"Nhập tay"};
+  var src=metas.filter(function(x){return x.nTasks>0});
+  var h='<header><h2>'+(isNew?"Thêm dự án phòng khám":"Sửa thông tin dự án")+'</h2><button class="btn" id="mx">✕</button></header><div class="mbody">'+
+    '<div class="fg">'+
+    '<div class="f"><label for="m-code">Mã dự án</label><input id="m-code" value="'+esc(m.code)+'" placeholder="PK-XXXX"'+(isNew?"":" disabled")+"></div>"+
+    '<div class="f"><label for="m-name">Tên dự án</label><input id="m-name" value="'+esc(m.name)+'" placeholder="Phòng khám …"></div>'+
+    '<div class="f wide"><label for="m-site">Địa điểm</label><input id="m-site" value="'+esc(m.site)+'"></div>'+
+    '<div class="f wide"><label for="m-lead">Đơn vị đầu mối</label><input id="m-lead" value="'+esc(m.lead)+'"></div>'+
+    '<div class="f wide"><label for="m-anchor">Ngày bắt đầu tính tiền thuê mặt bằng</label><input type="date" id="m-anchor" value="'+esc(m.anchor||"")+'"></div>'+
+    '<div class="f"><label for="m-s">Bắt đầu tiến độ</label><input type="date" id="m-s" value="'+esc(m.planStart||"")+'"></div>'+
+    '<div class="f"><label for="m-e">Hạn hoàn thành</label><input type="date" id="m-e" value="'+esc(m.planEnd||"")+'"></div>'+
+    '<div class="f wide"><label for="m-note">Ghi chú</label><input id="m-note" value="'+esc(m.note||"")+'"></div>'+
+    (isNew&&src.length?'<div class="f wide"><label for="m-tpl">Nhân bản bộ hạng mục từ dự án</label><select id="m-tpl"><option value="">— để trống, tự lập sau —</option>'+
+      src.map(function(x){return '<option value="'+esc(x.code)+'">'+esc(x.name)+" ("+x.nTasks+" đầu việc)</option>"}).join("")+"</select></div>":"")+
+    "</div>"+
+    '<div class="note" id="m-hint">Mốc “ngày bắt đầu tính tiền thuê mặt bằng” là gốc đếm ngược: theo kết luận giao ban, phòng khám phải nghiệm thu bàn giao trong tối đa 4 tháng kể từ mốc này.</div>'+
+    '</div><div class="mfoot"><button class="btn" id="mc">Huỷ</button><button class="btn pri" id="mo">'+(isNew?"Tạo dự án":"Lưu")+"</button></div>";
+  $("#mbox").innerHTML=h;$("#modal").classList.add("on");
+  var close=function(){$("#modal").classList.remove("on")};
+  $("#mx").onclick=close;$("#mc").onclick=close;
+  var anch=document.getElementById("m-anchor"),hint=document.getElementById("m-hint");
+  var syncHint=function(){
+    var a=anch.value;
+    hint.innerHTML=a?"Hạn 4 tháng kể từ "+vn(a)+" rơi vào <b>"+vn(shift(a,122))+"</b>. Hạn hoàn thành đang đặt ở "+(document.getElementById("m-e").value?"<b>"+vn(document.getElementById("m-e").value)+"</b>.":"trống.")
+      :"Mốc “ngày bắt đầu tính tiền thuê mặt bằng” là gốc đếm ngược: theo kết luận giao ban, phòng khám phải nghiệm thu bàn giao trong tối đa 4 tháng kể từ mốc này.";
+  };
+  anch.oninput=syncHint;document.getElementById("m-e").oninput=syncHint;syncHint();
+  $("#mo").onclick=function(){
+    var g=function(i){return document.getElementById(i).value.trim()};
+    var code=isNew?g("m-code").toUpperCase().replace(/[^A-Z0-9_-]/g,""):m.code;
+    if(!code){toast("Nhập mã dự án");return}
+    if(!g("m-name")){toast("Nhập tên dự án");return}
+    if(isNew&&meta(code)){toast("Mã dự án đã tồn tại");return}
+    var s=g("m-s"),e=g("m-e");
+    if(s&&e&&e<s){toast("Hạn hoàn thành phải sau ngày bắt đầu");return}
+    var nm={code:code,name:g("m-name"),site:g("m-site"),lead:g("m-lead"),anchor:g("m-anchor"),
+            planStart:s,planEnd:e,note:g("m-note"),source:m.source||"Nhập tay",
+            nTasks:m.nTasks||0,nDone:m.nDone||0,nLate:m.nLate||0,updatedAt:TODAY};
+    var seed=null,tplEl=document.getElementById("m-tpl");
+    if(isNew&&tplEl&&tplEl.value){
+      var sm=meta(tplEl.value);
+      if(!sm.planStart||!s){toast("Cần ngày bắt đầu ở cả dự án nguồn và dự án mới để dịch ngày");return}
+      seed=null; loadTemplate(tplEl.value,function(ts){
+        var d=diffd(sm.planStart,s);
+        var out=ts.map(function(t){
+          var o=Object.assign({},t);
+          o.start=shift(o.start,d);o.end=shift(o.end,d);o.st="todo";
+          delete o.pct;delete o.reportedAt;delete o.reportedBy;delete o.validatedAt;delete o.validatedBy;delete o.validNote;delete o.cause;delete o.why;
+          return o;
+        });
+        nm.nTasks=out.filter(function(t){return t.lv===2}).length;
+        saveMeta(nm,true,out);close();
+      });
+      return;
+    }
+    saveMeta(nm,isNew,null);close();
+  };
+}
+function loadTemplate(pid,cb){cb(((DATA.plans[pid]||{}).tasks)||[])}
+
+/* ---------- tổng quan 1 dự án ---------- */
+function renderOverview(){
+  var m=meta(cur),ch=tasks().filter(function(t){return t.lv===2}),n=ch.length;
+  var c={};STK.forEach(function(k){c[k]=ch.filter(function(t){return t.st===k}).length});
+  var pct=n?Math.round(100*c.done/n):0;
+  var v=head(m,"Tổng quan dự án");
+  if(!n){v+=emptyPlan();$("#view").innerHTML=v;bindHead();bindEmpty();return}
+  v+='<div class="stats">'+stat(n,"Đầu việc chi tiết")+stat(tasks().filter(function(t){return t.lv===1}).length,"Hạng mục")+
+    stat(c.done,"Hoàn thành")+stat(c.doing,"Đang thực hiện")+stat(c.pending,"Chờ xác nhận")+
+    '<div class="stat'+(c.late?" hi":"")+'"><b>'+c.late+'</b><span>Trễ hạn</span></div>'+stat(pct+"%","Tỷ lệ hoàn thành")+"</div>";
+  v+='<div class="card pcard"><div style="min-width:0"><div class="bar">'+STK.map(function(k){
+      return c[k]?'<i style="width:'+(100*c[k]/n)+'%;background:var('+ST[k][2]+')"></i>':""}).join("")+"</div>"+
+    '<div class="legend">'+STK.map(function(k){return '<span><s style="background:var('+ST[k][2]+')"></s>'+ST[k][0]+" · "+c[k]+"</span>"}).join("")+"</div></div>"+
+    '<div style="text-align:right"><div class="tiny muted">'+(m.planEnd?"Còn lại đến "+vn(m.planEnd):"Chưa chốt hạn")+'</div><b style="font-size:26px;font-variant-numeric:tabular-nums">'+
+    (m.planEnd?diffd(TODAY,m.planEnd):"—")+'</b> <span class="muted">ngày</span></div></div>';
+  var al=[];
+  ch.forEach(function(t){if(t.st==="late")al.push({k:"late",t:t,r:"Quá hạn "+Math.abs(diffd(TODAY,t.end))+" ngày"})});
+  ch.forEach(function(t){if(t.st==="pending")al.push({k:"pending",t:t,r:"Báo xong "+vn(t.reportedAt)})});
+  ch.forEach(function(t){var d=t.end?diffd(TODAY,t.end):null;
+    if(t.st!=="done"&&t.st!=="late"&&t.st!=="pending"&&d!==null&&d>=0&&d<=14)al.push({k:"due",t:t,r:"Còn "+d+" ngày"})});
+  v+='<div class="secthead"><h2>Cần xử lý</h2><span class="tiny muted">'+al.length+' việc trễ hạn, chờ xác nhận hoặc đến hạn trong 14 ngày</span></div>';
+  v+='<div class="card" style="padding:6px 15px">'+(al.length?'<div class="alist">'+al.slice(0,14).map(function(a){
+      var lb=a.k==="late"?"Trễ hạn":(a.k==="pending"?"Chờ xác nhận":"Sắp đến hạn");
+      var cl=a.k==="late"?"p-late":(a.k==="pending"?"p-pending":"p-doing");
+      var par=tasks().filter(function(x){return x.id===a.t.pid})[0];
+      return '<button class="ai" data-go="'+a.t.id+'"><span class="pill '+cl+'"><i></i>'+lb+"</span>"+
+        '<span><span class="nm">'+esc(a.t.name)+'</span><span class="sb">'+esc(par?par.name:"")+" · "+esc(a.t.lead||"chưa gán đơn vị")+"</span></span>"+
+        '<span class="rt">'+a.r+" · "+vn(a.t.end)+"</span></button>"}).join("")+
+      (al.length>14?'<div class="tiny muted" style="padding:9px 2px">Còn '+(al.length-14)+" việc nữa.</div>":"")+"</div>":
+      '<div class="empty">Không có việc nào cần xử lý gấp.</div>')+"</div>";
+  v+='<div class="secthead"><h2>Hạng mục công việc</h2><span class="tiny muted">'+tasks().filter(function(t){return t.lv===1}).length+" hạng mục</span></div>";
+  v+='<div class="grpgrid">'+tasks().filter(function(t){return t.lv===1}).map(function(g){
+      var k=kids(g.id),d=k.filter(function(x){return x.st==="done"}).length,s=stOf(g),sp=span(g);
+      return '<button class="grpc" data-id="'+g.id+'" style="border-left-color:var('+ST[s][2]+')">'+
+        "<b>"+esc(g.wbs)+". "+esc(g.name)+'</b><div class="m"><span>'+d+"/"+k.length+" việc</span><span>"+vns(sp.s)+" – "+vns(sp.e)+"</span></div></button>"}).join("")+"</div>";
+  $("#view").innerHTML=v;bindHead();
+  all("[data-go]").forEach(function(b){b.onclick=function(){ui.page="gantt";drawNav();render();openDrawer(b.dataset.go)}});
+  all(".grpc").forEach(function(b){b.onclick=function(){ui.page="gantt";drawNav();render();openDrawer(b.dataset.id)}});
+  function stat(a,l){return '<div class="stat"><b>'+a+"</b><span>"+l+"</span></div>"}
+}
+function head(m,sub){
+  return '<div class="ovhead"><div><div class="crumb"><button id="bk">Danh mục dự án</button> › '+esc(sub)+"</div>"+
+    "<h1>"+esc(m?m.name:"—")+'</h1><div class="muted tiny">'+esc(m&&m.site||"")+
+    (m&&m.planStart?" · "+vn(m.planStart)+" – "+(m.planEnd?vn(m.planEnd):"chưa chốt hạn"):"")+
+    (m&&m.note?" · "+esc(m.note):"")+"</div></div>"+
+    '<div class="row2"><span class="chip">'+esc(m&&m.code||"")+'</span><button class="btn" id="ed">Sửa dự án</button></div></div>';
+}
+function bindHead(){
+  if($("#bk"))$("#bk").onclick=function(){cur=null;plan=null;ui.page="home";drawNav();render()};
+  if($("#ed"))$("#ed").onclick=function(){projectModal(meta(cur))};
+}
+function emptyPlan(){
+  return '<div class="card empty"><h3>Dự án này chưa có tiến độ chi tiết</h3>'+
+    '<p class="muted" style="max-width:46ch;margin:6px auto 14px">Tạo bộ hạng mục bằng cách nhân bản từ một dự án đã có, hoặc thêm từng hạng mục.</p>'+
+    '<div class="row2" style="justify-content:center"><button class="btn pri" id="clone">Nhân bản bộ hạng mục từ dự án khác</button>'+
+    '<button class="btn" id="addg">Thêm hạng mục đầu tiên</button></div></div>';
+}
+function bindEmpty(){
+  if($("#clone"))$("#clone").onclick=function(){cloneModal()};
+  if($("#addg"))$("#addg").onclick=function(){addGroup()};
+}
+function addGroup(){
+  if(!plan)plan={tasks:[]};
+  promptModal("Thêm hạng mục","Tên hạng mục (VD: CHUẨN BỊ – THIẾT KẾ)","",function(v){addGroupAt(v.toUpperCase());render()});
+}
+function cloneModal(){
+  var src=metas.filter(function(x){return x.nTasks>0&&x.code!==cur});
+  if(!src.length){toast("Chưa có dự án nào để nhân bản");return}
+  var m=meta(cur);
+  var h='<header><h2>Nhân bản bộ hạng mục</h2><button class="btn" id="mx">✕</button></header><div class="mbody">'+
+    '<div class="f"><label for="c-src">Lấy từ dự án</label><select id="c-src">'+src.map(function(x){
+      return '<option value="'+esc(x.code)+'">'+esc(x.name)+" ("+x.nTasks+" đầu việc)</option>"}).join("")+"</select></div>"+
+    '<div class="f"><label for="c-s">Ngày bắt đầu của '+esc(m.name)+'</label><input type="date" id="c-s" value="'+esc(m.planStart||"")+'"></div>'+
+    '<div class="note">Toàn bộ ngày bắt đầu/kết thúc sẽ được dịch theo chênh lệch giữa hai mốc bắt đầu. Trạng thái và diễn biến không nhân bản — dự án mới bắt đầu từ con số 0.</div>'+
+    '</div><div class="mfoot"><button class="btn" id="mc">Huỷ</button><button class="btn pri" id="mo">Nhân bản</button></div>';
+  $("#mbox").innerHTML=h;$("#modal").classList.add("on");
+  var close=function(){$("#modal").classList.remove("on")};
+  $("#mx").onclick=close;$("#mc").onclick=close;
+  $("#mo").onclick=function(){
+    var sc=document.getElementById("c-src").value,ns=document.getElementById("c-s").value;
+    var sm=meta(sc);
+    if(!ns||!sm.planStart){toast("Cần ngày bắt đầu ở cả hai dự án");return}
+    loadTemplate(sc,function(ts){
+      var d=diffd(sm.planStart,ns);
+      plan={tasks:ts.map(function(t){var o=Object.assign({},t);
+        o.start=shift(o.start,d);o.end=shift(o.end,d);o.st="todo";
+        delete o.pct;delete o.reportedAt;delete o.reportedBy;delete o.validatedAt;delete o.validatedBy;delete o.validNote;delete o.cause;delete o.why;
+        return o})};
+      var mm=meta(cur);mm.planStart=ns;saveMeta(mm,false,null);
+      savePlan();close();render();
+    });
+  };
+}
+
+/* ---------- nhật ký ---------- */
+function renderLog(){
+  var m=meta(cur),arr=[];
+  Object.keys(logs.byTask).forEach(function(tid){
+    var t=tasks().filter(function(x){return x.id===tid})[0];
+    (logs.byTask[tid].entries||[]).forEach(function(e){arr.push({t:t,e:e})});
+  });
+  arr.sort(function(a,b){return a.e.at<b.e.at?1:-1});
+  var v=head(m,"Nhật ký diễn biến");
+  v+='<div class="card" style="padding:14px 16px">'+(arr.length?'<div class="log">'+arr.map(function(x){
+      return '<div class="li"><div class="dot"></div><div><div class="m">'+vn(x.e.at)+" · "+esc(x.e.by)+
+        ' · <a href="#" data-id="'+(x.t?x.t.id:"")+'" class="jump" style="color:var(--brand)">'+esc(x.t?x.t.name:"—")+"</a></div><p>"+esc(x.e.text)+"</p></div></div>"
+    }).join("")+"</div>":'<div class="empty">Chưa có diễn biến nào được ghi cho dự án này.</div>')+"</div>";
+  $("#view").innerHTML=v;bindHead();
+  all(".jump").forEach(function(a){a.onclick=function(ev){ev.preventDefault();openDrawer(a.dataset.id)}});
+}
+
+/* ---------- gantt ---------- */
+function visibleRows(){
+  var q=ui.q.toLowerCase(),out=[];
+  tasks().filter(function(t){return t.lv===1}).forEach(function(g){
+    var k=kids(g.id).filter(function(c){
+      if(ui.lead&&c.lead!==ui.lead)return false;
+      if(ui.st&&c.st!==ui.st)return false;
+      if(q&&(c.name+" "+g.name+" "+(c.lead||"")).toLowerCase().indexOf(q)<0)return false;
+      return true;
+    });
+    if(!k.length&&q)return;
+    out.push(g);
+    if(!ui.closed[g.id])k.forEach(function(c){out.push(c)});
+  });
+  return out;
+}
+function renderGantt(){
+  var m=meta(cur);
+  var v=head(m,"Tiến độ & sơ đồ Gantt");
+  if(!tasks().length){v+=emptyPlan();$("#view").innerHTML=v;bindHead();bindEmpty();return}
+  var PPD={day:24,week:8.5,month:3.2}[ui.zoom];
+  var s0=m.planStart||TODAY,e0=m.planEnd||TODAY;
+  tasks().forEach(function(t){if(t.start&&t.start<s0)s0=t.start;if(t.end&&t.end>e0)e0=t.end});
+  var total=days(s0,e0),W=Math.round(total*PPD);
+  var rows=visibleRows(),ch=tasks().filter(function(t){return t.lv===2});
+  var c={};STK.forEach(function(k){c[k]=ch.filter(function(t){return t.st===k}).length});
+
+
+  var pctd=ch.length?Math.round(100*c.done/ch.length):0;
+  var nxt=ch.filter(function(t){return t.st!=="done"&&t.end&&t.end>=TODAY}).sort(function(a,b){return a.end<b.end?-1:1})[0];
+  v+='<div class="sum">'+
+    '<div class="u grow"><b>'+pctd+'% <span style="font-size:11.5px;font-weight:500;color:var(--ink-3)">('+c.done+"/"+ch.length+' việc)</span></b><span>TIẾN ĐỘ HOÀN THÀNH</span>'+
+      '<div class="bar">'+STK.map(function(k){return c[k]?'<i style="width:'+(100*c[k]/ch.length)+'%;background:var('+ST[k][2]+')"></i>':""}).join("")+"</div></div>"+
+    '<div class="u"><b'+(m.planEnd&&diffd(TODAY,m.planEnd)<0?' style="color:var(--st-late)"':"")+">"+(m.planEnd?diffd(TODAY,m.planEnd):"—")+'</b><span>NGÀY TỚI HẠN</span></div>'+
+    '<div class="u"><b'+(c.late?' style="color:var(--st-late)"':"")+">"+c.late+'</b><span>VIỆC TRỄ HẠN</span></div>'+
+    '<div class="u"><b'+(c.pending?' style="color:var(--st-pending)"':"")+">"+c.pending+'</b><span>CHỜ XÁC NHẬN</span></div>'+
+    '<div class="u" style="min-width:170px;flex:1 1 170px"><b style="font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+
+      (nxt?esc(nxt.name):"—")+'</b><span>'+(nxt?"VIỆC ĐẾN HẠN GẦN NHẤT · "+vn(nxt.end):"KHÔNG CÒN VIỆC TỚI HẠN")+"</span></div></div>";
+  v+='<div class="tools">'+
+    '<input type="search" id="q" placeholder="Tìm đầu việc…" value="'+esc(ui.q)+'" style="width:200px">'+
+    '<select id="fl"><option value="">Tất cả đơn vị chủ trì</option>'+leads().map(function(l){return '<option'+(ui.lead===l?" selected":"")+">"+esc(l)+"</option>"}).join("")+"</select>"+
+    STK.map(function(k){return '<button class="fchip '+(ui.st===k?"on "+ST[k][1]:"")+'" data-st="'+k+'">'+ST[k][0]+" "+c[k]+"</button>"}).join("")+
+    '<div class="seg" style="margin-left:auto">'+["day","week","month"].map(function(z){
+      return '<button data-z="'+z+'" class="'+(ui.zoom===z?"on":"")+'">'+{day:"Ngày",week:"Tuần",month:"Tháng"}[z]+"</button>"}).join("")+"</div>"+
+    '<button class="btn" id="tdy">Hôm nay</button><button class="btn" id="tog">Thu gọn tất cả</button>'+
+    '<button class="btn pri" id="addg2">+ Hạng mục</button></div>';
+
+  var mo="",dy="",curd=D(s0),endD=D(e0);
+  while(curd<=endD){
+    var mm=curd.getMonth(),y=curd.getFullYear(),f=new Date(y,mm,1),l2=new Date(y,mm+1,0);
+    var a=f<D(s0)?D(s0):f,b=l2>endD?endD:l2;
+    mo+='<div class="mo" style="left:'+(diffd(s0,iso(a))*PPD)+"px;width:"+(days(iso(a),iso(b))*PPD)+'px">Tháng '+(mm+1)+"/"+y+"</div>";
+    curd=new Date(y,mm+1,1);
+  }
+  if(ui.zoom!=="month"){
+    var step=ui.zoom==="day"?1:7;
+    for(var i=0;i<total;i+=step){
+      var d2=new Date(D(s0).getTime()+i*864e5);
+      dy+='<div class="dy" style="left:'+(i*PPD)+"px;width:"+(step*PPD)+'px">'+(ui.zoom==="day"?d2.getDate():d2.getDate()+"/"+(d2.getMonth()+1))+"</div>";
+    }
+  }
+  var nowX=diffd(s0,TODAY)*PPD;
+  var wkBg=ui.zoom==="day"?'background-image:repeating-linear-gradient(90deg,var(--weekend) 0 '+(2*PPD)+'px,transparent '+(2*PPD)+'px '+(7*PPD)+'px),repeating-linear-gradient(90deg,var(--line-2) 0 1px,transparent 1px '+(7*PPD)+'px);':'background-image:repeating-linear-gradient(90deg,var(--line-2) 0 1px,transparent 1px '+(7*PPD)+'px);';
+
+  v+='<div class="tt" id="tt"><div class="trow thead"><div class="lft">'+
+    '<div class="cell c-wbs">Mã</div><div class="cell c-name">Hạng mục công việc</div>'+
+    '<div class="cell c-lead">Chủ trì</div><div class="cell c-d">Bắt đầu</div><div class="cell c-d">Kết thúc</div>'+
+    '<div class="cell c-n">Ngày</div><div class="cell c-st">Trạng thái</div><div class="cell c-act"></div></div>'+
+    '<div class="time" style="width:'+W+'px">'+mo+dy+'<div class="now" style="left:'+nowX+'px"></div><div class="nowlab" style="left:'+nowX+'px">06/09</div></div></div>';
+  rows.forEach(function(t){
+    var sp=span(t),st=stOf(t),n=sp.s&&sp.e?days(sp.s,sp.e):0;
+    var x=sp.s?diffd(s0,sp.s)*PPD:0,w=sp.s?Math.max(3,n*PPD):0;
+    var lab=w>70&&t.lv===2?esc(t.name):"";
+    var bar=sp.s?'<div class="gbar '+(t.lv===1?"pbar":"")+'" style="left:'+x+"px;width:"+w+"px;"+(t.lv===2?"background:var("+ST[st][2]+")":"")+'" title="'+esc(t.name)+" · "+vn(sp.s)+" → "+vn(sp.e)+" · "+n+' ngày">'+
+      (t.lv===2&&st==="doing"&&t.pct?'<div class="prog" style="width:'+t.pct+'%"></div>':"")+lab+"</div>":"";
+    v+='<div class="trow'+(t.lv===1?" g":"")+(ui.sel===t.id?" sel":"")+'" data-id="'+t.id+'"><div class="lft">'+
+      '<div class="cell c-wbs">'+(t.lv===1?'<button class="exp" data-x="'+t.id+'">'+(ui.closed[t.id]?"▶":"▼")+"</button>":"")+esc(t.wbs)+"</div>"+
+      '<div class="cell c-name" title="'+esc(t.name)+'">'+esc(t.name)+"</div>"+
+      '<div class="cell c-lead">'+esc(t.lead||"—")+'</div><div class="cell c-d">'+vn(sp.s)+'</div><div class="cell c-d">'+vn(sp.e)+"</div>"+
+      '<div class="cell c-n">'+(n||"—")+'</div><div class="cell c-st"><span class="pill '+ST[st][1]+'"><i></i>'+ST[st][0]+"</span></div>"+
+      '<div class="cell c-act">'+(t.lv===1?'<button class="rowbtn" data-add="'+t.id+'" title="Thêm công việc vào hạng mục này">+</button>':"")+"</div></div>"+
+      '<div class="time" style="width:'+W+"px;"+wkBg+'">'+bar+'<div class="now" style="left:'+nowX+'px"></div></div></div>';
+  });
+  if(!rows.length)v+='<div class="empty">Không có đầu việc nào khớp bộ lọc.</div>';
+  v+="</div>";
+  $("#view").innerHTML=v;bindHead();
+  $("#q").oninput=function(){ui.q=this.value;var p=this.selectionStart;renderGantt();var q2=$("#q");q2.focus();q2.setSelectionRange(p,p)};
+  $("#fl").onchange=function(){ui.lead=this.value;renderGantt()};
+  all("[data-st]").forEach(function(b){b.onclick=function(){ui.st=ui.st===b.dataset.st?"":b.dataset.st;renderGantt()}});
+  all("[data-z]").forEach(function(b){b.onclick=function(){ui.zoom=b.dataset.z;renderGantt();scrollToday()}});
+  $("#tdy").onclick=scrollToday;
+  $("#tog").onclick=function(){
+    var any=tasks().some(function(t){return t.lv===1&&!ui.closed[t.id]});
+    ui.closed={};if(any)tasks().forEach(function(t){if(t.lv===1)ui.closed[t.id]=1});renderGantt();
+  };
+  all(".exp").forEach(function(b){b.onclick=function(e){e.stopPropagation();ui.closed[b.dataset.x]=!ui.closed[b.dataset.x];renderGantt()}});
+  all("[data-add]").forEach(function(b){b.onclick=function(e){e.stopPropagation();
+    promptModal("Thêm công việc","Tên công việc",'',function(v){
+      ui.closed[b.dataset.add]=false;var nid=addChild(b.dataset.add,v);render();openDrawer(nid)})}});
+  $("#addg2").onclick=addGroup;
+  all(".trow[data-id]").forEach(function(r){r.onclick=function(){openDrawer(r.dataset.id)}});
+  scrollToday();
+}
+function scrollToday(){var tt=$("#tt"),n=document.querySelector(".now");if(!tt||!n)return;
+  var x=n.getBoundingClientRect().left-tt.getBoundingClientRect().left+tt.scrollLeft;
+  tt.scrollLeft=Math.max(0,x-Math.round(tt.clientWidth*.45));}
+
+/* ---------- drawer ---------- */
+function openDrawer(id){
+  var t=tasks().filter(function(x){return x.id===id})[0];if(!t)return;
+  ui.sel=id;
+  var sp=span(t),st=stOf(t),n=sp.s&&sp.e?days(sp.s,sp.e):0,k=kids(t.id);
+  var par=t.lv===1?null:tasks().filter(function(x){return x.id===t.pid})[0];
+  var ent=(logs.byTask[id]||{}).entries||[];
+  var h='<div class="dhead"><div style="flex:1;min-width:0"><div class="eyebrow">'+(par?esc(par.wbs)+". "+esc(par.name):"Hạng mục")+"</div>"+
+    "<h2>"+esc(t.wbs)+". "+esc(t.name)+'</h2><div style="margin-top:6px"><span class="pill '+ST[st][1]+'"><i></i>'+ST[st][0]+"</span></div></div>"+
+    '<button class="btn" id="dx" aria-label="Đóng">✕</button></div><div class="dbody">';
+  var grps=tasks().filter(function(x){return x.lv===1});
+  h+='<div class="sec"><h3>Thông tin công việc</h3><div class="fg">'+
+    '<div class="f wide"><label for="d-name">'+(t.lv===1?"Tên hạng mục":"Tên công việc")+'</label><textarea id="d-name" rows="2">'+esc(t.name)+"</textarea></div>"+
+    (t.lv===2?'<div class="f wide"><label for="d-par">Thuộc hạng mục</label><select id="d-par">'+grps.map(function(g){
+      return '<option value="'+g.id+'"'+(g.id===t.pid?" selected":"")+">"+esc(g.wbs)+". "+esc(g.name)+"</option>"}).join("")+"</select></div>":"")+
+    '<div class="f wide"><label for="d-lead">Đơn vị chủ trì (1 đơn vị chịu trách nhiệm)</label>'+
+      '<select id="d-lead"'+(t.lv===1?" disabled":"")+'><option value="">— chưa gán —</option>'+leads().map(function(l){return '<option'+(t.lead===l?" selected":"")+">"+esc(l)+"</option>"}).join("")+"</select></div>"+
+    '<div class="f wide"><label for="d-coop">Đơn vị phối hợp</label><input id="d-coop" value="'+esc((t.coop||[]).join(", "))+'" placeholder="ngăn cách bằng dấu phẩy"'+(t.lv===1?" disabled":"")+"></div>"+
+    '<div class="f'+(t.lv===1?" ro":"")+'"><label for="d-s">Bắt đầu</label><input type="date" id="d-s" value="'+(sp.s||"")+'"'+(t.lv===1?" disabled":"")+"></div>"+
+    '<div class="f'+(t.lv===1?" ro":"")+'"><label for="d-e">Kết thúc</label><input type="date" id="d-e" value="'+(sp.e||"")+'"'+(t.lv===1?" disabled":"")+"></div>"+
+    '<div class="f ro wide"><label>Số ngày (tự tính = Kết thúc − Bắt đầu + 1, theo ngày lịch)</label><input value="'+(n||"—")+'" readonly></div>'+
+    (t.lv===2?'<div class="f wide"><label for="d-pct">% hoàn thành</label><input type="number" id="d-pct" min="0" max="100" step="5" value="'+(t.pct||0)+'"></div>':"")+"</div>"+
+    (t.lv===1?'<div class="note" style="margin-top:10px">Ngày của hạng mục tự tính từ '+k.length+" công việc con (sớm nhất → muộn nhất), không sửa trực tiếp.</div>":"")+
+    '<div style="margin-top:10px"><button class="btn pri" id="d-save">Lưu thay đổi</button></div></div>';
+  h+='<div class="sec"><h3>Xác nhận hoàn thành</h3>';
+  if(t.lv===2){
+    if(st==="done"){
+      h+='<div class="kv"><span>Ngày báo xong</span><b>'+vn(t.reportedAt)+"</b></div>"+
+         '<div class="kv"><span>Người báo</span><b>'+esc(t.reportedBy||"—")+"</b></div>"+
+         '<div class="kv"><span>Ngày xác nhận</span><b>'+vn(t.validatedAt)+"</b></div>"+
+         '<div class="kv"><span>Người xác nhận</span><b>'+esc(t.validatedBy||"—")+"</b></div>"+
+         '<div class="kv"><span>Chênh lệch báo xong → xác nhận</span><b>'+(t.reportedAt&&t.validatedAt?diffd(t.reportedAt,t.validatedAt)+" ngày":"—")+"</b></div>"+
+         (t.validNote?'<div class="note" style="margin-top:9px">'+esc(t.validNote)+"</div>":"")+
+         '<div style="margin-top:10px"><button class="btn" id="d-undo">Huỷ xác nhận</button></div>';
+    }else if(st==="pending"){
+      h+='<div class="kv"><span>Đã báo xong</span><b>'+vn(t.reportedAt)+" · "+esc(t.reportedBy||"")+"</b></div>"+
+         '<div class="f" style="margin-top:9px"><label for="d-note">Điều kiện nghiệm thu đã đạt (bắt buộc)</label><textarea id="d-note" placeholder="VD: đã thử áp đạt, có biên bản nghiệm thu số…"></textarea></div>'+
+         '<div class="row2" style="margin-top:9px"><button class="btn ok" id="d-valid">Xác nhận hoàn thành</button><button class="btn" id="d-back">Trả lại, chưa đạt</button></div>';
+    }else{
+      h+='<div class="note">Người thực hiện tự báo xong. Việc con không cần duyệt từng cái — chỉ xác nhận ở bước sau.</div>'+
+         '<div style="margin-top:10px"><button class="btn pri" id="d-report">Báo xong hôm nay ('+vn(TODAY)+")</button></div>";
+    }
+    if(st==="late"||(sp.e&&sp.e<TODAY&&st!=="done")){
+      h+='<div class="f" style="margin-top:12px"><label for="d-cause">Quá hạn — phân loại nguyên nhân</label><select id="d-cause">'+
+        '<option value="">— chưa phân loại —</option><option value="cq"'+(t.cause==="cq"?" selected":"")+'>Chủ quan</option><option value="kq"'+(t.cause==="kq"?" selected":"")+'>Khách quan</option></select></div>'+
+        '<div class="f" style="margin-top:8px"><label for="d-why">Lý do</label><input id="d-why" value="'+esc(t.why||"")+'"></div>'+
+        '<div style="margin-top:9px"><button class="btn" id="d-cause-save">Lưu nguyên nhân</button></div>';
+    }
+  }else{
+    var und=k.filter(function(c){return c.st!=="done"}).length;
+    h+='<div class="kv"><span>Công việc con đã hoàn thành</span><b>'+(k.length-und)+"/"+k.length+"</b></div>";
+    if(und)h+='<div class="note warn" style="margin-top:9px">Còn '+und+" công việc con chưa hoàn thành. Hạng mục chỉ nên xác nhận khi đã đủ điều kiện kiểm soát.</div>";
+    h+='<div class="f" style="margin-top:9px"><label for="d-note">Điều kiện kiểm soát đã đạt</label><textarea id="d-note" placeholder="VD: mặt bằng sạch, đủ điều kiện triển khai hạng mục tiếp theo">'+esc(t.validNote||"")+"</textarea></div>"+
+      '<div class="row2" style="margin-top:9px"><button class="btn ok" id="d-valid-g">Xác nhận hạng mục hoàn thành</button></div>';
+  }
+  h+="</div>";
+  h+='<div class="sec"><h3>Thao tác</h3><div class="row2">'+
+    '<button class="btn" id="d-up">↑ Lên</button><button class="btn" id="d-down">↓ Xuống</button>'+
+    (t.lv===2?'<button class="btn" id="d-dup">Nhân đôi</button>':'<button class="btn" id="d-addc">+ Công việc con</button>')+
+    '<button class="btn dgr" id="d-del">Xoá</button></div>'+
+    (t.lv===1?'<div class="tiny muted" style="margin-top:8px">Xoá hạng mục sẽ xoá cả '+k.length+" công việc con và diễn biến của chúng.</div>":"")+"</div>";
+  h+='<div class="sec"><h3>Diễn biến công việc ('+ent.length+")</h3>"+
+    (ent.length?'<div class="log">'+ent.slice().reverse().map(function(e){
+      return '<div class="li"><div class="dot"></div><div><div class="m">'+vn(e.at)+" · "+esc(e.by)+"</div><p>"+esc(e.text)+"</p></div></div>"}).join("")+"</div>":
+      '<div class="tiny muted" style="margin-bottom:9px">Chưa có diễn biến nào.</div>')+
+    '<div class="f"><label for="d-log">Ghi diễn biến mới</label><textarea id="d-log" placeholder="Hiện trường hôm nay thế nào? Vướng gì?"></textarea></div>'+
+    '<div style="margin-top:8px"><button class="btn pri" id="d-add">Ghi diễn biến</button></div></div></div>';
+  $("#dwrap").innerHTML=h;
+  $("#drawer").classList.add("on");$("#drawer").setAttribute("aria-hidden","false");$("#scrim").classList.add("on");
+  bindDrawer(t);
+  if(ui.page==="gantt")renderGantt();
+}
+function closeDrawer(){$("#drawer").classList.remove("on");$("#drawer").setAttribute("aria-hidden","true");$("#scrim").classList.remove("on");ui.sel=null;if(ui.page==="gantt")renderGantt()}
+function bindDrawer(t){
+  var g=function(i){return document.getElementById(i)};
+  g("dx").onclick=closeDrawer;
+  if(g("d-save"))g("d-save").onclick=function(){
+    var nm=g("d-name").value.trim();
+    if(!nm){toast("Tên không được để trống");return}
+    t.name=nm;
+    if(t.lv===1){rebuild();savePlan();openDrawer(t.id);return}
+    t.lead=g("d-lead").value;
+    t.coop=g("d-coop").value.split(",").map(function(s){return s.trim()}).filter(Boolean);
+    var s=g("d-s").value,e=g("d-e").value;
+    if(s&&e&&e<s){toast("Ngày kết thúc phải sau ngày bắt đầu");return}
+    t.start=s||null;t.end=e||null;
+    if(g("d-pct"))t.pct=+g("d-pct").value||0;
+    if(t.end&&t.end<TODAY&&t.st==="doing")t.st="late";
+    if(g("d-par")&&g("d-par").value!==t.pid){
+      var np=g("d-par").value,arr=plan.tasks;
+      arr.splice(arr.indexOf(t),1);t.pid=np;
+      var kk=kids(np);arr.splice(arr.indexOf(kk.length?kk[kk.length-1]:byId(np))+1,0,t);
+    }
+    rebuild();savePlan();openDrawer(t.id);
+  };
+  g("d-up").onclick=function(){moveTask(t.id,-1);render();openDrawer(t.id)};
+  g("d-down").onclick=function(){moveTask(t.id,1);render();openDrawer(t.id)};
+  if(g("d-dup"))g("d-dup").onclick=function(){var id=dupTask(t.id);render();if(id)openDrawer(id)};
+  if(g("d-addc"))g("d-addc").onclick=function(){
+    promptModal("Thêm công việc","Tên công việc","",function(v){
+      ui.closed[t.id]=false;var id=addChild(t.id,v);render();openDrawer(id)})};
+  g("d-del").onclick=function(){
+    if(!confirm("Xoá “"+t.name+"”?"+(t.lv===1?"\nCả "+k.length+" công việc con cũng bị xoá.":"")))return;
+    delTask(t.id);closeDrawer();render();
+  };
+  if(g("d-report"))g("d-report").onclick=function(){t.st="pending";t.reportedAt=TODAY;t.reportedBy=who();savePlan();openDrawer(t.id)};
+  if(g("d-valid"))g("d-valid").onclick=function(){
+    var nt=g("d-note").value.trim();
+    if(!nt){toast("Phải ghi điều kiện nghiệm thu đã đạt");g("d-note").focus();return}
+    t.st="done";t.validatedAt=TODAY;t.validatedBy=who();t.validNote=nt;
+    addLog(t.id,"Xác nhận hoàn thành. "+nt);savePlan();openDrawer(t.id);
+  };
+  if(g("d-back"))g("d-back").onclick=function(){
+    t.st=(t.end&&t.end<TODAY)?"late":"doing";delete t.reportedAt;delete t.reportedBy;
+    addLog(t.id,"Trả lại: chưa đủ điều kiện nghiệm thu.");savePlan();openDrawer(t.id);
+  };
+  if(g("d-undo"))g("d-undo").onclick=function(){t.st="pending";delete t.validatedAt;delete t.validatedBy;savePlan();openDrawer(t.id)};
+  if(g("d-cause-save"))g("d-cause-save").onclick=function(){
+    t.cause=g("d-cause").value;t.why=g("d-why").value.trim();
+    if(t.end&&t.end<TODAY&&t.st!=="done")t.st="late";
+    savePlan();openDrawer(t.id);
+  };
+  if(g("d-valid-g"))g("d-valid-g").onclick=function(){
+    var nt=g("d-note").value.trim();
+    if(!nt){toast("Ghi điều kiện kiểm soát đã đạt trước khi xác nhận");g("d-note").focus();return}
+    t.validNote=nt;t.validatedAt=TODAY;t.validatedBy=who();
+    kids(t.id).forEach(function(c){if(c.st!=="done"){c.st="done";c.reportedAt=c.reportedAt||TODAY;c.reportedBy=c.reportedBy||who();c.validatedAt=TODAY;c.validatedBy=who()}});
+    addLog(t.id,"Xác nhận hạng mục hoàn thành. "+nt);savePlan();openDrawer(t.id);
+  };
+  g("d-add").onclick=function(){
+    var v=g("d-log").value.trim();if(!v){toast("Chưa nhập nội dung");return}
+    addLog(t.id,v);openDrawer(t.id);
+  };
+}
+function addLog(id,text){
+  if(!logs.byTask[id])logs.byTask[id]={entries:[]};
+  logs.byTask[id].entries.push({at:TODAY,by:who(),text:text,kind:"note"});
+  saveLogs();
+}
+
+/* ---------- boot ---------- */
+function render(){
+  if(ui.page==="home"||!cur){renderHome();return}
+  if(!plan){$("#view").innerHTML='<div class="card empty">Đang tải tiến độ…</div>';return}
+  if(ui.page==="ov")renderOverview();else if(ui.page==="log")renderLog();else renderGantt();
+}
+$("#scrim").onclick=closeDrawer;
+$("#modal").onclick=function(e){if(e.target===this)this.classList.remove("on")};
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){closeDrawer();$("#modal").classList.remove("on")}});
+$("#who").addEventListener("input",function(){
+  $("#avi").textContent=initials(this.value).toUpperCase()||"?";
+  try{localStorage.setItem("pk_who",this.value)}catch(x){}
+});
+try{var w0=localStorage.getItem("pk_who");if(w0)$("#who").value=w0}catch(x){}
+$("#avi").textContent=initials($("#who").value).toUpperCase();
+(function tick(){
+  var d=new Date(),p=function(n){return String(n).padStart(2,"0")};
+  $("#clk").textContent=p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());
+  $("#clkd").textContent=["CN","T2","T3","T4","T5","T6","T7"][d.getDay()]+", "+p(d.getDate())+"/"+p(d.getMonth()+1);
+  setTimeout(tick,1000);
+})();
+drawNav();render();boot();
+})();
+</script>
+</body>
+</html>

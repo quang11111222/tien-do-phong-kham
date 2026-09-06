@@ -342,7 +342,7 @@ var ST={todo:["Chưa bắt đầu","p-todo","--st-todo"],doing:["Đang thực hi
         late:["Trễ hạn","p-late","--st-late"]};
 var STK=["todo","doing","done","late"];
 var STALL=["todo","doing","done","late","pending"];
-var metas=[], plan=null, logs={byTask:{}}, miles={items:[]}, cur=null, bstate="init";
+var metas=[], plan=null, logs={byTask:{}}, miles={items:[]}, cur=null, bstate="init", dirty=false, mdraft=null;
 var ui={page:"home",tab:"info",zoom:"week",showArch:false,q:"",lead:"",st:"",sel:null,closed:{}};
 
 function $(s){return document.querySelector(s)}
@@ -610,9 +610,15 @@ function drawNav(){
     }
   });
   $("#nav").innerHTML=h;
-  all(".sub button").forEach(function(b){b.onclick=function(){ui.page=b.dataset.p;ui.sel=null;drawNav();render()}});
+  all(".sub button").forEach(function(b){b.onclick=function(){
+    if(!leaveGuard())return;
+    ui.page=b.dataset.p;ui.sel=null;drawNav();render()}});
 }
-function go(page){ui.page=page;drawNav();render()}
+function leaveGuard(){
+  if(mdraft&&!confirm("Bảng mốc kiểm soát có thay đổi chưa lưu. Rời đi và bỏ thay đổi?"))return false;
+  mdraft=null;return true;
+}
+function go(page){if(!leaveGuard())return;ui.page=page;drawNav();render()}
 function enter(pid){openProject(pid);ui.page="gantt";ui.q="";ui.lead="";ui.st="";ui.closed={};drawNav();render()}
 
 /* ---------- home: danh mục dự án ---------- */
@@ -952,7 +958,7 @@ function head(m,sub){
     '<div class="row2"><span class="chip">'+esc(m&&m.code||"")+'</span><button class="btn" id="ed">Sửa dự án</button></div></div>';
 }
 function bindHead(){
-  if($("#bk"))$("#bk").onclick=function(){cur=null;plan=null;ui.page="home";drawNav();render()};
+  if($("#bk"))$("#bk").onclick=function(){if(!leaveGuard())return;cur=null;plan=null;ui.page="home";drawNav();render()};
   if($("#ed"))$("#ed").onclick=function(){projectModal(meta(cur))};
 }
 function emptyPlan(){
@@ -1006,8 +1012,10 @@ function mileSt(x){
   if(x.date&&x.date<TODAY)return "late";
   return "todo";
 }
+function mItems(){return mdraft||miles.items||[]}
+function mTouch(){if(!mdraft)mdraft=JSON.parse(JSON.stringify(miles.items||[]))}
 function renderMiles(){
-  var m=meta(cur),it=miles.items||[];
+  var m=meta(cur),it=mItems();
   var done=it.filter(function(x){return x.done}).length,late=it.filter(function(x){return mileSt(x)==="late"}).length;
   var v=head(m,"Mốc kiểm soát");
   v+='<div class="stats">'+
@@ -1031,22 +1039,30 @@ function renderMiles(){
       '<td><button class="btn sm dgr" data-mdel="'+i+'">Xoá</button></td></tr>';
   });
   v+='</tbody></table></div>';
-  v+='<div class="row2" style="margin-top:11px"><button class="btn pri" id="m-add">+ Thêm mốc</button>'+
-     '<span class="tiny muted">Mốc kiểm soát hiện thành hình thoi trên sơ đồ Gantt. Sửa trực tiếp trong bảng, tự lưu khi rời khỏi ô.</span></div>';
+  v+='<div class="row2" style="margin-top:11px"><button class="btn" id="m-add">+ Thêm mốc</button>'+
+     (mdraft?'<button class="btn pri" id="m-save">Lưu thay đổi</button><button class="btn" id="m-cancel">Huỷ bỏ</button>'+
+        '<span class="tiny" style="color:var(--st-pending);font-weight:600">Có thay đổi chưa lưu</span>':
+        '<span class="tiny muted">Mốc kiểm soát hiện thành hình thoi trên sơ đồ Gantt. Sửa xong nhớ bấm Lưu thay đổi.</span>')+"</div>";
   $("#view").innerHTML=v;bindHead();
   all("[data-mf]").forEach(function(el){el.onchange=function(){
-    miles.items[+el.dataset.mi][el.dataset.mf]=el.value;saveMiles();render()}});
+    mTouch();mdraft[+el.dataset.mi][el.dataset.mf]=el.value;render()}});
   all("[data-mdone]").forEach(function(el){el.onchange=function(){
-    var x=miles.items[+el.dataset.mdone];
+    mTouch();var x=mdraft[+el.dataset.mdone];
     if(el.checked){x.done=true;x.doneAt=TODAY;x.doneBy=who()}else{x.done=false;delete x.doneAt;delete x.doneBy}
-    saveMiles();render()}});
+    render()}});
   all("[data-mdel]").forEach(function(b){b.onclick=function(){
-    var x=miles.items[+b.dataset.mdel];
+    var x=mItems()[+b.dataset.mdel];
     if(!confirm("Xoá mốc “"+x.name+"”?"))return;
-    miles.items.splice(+b.dataset.mdel,1);saveMiles();render()}});
+    mTouch();mdraft.splice(+b.dataset.mdel,1);render()}});
   $("#m-add").onclick=function(){
-    miles.items.push({id:uid(),name:"Mốc mới",date:TODAY,owner:"",cond:"",done:false});
-    saveMiles();render();
+    mTouch();mdraft.push({id:uid(),name:"Mốc mới",date:TODAY,owner:"",cond:"",done:false});render();
+  };
+  if($("#m-save"))$("#m-save").onclick=function(){
+    miles.items=mdraft;mdraft=null;saveMiles();render();
+  };
+  if($("#m-cancel"))$("#m-cancel").onclick=function(){
+    if(!confirm("Bỏ mọi thay đổi chưa lưu trên bảng mốc?"))return;
+    mdraft=null;render();
   };
 }
 
@@ -1274,7 +1290,7 @@ function openDrawer(id,focusName){
       (t.lv===2?'<div class="f wide"><label for="d-pct">% hoàn thành</label><input type="number" id="d-pct" min="0" max="100" step="5" value="'+(t.pct||0)+'"></div>':"")+"</div>"+
       (t.lv===1?'<div class="note" style="margin-top:10px">Ngày của hạng mục tự tính từ '+k.length+" công việc con (sớm nhất → muộn nhất), không sửa trực tiếp.</div>":"")+
       '<div class="row2" style="margin-top:10px"><button class="btn pri" id="d-save">Lưu thay đổi</button>'+
-      '<span class="tiny muted">Tự lưu khi rời khỏi ô</span></div></div>';
+      '<span class="tiny muted" id="d-dirty"></span></div></div>';
     if(t.lv===1){
       var und=k.filter(function(c){return liveSt(c)!=="done"}).length;
       var pd=k.reduce(function(x,c){return x+planDays(c)},0),ad=k.reduce(function(x,c){return x+actDays(c)},0);
@@ -1336,14 +1352,20 @@ function openDrawer(id,focusName){
       '<div style="margin-top:8px"><button class="btn pri" id="d-add">Ghi diễn biến</button></div></div>';
   }
   h+="</div>";
+  dirty=false;
   $("#dwrap").innerHTML=h;
   $("#drawer").classList.add("on");$("#drawer").setAttribute("aria-hidden","false");$("#scrim").classList.add("on");
-  all(".dtabs button").forEach(function(b){b.onclick=function(){ui.tab=b.dataset.tab;openDrawer(t.id)}});
+  all(".dtabs button").forEach(function(b){b.onclick=function(){
+    if(dirty&&!confirm("Có thay đổi chưa lưu. Chuyển tab và bỏ thay đổi?"))return;
+    ui.tab=b.dataset.tab;openDrawer(t.id)}});
   bindDrawer(t);
   if(focusName){var nm=document.getElementById("d-name");if(nm){nm.focus();nm.select()}}
   if(ui.page==="gantt")renderGantt();
 }
-function closeDrawer(){$("#drawer").classList.remove("on");$("#drawer").setAttribute("aria-hidden","true");$("#scrim").classList.remove("on");ui.sel=null;if(ui.page==="gantt")renderGantt()}
+function closeDrawer(force){
+  if(dirty&&!force&&!confirm("Có thay đổi chưa lưu. Đóng và bỏ thay đổi?"))return;
+  dirty=false;
+  $("#drawer").classList.remove("on");$("#drawer").setAttribute("aria-hidden","true");$("#scrim").classList.remove("on");ui.sel=null;if(ui.page==="gantt")renderGantt()}
 function bindDrawer(t){
   var g=function(i){return document.getElementById(i)};
   g("dx").onclick=closeDrawer;
@@ -1374,7 +1396,7 @@ function bindDrawer(t){
   };
   ["d-name","d-lead","d-coop","d-s","d-e","d-pct","d-par"].forEach(function(fid){
     var el=g(fid);if(!el)return;
-    el.addEventListener("change",function(){var sv=g("d-save");if(sv)sv.click()});
+    el.addEventListener("input",function(){dirty=true;var d2=g("d-dirty");if(d2)d2.innerHTML='<span style="color:var(--st-pending);font-weight:600">Có thay đổi chưa lưu</span>'});
   });
   if(g("d-up"))g("d-up").onclick=function(){moveTask(t.id,-1);render();openDrawer(t.id)};
   if(g("d-down"))g("d-down").onclick=function(){moveTask(t.id,1);render();openDrawer(t.id)};
@@ -1383,8 +1405,9 @@ function bindDrawer(t){
     ui.closed[t.id]=false;
     var id=addChild(t.id,"Công việc mới");render();openDrawer(id,true);};
   if(g("d-del"))g("d-del").onclick=function(){
-    if(!confirm("Xoá “"+t.name+"”?"+(t.lv===1?"\nCả "+k.length+" công việc con cũng bị xoá.":"")))return;
-    delTask(t.id);closeDrawer();render();
+    var nk=t.lv===1?kids(t.id).length:0;
+    if(!confirm("Xoá “"+t.name+"”?"+(t.lv===1?"\nCả "+nk+" công việc con cũng bị xoá.":"")))return;
+    delTask(t.id);closeDrawer(true);render();
   };
   if(g("d-drop"))g("d-drop").onclick=function(){g("d-file").click()};
   if(g("d-file"))g("d-file").onchange=function(){

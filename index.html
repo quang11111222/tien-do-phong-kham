@@ -410,11 +410,18 @@ function span(t){
   kids(t.id).forEach(function(c){if(c.start&&(!s||c.start<s))s=c.start;if(c.end&&(!e||c.end>e))e=c.end});
   return {s:s,e:e};
 }
+function liveSt(t){
+  if(t.st==="done")return "done";
+  if(t.end&&t.end<TODAY)return "late";
+  if(t.start&&t.start<=TODAY)return "doing";
+  return "todo";
+}
 function gstatus(t){
   var k=kids(t.id); if(!k.length)return "todo";
-  if(k.some(function(c){return c.st==="late"}))return "late";
-  if(k.every(function(c){return c.st==="done"}))return "done";
-  if(k.some(function(c){return c.st==="doing"||c.st==="done"}))return "doing";
+  var s2=k.map(liveSt);
+  if(s2.indexOf("late")>=0)return "late";
+  if(s2.every(function(x){return x==="done"}))return "done";
+  if(s2.some(function(x){return x==="doing"||x==="done"}))return "doing";
   return "todo";
 }
 function normTasks(a){a.forEach(function(t){
@@ -427,13 +434,13 @@ function normTasks(a){a.forEach(function(t){
 function planDays(t){return t.start&&t.end?days(t.start,t.end):0}
 function actDays(t){return t.st==="done"&&t.start&&t.doneAt?Math.max(1,days(t.start,t.doneAt)):0}
 function varDays(t){var a=actDays(t);return a?a-planDays(t):(t.end&&t.st!=="done"&&t.end<TODAY?diffd(t.end,TODAY):0)}
-function stOf(t){return t.lv===1?gstatus(t):t.st}
+function stOf(t){return t.lv===1?gstatus(t):liveSt(t)}
 function leads(){var s={};tasks().forEach(function(t){if(t.lv===2&&t.lead)s[t.lead]=1});
   metas.forEach(function(m){if(m.lead)s[m.lead]=1});return Object.keys(s).sort()}
 function rollup(){
   var ch=tasks().filter(function(t){return t.lv===2});
-  return {nTasks:ch.length,nDone:ch.filter(function(t){return t.st==="done"}).length,
-          nLate:ch.filter(function(t){return t.st==="late"}).length};
+  return {nTasks:ch.length,nDone:ch.filter(function(t){return liveSt(t)==="done"}).length,
+          nLate:ch.filter(function(t){return liveSt(t)==="late"}).length};
 }
 function pctOf(m){return m.nTasks?Math.round(100*m.nDone/m.nTasks):0}
 
@@ -788,9 +795,9 @@ function blobDl(name,u8){
 /* ---------- tổng quan 1 dự án ---------- */
 function renderOverview(){
   var m=meta(cur),ch=tasks().filter(function(t){return t.lv===2}),n=ch.length;
-  var c={};STK.forEach(function(k){c[k]=ch.filter(function(t){return t.st===k}).length});
+  var c={};STK.forEach(function(k){c[k]=ch.filter(function(t){return liveSt(t)===k}).length});
   var pct=n?Math.round(100*c.done/n):0;
-  var slipAll=ch.reduce(function(x,t){var vv=t.st==="done"?varDays(t):0;return x+(vv>0?vv:0)},0);
+  var slipAll=ch.reduce(function(x,t){var vv=liveSt(t)==="done"?varDays(t):0;return x+(vv>0?vv:0)},0);
   var v=head(m,"Tổng quan dự án");
   if(!n){v+=emptyPlan();$("#view").innerHTML=v;bindHead();bindEmpty();return}
   v+='<div class="stats">'+stat(n,"Đầu việc chi tiết")+stat(tasks().filter(function(t){return t.lv===1}).length,"Hạng mục")+
@@ -804,9 +811,9 @@ function renderOverview(){
     '<div style="text-align:right"><div class="tiny muted">'+(m.planEnd?"Còn lại đến "+vn(m.planEnd):"Chưa chốt hạn")+'</div><b style="font-size:26px;font-variant-numeric:tabular-nums">'+
     (m.planEnd?diffd(TODAY,m.planEnd):"—")+'</b> <span class="muted">ngày</span></div></div>';
   var al=[];
-  ch.forEach(function(t){if(t.st==="late")al.push({k:"late",t:t,r:"Quá hạn "+Math.abs(diffd(TODAY,t.end))+" ngày"})});
-  ch.forEach(function(t){var d=t.end?diffd(TODAY,t.end):null;
-    if(t.st!=="done"&&t.st!=="late"&&d!==null&&d>=0&&d<=14)al.push({k:"due",t:t,r:"Còn "+d+" ngày"})});
+  ch.forEach(function(t){if(liveSt(t)==="late")al.push({k:"late",t:t,r:"Quá hạn "+Math.abs(diffd(TODAY,t.end))+" ngày"})});
+  ch.forEach(function(t){var d=t.end?diffd(TODAY,t.end):null,ls=liveSt(t);
+    if(ls!=="done"&&ls!=="late"&&d!==null&&d>=0&&d<=14)al.push({k:"due",t:t,r:"Còn "+d+" ngày"})});
   v+='<div class="secthead"><h2>Cần xử lý</h2><span class="tiny muted">'+al.length+' việc đang trễ hạn hoặc đến hạn trong 14 ngày</span></div>';
   v+='<div class="card" style="padding:6px 15px">'+(al.length?'<div class="alist">'+al.slice(0,14).map(function(a){
       var lb=a.k==="late"?"Trễ hạn":"Sắp đến hạn";
@@ -819,7 +826,7 @@ function renderOverview(){
       '<div class="empty">Không có việc nào cần xử lý gấp.</div>')+"</div>";
   v+='<div class="secthead"><h2>Hạng mục công việc</h2><span class="tiny muted">'+tasks().filter(function(t){return t.lv===1}).length+" hạng mục</span></div>";
   v+='<div class="grpgrid">'+tasks().filter(function(t){return t.lv===1}).map(function(g){
-      var k=kids(g.id),d=k.filter(function(x){return x.st==="done"}).length,s=stOf(g),sp=span(g);
+      var k=kids(g.id),d=k.filter(function(x){return liveSt(x)==="done"}).length,s=stOf(g),sp=span(g);
       return '<button class="grpc" data-id="'+g.id+'" style="border-left-color:var('+ST[s][2]+')">'+
         "<b>"+esc(g.wbs)+". "+esc(g.name)+'</b><div class="m"><span>'+d+"/"+k.length+" việc</span><span>"+vns(sp.s)+" – "+vns(sp.e)+"</span></div></button>"}).join("")+"</div>";
   $("#view").innerHTML=v;bindHead();
@@ -906,7 +913,7 @@ function visibleRows(){
   tasks().filter(function(t){return t.lv===1}).forEach(function(g){
     var k=kids(g.id).filter(function(c){
       if(ui.lead&&c.lead!==ui.lead)return false;
-      if(ui.st&&c.st!==ui.st)return false;
+      if(ui.st&&liveSt(c)!==ui.st)return false;
       if(q&&(c.name+" "+g.name+" "+(c.lead||"")).toLowerCase().indexOf(q)<0)return false;
       return true;
     });
@@ -925,12 +932,12 @@ function renderGantt(){
   tasks().forEach(function(t){if(t.start&&t.start<s0)s0=t.start;if(t.end&&t.end>e0)e0=t.end});
   var total=days(s0,e0),W=Math.round(total*PPD);
   var rows=visibleRows(),ch=tasks().filter(function(t){return t.lv===2});
-  var c={};STK.forEach(function(k){c[k]=ch.filter(function(t){return t.st===k}).length});
+  var c={};STK.forEach(function(k){c[k]=ch.filter(function(t){return liveSt(t)===k}).length});
 
 
   var pctd=ch.length?Math.round(100*c.done/ch.length):0;
-  var slip=ch.reduce(function(x,t){var vv=t.st==="done"?varDays(t):0;return x+(vv>0?vv:0)},0);
-  var nxt=ch.filter(function(t){return t.st!=="done"&&t.end&&t.end>=TODAY}).sort(function(a,b){return a.end<b.end?-1:1})[0];
+  var slip=ch.reduce(function(x,t){var vv=liveSt(t)==="done"?varDays(t):0;return x+(vv>0?vv:0)},0);
+  var nxt=ch.filter(function(t){return liveSt(t)!=="done"&&t.end&&t.end>=TODAY}).sort(function(a,b){return a.end<b.end?-1:1})[0];
   v+='<div class="sum">'+
     '<div class="u grow"><b>'+pctd+'% <span style="font-size:11.5px;font-weight:500;color:var(--ink-3)">('+c.done+"/"+ch.length+' việc)</span></b><span>TIẾN ĐỘ HOÀN THÀNH</span>'+
       '<div class="bar">'+STK.map(function(k){return c[k]?'<i style="width:'+(100*c[k]/ch.length)+'%;background:var('+ST[k][2]+')"></i>':""}).join("")+"</div></div>"+
@@ -1044,7 +1051,7 @@ function openDrawer(id){
   if(t.lv===2){
     var ev=t.ev||[];
     h+='<div class="kv"><span>Số ngày kế hoạch</span><b>'+(planDays(t)||"—")+"</b></div>";
-    if(t.st==="done"){
+    if(st==="done"){
       h+='<div class="kv"><span>Ngày báo xong</span><b>'+vn(t.doneAt)+"</b></div>"+
          '<div class="kv"><span>Người báo</span><b>'+esc(t.doneBy||"—")+"</b></div>"+
          '<div class="kv"><span>Số ngày thực tế</span><b>'+(actDays(t)||"—")+"</b></div>"+
@@ -1059,14 +1066,14 @@ function openDrawer(id){
     h+='<div class="drop" id="d-drop">Bấm để chọn tệp bằng chứng (biên bản, ảnh hiện trường, hồ sơ nghiệm thu…)</div>'+
        '<input type="file" id="d-file" multiple style="display:none">'+
        '<div class="row2" style="margin-top:7px"><button class="btn sm" id="d-link">+ Dán đường dẫn tài liệu</button></div>';
-    if(t.st!=="done"){
+    if(st!=="done"){
       h+='<div class="f" style="margin-top:11px"><label for="d-doneat">Ngày hoàn thành thực tế</label><input type="date" id="d-doneat" value="'+TODAY+'"></div>'+
          '<div style="margin-top:9px"><button class="btn ok" id="d-done"'+(ev.length?"":" disabled")+'>Báo xong</button>'+
          (ev.length?"":'<span class="tiny muted" style="margin-left:9px">Cần ít nhất 1 tài liệu bằng chứng</span>')+"</div>";
     }else{
       h+='<div style="margin-top:10px"><button class="btn" id="d-reopen">Mở lại công việc</button></div>';
     }
-    if(t.st==="late"||(t.end&&t.end<TODAY&&t.st!=="done")){
+    if(st==="late"){
       h+='<div class="f" style="margin-top:12px"><label for="d-cause">Quá hạn — phân loại nguyên nhân</label><select id="d-cause">'+
         '<option value="">— chưa phân loại —</option><option value="cq"'+(t.cause==="cq"?" selected":"")+'>Chủ quan</option><option value="kq"'+(t.cause==="kq"?" selected":"")+'>Khách quan</option></select></div>'+
         '<div class="f" style="margin-top:8px"><label for="d-why">Lý do</label><input id="d-why" value="'+esc(t.why||"")+'"></div>'+
@@ -1112,7 +1119,6 @@ function bindDrawer(t){
     if(s&&e&&e<s){toast("Ngày kết thúc phải sau ngày bắt đầu");return}
     t.start=s||null;t.end=e||null;
     if(g("d-pct"))t.pct=+g("d-pct").value||0;
-    if(t.end&&t.end<TODAY&&t.st==="doing")t.st="late";
     if(g("d-par")&&g("d-par").value!==t.pid){
       var np=g("d-par").value,arr=plan.tasks;
       arr.splice(arr.indexOf(t),1);t.pid=np;
@@ -1155,12 +1161,11 @@ function bindDrawer(t){
     savePlan();openDrawer(t.id);
   };
   if(g("d-reopen"))g("d-reopen").onclick=function(){
-    t.st=(t.end&&t.end<TODAY)?"late":"doing";delete t.doneAt;delete t.doneBy;
+    t.st="open";delete t.doneAt;delete t.doneBy;
     addLog(t.id,"Mở lại công việc.");savePlan();openDrawer(t.id);
   };
   if(g("d-cause-save"))g("d-cause-save").onclick=function(){
     t.cause=g("d-cause").value;t.why=g("d-why").value.trim();
-    if(t.end&&t.end<TODAY&&t.st!=="done")t.st="late";
     savePlan();openDrawer(t.id);
   };
   g("d-add").onclick=function(){

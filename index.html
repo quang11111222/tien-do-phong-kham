@@ -541,6 +541,13 @@ function boot(){
   try{var r=localStorage.getItem(STOREKEY);if(r){var o=JSON.parse(r);if(o&&o.metas)DATA=o}}catch(x){}
   if(!DATA)DATA=JSON.parse(JSON.stringify(SEED));
   if(!DATA.plans)DATA.plans={};if(!DATA.logs)DATA.logs={};if(!DATA.files)DATA.files={};if(!DATA.miles)DATA.miles={};
+  // bổ sung phần dữ liệu mẫu mới cho người đã dùng bản cũ, không đụng vào dữ liệu họ đã nhập
+  if(!DATA.seedv||DATA.seedv<5){
+    Object.keys(SEED.miles||{}).forEach(function(k){
+      if(!DATA.miles[k]||!(DATA.miles[k].items||[]).length)DATA.miles[k]=JSON.parse(JSON.stringify(SEED.miles[k]));
+    });
+    DATA.seedv=5;persist();
+  }
   bstate="local";syncMetas();render();
 }
 function putFile(fid,d){

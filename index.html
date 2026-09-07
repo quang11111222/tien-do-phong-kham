@@ -1274,7 +1274,7 @@ function renderGantt(){
     v+='<div class="trow'+(t.lv===1?" g":"")+(ui.sel===t.id?" sel":"")+'" data-id="'+t.id+'"><div class="lft">'+
       '<div class="cell c-wbs">'+(t.lv===1?'<button class="exp" data-x="'+t.id+'">'+(ui.closed[t.id]?"▶":"▼")+"</button>":"")+esc(t.wbs)+"</div>"+
       '<div class="cell c-name" title="'+esc(t.name)+'">'+esc(t.name)+"</div>"+
-      '<div class="cell c-lead">'+esc(t.lead||(t.lv===1?"cả hạng mục":"—"))+'</div><div class="cell c-d">'+vn(sp.s)+'</div><div class="cell c-d">'+vn(sp.e)+"</div>"+
+      '<div class="cell c-lead">'+esc(t.lead||"—")+'</div><div class="cell c-d">'+vn(sp.s)+'</div><div class="cell c-d">'+vn(sp.e)+"</div>"+
       '<div class="cell c-n">'+(n||"—")+'</div><div class="cell c-st"><span class="pill '+ST[st][1]+'"><i></i>'+ST[st][0]+"</span></div>"+
       '<div class="cell c-act">'+(t.lv===1?'<button class="rowbtn" data-add="'+t.id+'" title="Thêm công việc vào hạng mục này">+</button>':"")+"</div></div>"+
       '<div class="time" style="width:'+W+"px;"+wkBg+'">'+bar+cap+'<div class="now" style="left:'+nowX+'px"></div></div></div>';

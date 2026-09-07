@@ -499,7 +499,8 @@ function ask(o){
     '<button class="btn '+(o.danger?"dgrf":"pri")+'" id="mo">'+esc(o.ok||"Đồng ý")+"</button></div>";
   $("#modal").classList.add("on");
   var close=function(){$("#modal").classList.remove("on")};
-  $("#mx").onclick=close;$("#mc").onclick=close;
+  $("#mx").onclick=function(){close();if(o.onCancel)o.onCancel()};
+  $("#mc").onclick=function(){close();if(o.onCancel)o.onCancel()};
   var b=$("#mo");b.onclick=function(){close();if(o.onOk)o.onOk()};
   setTimeout(function(){try{b.focus()}catch(x){}},30);
 }
@@ -516,10 +517,14 @@ function promptModal(title,label,val,cb){
 
 function tasks(){return plan&&plan.tasks?plan.tasks:[]}
 function kids(id){return tasks().filter(function(t){return t.pid===id})}
+/* Dòng nháp (chưa bấm Lưu) không được tính vào bất kỳ thống kê / trạng thái cha nào */
+function isDraft(t){return !!newTaskId&&(t.id===newTaskId||t.pid===newTaskId)}
+function rtasks(){return tasks().filter(function(t){return !isDraft(t)})}
+function rkids(id){return kids(id).filter(function(t){return !isDraft(t)})}
 function span(t){
   if(t.lv===2)return {s:t.start,e:t.end};
   var s=null,e=null;
-  kids(t.id).forEach(function(c){if(c.start&&(!s||c.start<s))s=c.start;if(c.end&&(!e||c.end>e))e=c.end});
+  rkids(t.id).forEach(function(c){if(c.start&&(!s||c.start<s))s=c.start;if(c.end&&(!e||c.end>e))e=c.end});
   return {s:s,e:e};
 }
 function liveSt(t){
@@ -529,7 +534,7 @@ function liveSt(t){
   return "todo";
 }
 function gstatus(t){
-  var k=kids(t.id); if(!k.length)return "todo";
+  var k=rkids(t.id); if(!k.length)return "todo";
   var s2=k.map(liveSt);
   if(s2.indexOf("late")>=0)return "late";
   if(s2.every(function(x){return x==="done"}))return "done";
@@ -547,10 +552,10 @@ function planDays(t){return t.start&&t.end?days(t.start,t.end):0}
 function actDays(t){return t.st==="done"&&t.start&&t.doneAt?Math.max(1,days(t.start,t.doneAt)):0}
 function varDays(t){var a=actDays(t);return a?a-planDays(t):(t.end&&t.st!=="done"&&t.end<TODAY?diffd(t.end,TODAY):0)}
 function stOf(t){return t.lv===1?gstatus(t):liveSt(t)}
-function leads(){var s={};tasks().forEach(function(t){if(t.lv===2&&t.lead)s[t.lead]=1});
+function leads(){var s={};rtasks().forEach(function(t){if(t.lead)s[t.lead]=1});
   metas.forEach(function(m){if(m.lead)s[m.lead]=1});return Object.keys(s).sort()}
 function rollup(){
-  var ch=tasks().filter(function(t){return t.lv===2});
+  var ch=rtasks().filter(function(t){return t.lv===2});
   return {nTasks:ch.length,nDone:ch.filter(function(t){return liveSt(t)==="done"}).length,
           nLate:ch.filter(function(t){return liveSt(t)==="late"}).length};
 }
@@ -907,10 +912,10 @@ function importModal(){
 }
 function aoa(){
   var out=[["STT","Hạng mục công việc","Chủ trì / phối hợp","Bắt đầu","Kết thúc","Số ngày KH","Trạng thái","Ngày xong thực tế","Số ngày TT","Lệch (ngày)","Số tài liệu"]];
-  tasks().forEach(function(t){
+  rtasks().forEach(function(t){
     var sp=span(t),st=stOf(t);
     out.push([t.wbs,(t.lv===1?t.name:"   "+t.name),
-      t.lv===1?"":[t.lead].concat(t.coop||[]).filter(Boolean).join(" / "),
+      [t.lead].concat(t.coop||[]).filter(Boolean).join(" / "),
       sp.s?vn(sp.s):"",sp.e?vn(sp.e):"",sp.s&&sp.e?days(sp.s,sp.e):"",
       ST[st][0],t.lv===2&&t.doneAt?vn(t.doneAt):"",t.lv===2?(actDays(t)||""):"",
       t.lv===2&&t.st==="done"?varDays(t):"",t.lv===2?((t.ev||[]).length||""):""]);
@@ -953,13 +958,13 @@ function blobDl(name,u8){
 
 /* ---------- tổng quan 1 dự án ---------- */
 function renderOverview(){
-  var m=meta(cur),ch=tasks().filter(function(t){return t.lv===2}),n=ch.length;
+  var m=meta(cur),ch=rtasks().filter(function(t){return t.lv===2}),n=ch.length;
   var c={};STK.forEach(function(k){c[k]=ch.filter(function(t){return liveSt(t)===k}).length});
   var pct=n?Math.round(100*c.done/n):0;
   var slipAll=ch.reduce(function(x,t){var vv=liveSt(t)==="done"?varDays(t):0;return x+(vv>0?vv:0)},0);
   var v=head(m,"Tổng quan dự án");
   if(!n){v+=emptyPlan();$("#view").innerHTML=v;bindHead();bindEmpty();return}
-  v+='<div class="stats">'+stat(n,"Đầu việc chi tiết")+stat(tasks().filter(function(t){return t.lv===1}).length,"Hạng mục")+
+  v+='<div class="stats">'+stat(n,"Đầu việc chi tiết")+stat(rtasks().filter(function(t){return t.lv===1}).length,"Hạng mục")+
     stat(c.done,"Hoàn thành")+stat(c.doing,"Đang thực hiện")+
     '<div class="stat'+(c.late?" hi":"")+'"><b>'+c.late+'</b><span>Trễ hạn</span></div>'+
     '<div class="stat'+(slipAll>0?" wr":"")+'"><b>'+(slipAll>0?"+"+slipAll:slipAll)+'</b><span>Ngày trễ cộng dồn</span></div>'+
@@ -983,9 +988,9 @@ function renderOverview(){
         '<span class="rt">'+a.r+" · "+vn(a.t.end)+"</span></button>"}).join("")+
       (al.length>14?'<div class="tiny muted" style="padding:9px 2px">Còn '+(al.length-14)+" việc nữa.</div>":"")+"</div>":
       '<div class="empty">Không có việc nào cần xử lý gấp.</div>')+"</div>";
-  v+='<div class="secthead"><h2>Hạng mục công việc</h2><span class="tiny muted">'+tasks().filter(function(t){return t.lv===1}).length+" hạng mục</span></div>";
-  v+='<div class="grpgrid">'+tasks().filter(function(t){return t.lv===1}).map(function(g){
-      var k=kids(g.id),d=k.filter(function(x){return liveSt(x)==="done"}).length,s=stOf(g),sp=span(g);
+  v+='<div class="secthead"><h2>Hạng mục công việc</h2><span class="tiny muted">'+rtasks().filter(function(t){return t.lv===1}).length+" hạng mục</span></div>";
+  v+='<div class="grpgrid">'+rtasks().filter(function(t){return t.lv===1}).map(function(g){
+      var k=rkids(g.id),d=k.filter(function(x){return liveSt(x)==="done"}).length,s=stOf(g),sp=span(g);
       return '<button class="grpc" data-id="'+g.id+'" style="border-left-color:var('+ST[s][2]+')">'+
         "<b>"+esc(g.wbs)+". "+esc(g.name)+'</b><div class="m"><span>'+d+"/"+k.length+" việc</span><span>"+vns(sp.s)+" – "+vns(sp.e)+"</span></div></button>"}).join("")+"</div>";
   $("#view").innerHTML=v;bindHead();
@@ -1116,7 +1121,7 @@ function renderMiles(){
 
 /* ---------- in báo cáo giao ban ---------- */
 function printReport(){
-  var m=meta(cur),ch=tasks().filter(function(t){return t.lv===2});
+  var m=meta(cur),ch=rtasks().filter(function(t){return t.lv===2});
   if(!ch.length){toast("Chưa có tiến độ để in");return}
   var c={};STK.forEach(function(k){c[k]=ch.filter(function(t){return liveSt(t)===k}).length});
   var pct=Math.round(100*c.done/ch.length);
@@ -1205,7 +1210,7 @@ function renderGantt(){
   var s0=m.planStart||TODAY,e0=m.planEnd||TODAY;
   tasks().forEach(function(t){if(t.start&&t.start<s0)s0=t.start;if(t.end&&t.end>e0)e0=t.end});
   var total=days(s0,e0),W=Math.round(total*PPD);
-  var rows=visibleRows(),ch=tasks().filter(function(t){return t.lv===2});
+  var rows=visibleRows(),ch=rtasks().filter(function(t){return t.lv===2});
   var c={};STK.forEach(function(k){c[k]=ch.filter(function(t){return liveSt(t)===k}).length});
 
 
@@ -1269,7 +1274,7 @@ function renderGantt(){
     v+='<div class="trow'+(t.lv===1?" g":"")+(ui.sel===t.id?" sel":"")+'" data-id="'+t.id+'"><div class="lft">'+
       '<div class="cell c-wbs">'+(t.lv===1?'<button class="exp" data-x="'+t.id+'">'+(ui.closed[t.id]?"▶":"▼")+"</button>":"")+esc(t.wbs)+"</div>"+
       '<div class="cell c-name" title="'+esc(t.name)+'">'+esc(t.name)+"</div>"+
-      '<div class="cell c-lead">'+esc(t.lead||"—")+'</div><div class="cell c-d">'+vn(sp.s)+'</div><div class="cell c-d">'+vn(sp.e)+"</div>"+
+      '<div class="cell c-lead">'+esc(t.lead||(t.lv===1?"cả hạng mục":"—"))+'</div><div class="cell c-d">'+vn(sp.s)+'</div><div class="cell c-d">'+vn(sp.e)+"</div>"+
       '<div class="cell c-n">'+(n||"—")+'</div><div class="cell c-st"><span class="pill '+ST[st][1]+'"><i></i>'+ST[st][0]+"</span></div>"+
       '<div class="cell c-act">'+(t.lv===1?'<button class="rowbtn" data-add="'+t.id+'" title="Thêm công việc vào hạng mục này">+</button>':"")+"</div></div>"+
       '<div class="time" style="width:'+W+"px;"+wkBg+'">'+bar+cap+'<div class="now" style="left:'+nowX+'px"></div></div></div>';
@@ -1338,9 +1343,9 @@ function openDrawer(id,focusName){
       '<div class="f wide"><label for="d-name">'+(t.lv===1?"Tên hạng mục":"Tên công việc")+'</label><textarea id="d-name" rows="2">'+esc(t.name)+"</textarea></div>"+
       (t.lv===2?'<div class="f wide"><label for="d-par">Thuộc hạng mục</label><select id="d-par">'+grps.map(function(g){
         return '<option value="'+g.id+'"'+(g.id===t.pid?" selected":"")+">"+esc(g.wbs)+". "+esc(g.name)+"</option>"}).join("")+"</select></div>":"")+
-      '<div class="f wide"><label for="d-lead">Đơn vị chủ trì (1 đơn vị chịu trách nhiệm)</label>'+
-        '<select id="d-lead"'+(t.lv===1?" disabled":"")+'><option value="">— chưa gán —</option>'+leads().map(function(l){return '<option'+(t.lead===l?" selected":"")+">"+esc(l)+"</option>"}).join("")+"</select></div>"+
-      '<div class="f wide"><label for="d-coop">Đơn vị phối hợp</label><input id="d-coop" value="'+esc((t.coop||[]).join(", "))+'" placeholder="ngăn cách bằng dấu phẩy"'+(t.lv===1?" disabled":"")+"></div>"+
+      '<div class="f wide"><label for="d-lead">Đơn vị chủ trì'+(t.lv===1?" cả hạng mục":" (1 đơn vị chịu trách nhiệm)")+'</label>'+
+        '<select id="d-lead"><option value="">— chưa gán —</option>'+leads().map(function(l){return '<option'+(t.lead===l?" selected":"")+">"+esc(l)+"</option>"}).join("")+'<option value="__new">+ Đơn vị khác…</option></select></div>'+
+      '<div class="f wide"><label for="d-coop">Đơn vị phối hợp</label><input id="d-coop" value="'+esc((t.coop||[]).join(", "))+'" placeholder="ngăn cách bằng dấu phẩy"></div>'+
       '<div class="f'+(t.lv===1?" ro":"")+'"><label for="d-s">Bắt đầu</label><input type="date" id="d-s" value="'+(sp.s||"")+'"'+(t.lv===1?" disabled":"")+"></div>"+
       '<div class="f'+(t.lv===1?" ro":"")+'"><label for="d-e">Kết thúc</label><input type="date" id="d-e" value="'+(sp.e||"")+'"'+(t.lv===1?" disabled":"")+"></div>"+
       '<div class="f ro wide"><label>Số ngày (tự tính = Kết thúc − Bắt đầu + 1, theo ngày lịch)</label><input value="'+(n||"—")+'" readonly></div>'+
@@ -1439,8 +1444,24 @@ function bindDrawer(t){
     if(!nm){toast("Tên không được để trống");return}
     t.name=nm;
     var wasNew=(newTaskId===t.id);
-    if(t.lv===1){newTaskId=null;dirty=false;rebuild();savePlan();
+    if(t.lv===1){
+      var oldLead=t.lead||"";
+      t.lead=g("d-lead").value;
+      t.coop=g("d-coop").value.split(",").map(function(s){return s.trim()}).filter(Boolean);
+      newTaskId=null;dirty=false;rebuild();savePlan();
       if(wasNew)projLog("Thêm hạng mục: "+t.name+".");
+      else if(t.lead!==oldLead)projLog("Đổi đơn vị chủ trì hạng mục "+t.wbs+". "+t.name+": "+(oldLead||"chưa gán")+" → "+(t.lead||"chưa gán")+".");
+      var blank=kids(t.id).filter(function(c){return !c.lead});
+      if(t.lead&&blank.length){
+        ask({title:"Áp đơn vị chủ trì xuống công việc con",
+          html:"Hạng mục này có <b>"+blank.length+"</b> công việc con chưa gán đơn vị chủ trì.<br>Gán <b>"+esc(t.lead)+"</b> cho các việc đó?<br><span class='tiny muted'>Việc đã có đơn vị chủ trì sẽ giữ nguyên.</span>",
+          ok:"Gán cho "+blank.length+" việc",cancel:"Không, để trống",
+          onOk:function(){
+            blank.forEach(function(c){c.lead=t.lead;addLog(c.id,"Gán đơn vị chủ trì "+t.lead+" theo hạng mục.","sys")});
+            savePlan();toast("Đã gán cho "+blank.length+" việc");render();openDrawer(t.id);
+          },onCancel:function(){render();openDrawer(t.id)}});
+        return;
+      }
       toast(wasNew?"Đã thêm hạng mục":"Đã lưu");openDrawer(t.id);return}
     t.lead=g("d-lead").value;
     t.coop=g("d-coop").value.split(",").map(function(s){return s.trim()}).filter(Boolean);
@@ -1466,6 +1487,18 @@ function bindDrawer(t){
     toast(wasNew?"Đã thêm công việc":"Đã lưu");
     openDrawer(t.id);
   };
+  if(g("d-lead"))g("d-lead").addEventListener("change",function(){
+    if(this.value!=="__new")return;
+    var sel=this;sel.value=t.lead||"";
+    promptModal("Đơn vị chủ trì mới","Tên đơn vị","",function(v){
+      v=(v||"").trim();if(!v)return;
+      if(!Array.prototype.some.call(sel.options,function(o){return o.value!=="__new"&&o.text===v})){
+        var o=document.createElement("option");o.text=v;sel.insertBefore(o,sel.options[sel.options.length-1]);
+      }
+      sel.value=v;dirty=true;
+      var d2=g("d-dirty");if(d2)d2.innerHTML='<span style="color:var(--st-pending);font-weight:600">Có thay đổi chưa lưu</span>';
+    });
+  });
   ["d-name","d-lead","d-coop","d-s","d-e","d-pct","d-par"].forEach(function(fid){
     var el=g(fid);if(!el)return;
     el.addEventListener("input",function(){dirty=true;var d2=g("d-dirty");if(d2)d2.innerHTML='<span style="color:var(--st-pending);font-weight:600">Có thay đổi chưa lưu</span>'});

@@ -70,7 +70,7 @@ export function UsersPage() {
       setForm(emptyForm)
       await loadData()
     } catch {
-      setError('Không tạo được tài khoản. Kiểm tra tên trùng hoặc quyền sếp.')
+      setError('Không tạo được tài khoản. Kiểm tra tên trùng hoặc quyền quản trị viên.')
     } finally {
       setSubmitting(false)
     }
@@ -82,7 +82,7 @@ export function UsersPage() {
         <div>
           <p className="eyebrow">QUẢN TRỊ HỆ THỐNG</p>
           <h1>Quản lý người dùng</h1>
-          <p className="muted">Sếp tạo tài khoản và gán vai trò. Hệ thống không cho phép tự đăng ký.</p>
+          <p className="muted">Quản trị viên tạo tài khoản và gán vai trò. Hệ thống không cho phép tự đăng ký.</p>
         </div>
       </div>
 
@@ -96,7 +96,7 @@ export function UsersPage() {
           <label>Mật khẩu tạm<input required minLength={8} type="password" autoComplete="new-password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} /></label>
           <label>Vai trò<select value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value as AppRole })}>
             <option value="employee">Nhân viên</option>
-            <option value="manager">Sếp</option>
+            <option value="manager">Quản trị viên</option>
           </select></label>
           {error && <div className="alert error">{error}</div>}
           {success && <div className="alert success">{success}</div>}
@@ -113,7 +113,7 @@ export function UsersPage() {
             <thead><tr><th>Tài khoản</th><th>Vai trò</th><th>Trạng thái</th></tr></thead>
             <tbody>{users.map((user) => <tr key={user.id}>
               <td><strong>{user.username}</strong></td>
-              <td>{user.role === 'manager' ? 'Sếp' : 'Nhân viên'}</td>
+              <td>{user.role === 'manager' ? 'Quản trị viên' : 'Nhân viên'}</td>
               <td><span className={`status ${user.active ? 'active' : 'archived'}`}>{user.active ? 'Đang hoạt động' : 'Đã khóa'}</span></td>
             </tr>)}</tbody>
           </table></div>}

@@ -45,7 +45,7 @@ export function ProjectsPage() {
         {!loading && !error && projects.length === 0 && (
           <div className="state-message">
             <h2>Chưa có dự án</h2>
-            <p>Dữ liệu sẽ xuất hiện sau khi sếp tạo dự án hoặc import file Excel.</p>
+            <p>Dữ liệu sẽ xuất hiện sau khi quản trị viên tạo dự án hoặc import file Excel.</p>
           </div>
         )}
         {projects.length > 0 && (

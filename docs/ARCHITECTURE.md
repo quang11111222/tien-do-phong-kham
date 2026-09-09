@@ -26,13 +26,13 @@ RLS, database functions và audit log
 - Giao diện ẩn nút theo vai trò chỉ để cải thiện trải nghiệm; RLS và database functions mới là lớp phân quyền bắt buộc.
 - Mọi người dùng đã đăng nhập được xem toàn bộ dự án.
 - Nhân viên chỉ cập nhật công việc mình tham gia.
-- Sếp quản lý dự án, phân công và duyệt hoàn thành.
-- Self-signup bị tắt. Sếp tạo tài khoản qua Edge Function; hàm xác thực JWT và kiểm tra profile `manager` trước khi dùng Admin API.
+- Quản trị viên quản lý dự án, phân công và duyệt hoàn thành.
+- Self-signup bị tắt. Quản trị viên tạo tài khoản qua Edge Function; hàm xác thực JWT và kiểm tra profile `manager` trước khi dùng Admin API.
 
 ## Module
 
 - `auth`: đăng nhập, phiên làm việc, hồ sơ và vai trò.
-- `users`: sếp tạo tài khoản và gán vai trò; tài khoản không gắn phòng ban.
+- `users`: quản trị viên tạo tài khoản và gán vai trò; tài khoản không gắn phòng ban.
 - `projects`: danh mục và thông tin dự án.
 - `work-items`: hạng mục, công việc, Gantt và người tham gia.
 - `completion-requests`: gửi duyệt, duyệt và từ chối.
@@ -61,7 +61,7 @@ Mỗi lần gửi duyệt là một `completion_request` riêng để lưu đư�
 - `work_items.lead_department_id` lưu một đơn vị chủ trì; `work_item_coordinating_departments` lưu nhiều đơn vị phối hợp. Chuỗi Excel ban đầu vẫn được giữ trong `source_responsibility_text` để truy vết và migration tự ánh xạ alias sang danh mục chuẩn.
 - `work_item_activity_reads` lưu thời điểm từng người dùng đã xem diễn biến của từng công việc; frontend so sánh với cập nhật tiến độ và vòng duyệt gần nhất để hiển thị dấu chưa xem.
 - Danh mục phòng ban chỉ dùng để gợi ý đơn vị chủ trì/phối hợp trên hạng mục hoặc công việc, độc lập với hồ sơ người dùng.
-- Sau preview, sếp xác nhận rồi mới ghi dữ liệu.
+- Sau preview, quản trị viên xác nhận rồi mới ghi dữ liệu.
 
 ## Triển khai MVP
 

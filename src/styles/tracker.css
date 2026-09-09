@@ -16,6 +16,31 @@
 .evi > input[type="checkbox"] { margin: 0; }
 .evi > button.t { background: none; border: 0; color: var(--brand); cursor: pointer; overflow: hidden; padding: 0; text-align: left; text-overflow: ellipsis; }
 .users-host .content-card { border-color: var(--line); }
+.users-host .admin-grid { grid-template-columns: minmax(280px, 340px) minmax(620px, 1fr); }
+.user-list-card .card-heading > div { display: grid; gap: 3px; }
+.user-list-card .card-heading small { color: var(--ink-3); font-size: 10px; }
+.user-page-alert { margin: 12px 14px 0; }
+.users-table td:first-child strong { display: block; margin-bottom: 4px; }
+.user-account { align-items: center; color: var(--ink-3); display: flex; font-size: 10px; gap: 5px; }
+.root-badge, .self-badge { border-radius: 999px; font-size: 8.5px; font-weight: 700; padding: 2px 5px; text-transform: uppercase; }
+.root-badge { background: var(--brand-soft); color: var(--brand-d); }
+.self-badge { background: var(--st-done-bg); color: var(--st-done); }
+.user-actions { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; min-width: 255px; }
+.user-actions .btn { font-size: 10px; padding: 5px 7px; white-space: nowrap; }
+.btn.danger-outline { border-color: #f0b9be; color: var(--st-late); }
+.btn.danger-outline:hover { background: var(--st-late-bg); }
+.user-dialog-layer { align-items: center; background: rgba(8,24,43,.5); display: flex; inset: 0; justify-content: center; padding: 18px; position: fixed; z-index: 110; }
+.user-dialog { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 24px 70px rgba(10,34,61,.24); display: grid; gap: 14px; padding: 20px; width: min(460px, 100%); }
+.user-dialog-heading { align-items: flex-start; display: flex; justify-content: space-between; }
+.user-dialog-heading .eyebrow { margin-bottom: 4px; }
+.user-dialog-heading h2 { font-size: 18px; margin: 0; }
+.user-dialog-heading p:not(.eyebrow) { color: var(--ink-3); font-size: 11px; margin: 5px 0 0; }
+.user-dialog-close { background: var(--surface-2); border: 1px solid var(--line); border-radius: 50%; color: var(--ink-2); font-size: 20px; height: 30px; line-height: 1; width: 30px; }
+.user-dialog label { color: var(--ink-2); display: grid; font-size: 11px; font-weight: 700; gap: 6px; }
+.user-dialog label small { color: var(--ink-3); font-size: 10px; font-weight: 400; line-height: 1.45; }
+.user-dialog input, .user-dialog select { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; color: var(--ink); padding: 9px 10px; }
+.user-dialog input:focus, .user-dialog select:focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); outline: 0; }
+.user-dialog-actions { display: flex; gap: 7px; justify-content: flex-end; margin-top: 2px; }
 .tracker-app .admin-grid { margin-top: 8px; }
 .tracker-app .page-heading { margin-bottom: 12px; }
 .tracker-app .page-heading h1 { font-size: 21px; }
@@ -86,4 +111,5 @@
   .approval-row { grid-template-columns: 1fr; }
   .approval-box { flex-wrap: wrap; }
   .whoami > div:first-child, .search { display: none; }
+  .users-host .admin-grid { grid-template-columns: 1fr; }
 }

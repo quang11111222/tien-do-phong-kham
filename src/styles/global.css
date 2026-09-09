@@ -44,7 +44,10 @@ h1, h2, p { margin-top: 0; }
 .alert.info { background: #edf5ff; color: #24578c; }
 .alert.success { background: #e9f7f0; color: #18764a; }
 
-.setup-page, .app-loading { align-items: center; display: flex; justify-content: center; min-height: 100vh; padding: 2rem; }
+.setup-page, .app-loading, .account-disabled { align-items: center; display: flex; justify-content: center; min-height: 100vh; padding: 2rem; }
+.account-disabled { background: #f4f7fb; text-align: center; }
+.account-disabled .setup-card { max-width: 520px; }
+.account-disabled .primary-button { margin-top: 0.75rem; }
 .setup-card { background: white; border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 22px 60px rgb(16 35 60 / 10%); max-width: 620px; padding: 2.5rem; }
 .setup-card .eyebrow { margin-top: 1.5rem; }
 .setup-card code { background: #eef2f7; border-radius: 5px; padding: 0.15rem 0.35rem; }

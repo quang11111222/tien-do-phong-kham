@@ -57,7 +57,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 ## 7. Yêu cầu chức năng
 
 1. Đăng nhập/đăng xuất.
-2. Quản trị viên quản lý tài khoản: tạo người dùng và gán vai trò; tài khoản không gắn phòng ban.
+2. Quản trị viên quản lý tài khoản: tạo người dùng với họ tên, gán hoặc thay đổi vai trò, đặt lại mật khẩu và bật/tắt hoạt động; tài khoản không gắn phòng ban.
 3. Tạo, sửa, xóa mềm và khôi phục dự án; chỉ quản trị viên xem được danh sách đã xóa.
 4. Import sheet đầu của file tiến độ Excel, xem trước và xác nhận.
 5. Quản lý hạng mục, công việc và nhiều người tham gia.
@@ -77,6 +77,8 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 
 - Mọi người dùng đã đăng nhập được xem toàn bộ dự án.
 - Chỉ quản trị viên được tạo tài khoản; Supabase Auth tắt self-signup và frontend không giữ `service_role` key.
+- Tài khoản `admin` gốc luôn giữ vai trò Quản trị viên và không thể bị khóa. Quản trị viên không thể tự khóa hoặc tự hạ quyền tài khoản đang đăng nhập.
+- Khóa tài khoản không xóa hồ sơ hoặc lịch sử thao tác; khi được mở lại, tài khoản tiếp tục sử dụng dữ liệu cũ.
 - Nhân viên chỉ cập nhật công việc mình tham gia.
 - Một công việc có thể có nhiều người tham gia; tất cả người tham gia có quyền cập nhật và gửi duyệt.
 - Khi đã gửi duyệt, công việc tạm khóa cập nhật cho đến khi quản trị viên duyệt hoặc từ chối.

@@ -13,7 +13,6 @@ export interface Profile {
   username: string
   full_name: string
   role: AppRole
-  department_id: string | null
   active: boolean
 }
 
@@ -24,9 +23,7 @@ export interface Department {
   active: boolean
 }
 
-export interface UserProfile extends Profile {
-  department: Pick<Department, 'code' | 'name'> | null
-}
+export type UserProfile = Profile
 
 export interface Project {
   id: string

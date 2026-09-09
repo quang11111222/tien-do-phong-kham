@@ -32,7 +32,7 @@ RLS, database functions và audit log
 ## Module
 
 - `auth`: đăng nhập, phiên làm việc, hồ sơ và vai trò.
-- `users`: sếp tạo tài khoản, gán phòng ban và vai trò.
+- `users`: sếp tạo tài khoản và gán vai trò; tài khoản không gắn phòng ban.
 - `projects`: danh mục và thông tin dự án.
 - `work-items`: hạng mục, công việc, Gantt và người tham gia.
 - `completion-requests`: gửi duyệt, duyệt và từ chối.
@@ -59,6 +59,7 @@ Mỗi lần gửi duyệt là một `completion_request` riêng để lưu đư�
 - Không nhập các ô đánh dấu Gantt theo ngày; giao diện tự tính từ khoảng ngày.
 - Không tự gán người tham gia từ chuỗi phòng ban cũ.
 - Chuỗi `Chủ trì / phối hợp` được giữ trong `source_responsibility_text` để truy vết.
+- Danh mục phòng ban chỉ dùng để gợi ý đơn vị chủ trì/phối hợp trên hạng mục hoặc công việc, độc lập với hồ sơ người dùng.
 - Sau preview, sếp xác nhận rồi mới ghi dữ liệu.
 
 ## Triển khai MVP

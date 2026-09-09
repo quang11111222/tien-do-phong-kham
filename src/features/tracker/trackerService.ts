@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/supabase'
-import type { Attachment, CompletionRequest, Milestone, ProgressUpdate, Project, ProjectActivity, UserProfile, WorkItem, WorkItemStatus } from '../../types/domain'
+import type { Attachment, CompletionRequest, Department, Milestone, ProgressUpdate, Project, ProjectActivity, UserProfile, WorkItem, WorkItemStatus } from '../../types/domain'
 import type { ImportedWorkItem } from './excelService'
 
 export async function getProjects(includeDeleted = false): Promise<Project[]> {
@@ -41,9 +41,16 @@ export async function getWorkItems(projectId: string): Promise<WorkItem[]> {
 
 export async function getUsers(): Promise<UserProfile[]> {
   if (!supabase) return []
-  const { data, error } = await supabase.from('profiles').select('id, username, full_name, role, department_id, active, department:departments(code, name)').eq('active', true).order('full_name')
+  const { data, error } = await supabase.from('profiles').select('id, username, full_name, role, active').eq('active', true).order('full_name')
   if (error) throw error
-  return (data ?? []) as unknown as UserProfile[]
+  return (data ?? []) as UserProfile[]
+}
+
+export async function getDepartments(): Promise<Department[]> {
+  if (!supabase) return []
+  const { data, error } = await supabase.from('departments').select('id, code, name, active').eq('active', true).order('sort_order')
+  if (error) throw error
+  return (data ?? []) as Department[]
 }
 
 export async function saveWorkItem(item: WorkItem, input: { name: string; responsibility: string; startDate: string; endDate: string; status: WorkItemStatus; participantIds: string[] }) {

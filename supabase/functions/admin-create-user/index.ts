@@ -11,7 +11,6 @@ interface RequestBody {
   username?: string
   password?: string
   role?: AppRole
-  department_id?: string
 }
 
 function json(body: unknown, status = 200) {
@@ -64,24 +63,9 @@ Deno.serve(async (request) => {
   const username = body.username?.trim().toLowerCase()
   const password = body.password ?? ''
   const role = body.role === 'manager' ? 'manager' : 'employee'
-  const departmentId = body.department_id?.trim() || null
 
   if (!username || !/^[a-z0-9._-]{3,32}$/.test(username) || password.length < 8) {
     return json({ error: 'Thiếu hoặc sai dữ liệu tài khoản.' }, 400)
-  }
-
-  if (role === 'employee' && !departmentId) {
-    return json({ error: 'Nhân viên phải được gán phòng ban.' }, 400)
-  }
-
-  if (departmentId) {
-    const { data: department } = await adminClient
-      .from('departments')
-      .select('id')
-      .eq('id', departmentId)
-      .eq('active', true)
-      .maybeSingle()
-    if (!department) return json({ error: 'Phòng ban không hợp lệ.' }, 400)
   }
 
   const { data: created, error: createError } = await adminClient.auth.admin.createUser({
@@ -96,7 +80,7 @@ Deno.serve(async (request) => {
 
   const { error: profileError } = await adminClient
     .from('profiles')
-    .update({ username, full_name: username, role, department_id: departmentId, active: true })
+    .update({ username, full_name: username, role, active: true })
     .eq('id', created.user.id)
 
   if (profileError) {

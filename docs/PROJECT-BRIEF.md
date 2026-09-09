@@ -16,7 +16,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 
 | Nhóm/Vai trò | Nhu cầu | Quyền dự kiến |
 |---|---|---|
-| Sếp | Quản lý toàn bộ tiến độ, phân công và kiểm soát kết quả | Tạo/sửa dự án, import Excel, quản lý hạng mục/mốc, phân công, duyệt hoặc từ chối hoàn thành |
+| Sếp | Quản lý toàn bộ tiến độ, phân công và kiểm soát kết quả | Tạo/sửa dự án, import Excel, quản lý hạng mục/mốc, tài khoản, phân công, duyệt hoặc từ chối hoàn thành |
 | Nhân viên | Theo dõi toàn bộ dự án và cập nhật phần việc tham gia | Xem toàn bộ dự án; cập nhật, thêm bằng chứng và gửi duyệt đối với công việc được phân công |
 
 ## 4. Current State
@@ -57,7 +57,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 ## 7. Yêu cầu chức năng
 
 1. Đăng nhập/đăng xuất.
-2. Sếp quản lý tài khoản: tạo người dùng, gán vai trò và phòng ban.
+2. Sếp quản lý tài khoản: tạo người dùng và gán vai trò; tài khoản không gắn phòng ban.
 3. Tạo, sửa, xóa mềm và khôi phục dự án; chỉ sếp xem được danh sách đã xóa.
 4. Import sheet đầu của file tiến độ Excel, xem trước và xác nhận.
 5. Quản lý hạng mục, công việc và nhiều người tham gia.
@@ -85,6 +85,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Mỗi vòng gửi/duyệt phải được lưu riêng để truy vết.
 - Chỉ import sheet đầu của Excel; các sheet khác không thuộc luồng import.
 - Chuỗi phòng ban từ Excel không tự động trở thành người tham gia.
+- Phòng ban/đơn vị chỉ gắn vào hạng mục hoặc công việc ở trường chủ trì/phối hợp, độc lập với tài khoản và danh sách người tham gia.
 - Xóa dự án là xóa mềm: người dùng thường không còn xem được dự án và dữ liệu con; sếp có thể xem danh sách đã xóa và khôi phục. MVP không xóa vĩnh viễn dự án từ giao diện.
 
 ## 9. Dữ liệu và tích hợp

@@ -26,17 +26,42 @@ export async function setProjectDeleted(id: string, deleted: boolean) {
 
 export async function getWorkItems(projectId: string): Promise<WorkItem[]> {
   if (!supabase) return []
-  const { data: rows, error } = await supabase.from('work_items').select('*').eq('project_id', projectId).order('sort_order')
+  const { data: rows, error } = await supabase.from('work_items').select('*, lead_department:departments!work_items_lead_department_id_fkey(id, code, name, active)').eq('project_id', projectId).order('sort_order')
   if (error) throw error
   const ids = (rows ?? []).map((row) => row.id)
   if (!ids.length) return []
-  const [{ data: participants, error: participantError }, { data: attachments, error: attachmentError }] = await Promise.all([
+  const [{ data: participants, error: participantError }, { data: attachments, error: attachmentError }, { data: coordinators, error: coordinatorError }, { data: progress, error: progressError }, { data: requests, error: requestError }, { data: reads, error: readError }] = await Promise.all([
     supabase.from('work_item_participants').select('work_item_id, user_id').in('work_item_id', ids),
     supabase.from('attachments').select('id, work_item_id, storage_path, file_name, mime_type, size_bytes, uploaded_by, uploaded_at').in('work_item_id', ids).is('completion_request_id', null),
+    supabase.from('work_item_coordinating_departments').select('work_item_id, department_id, department:departments(id, code, name, active)').in('work_item_id', ids),
+    supabase.from('progress_updates').select('work_item_id, created_at').in('work_item_id', ids),
+    supabase.from('completion_requests').select('work_item_id, submitted_at, reviewed_at').in('work_item_id', ids),
+    supabase.from('work_item_activity_reads').select('work_item_id, last_seen_at').in('work_item_id', ids),
   ])
   if (participantError) throw participantError
   if (attachmentError) throw attachmentError
-  return (rows ?? []).map((row) => ({ ...row, participant_ids: (participants ?? []).filter((item) => item.work_item_id === row.id).map((item) => item.user_id), attachment: (attachments ?? []).find((item) => item.work_item_id === row.id) ?? null })) as WorkItem[]
+  if (coordinatorError) throw coordinatorError
+  if (progressError) throw progressError
+  if (requestError) throw requestError
+  if (readError) throw readError
+  return (rows ?? []).map((row) => {
+    const coordinatingRows = (coordinators ?? []).filter((item) => item.work_item_id === row.id)
+    const activityTimes = [
+      ...(progress ?? []).filter((item) => item.work_item_id === row.id).map((item) => item.created_at),
+      ...(requests ?? []).filter((item) => item.work_item_id === row.id).flatMap((item) => [item.submitted_at, item.reviewed_at]).filter((value): value is string => Boolean(value)),
+    ].sort()
+    const lastActivityAt = activityTimes.at(-1) ?? null
+    const lastSeenAt = (reads ?? []).find((item) => item.work_item_id === row.id)?.last_seen_at ?? null
+    return {
+      ...row,
+      lead_department: Array.isArray(row.lead_department) ? row.lead_department[0] ?? null : row.lead_department,
+      coordinating_department_ids: coordinatingRows.map((item) => item.department_id),
+      coordinating_departments: coordinatingRows.flatMap((item) => Array.isArray(item.department) ? item.department : item.department ? [item.department] : []),
+      participant_ids: (participants ?? []).filter((item) => item.work_item_id === row.id).map((item) => item.user_id),
+      attachment: (attachments ?? []).find((item) => item.work_item_id === row.id) ?? null,
+      has_unseen_activity: Boolean(lastActivityAt && (!lastSeenAt || lastActivityAt > lastSeenAt)),
+    }
+  }) as WorkItem[]
 }
 
 export async function getUsers(): Promise<UserProfile[]> {
@@ -53,13 +78,14 @@ export async function getDepartments(): Promise<Department[]> {
   return (data ?? []) as Department[]
 }
 
-export async function saveWorkItem(item: WorkItem, input: { name: string; responsibility: string; startDate: string; endDate: string; status: WorkItemStatus; participantIds: string[] }) {
+export async function saveWorkItem(item: WorkItem, input: { name: string; leadDepartmentId: string; coordinatingDepartmentIds: string[]; startDate: string; endDate: string; status: WorkItemStatus; participantIds: string[] }) {
   if (!supabase) throw new Error('Chưa cấu hình Supabase.')
   const { error } = await supabase.rpc('update_work_item_details', {
     target_work_item_id: item.id,
     expected_version: item.version,
     target_name: input.name.trim(),
-    target_responsibility: input.responsibility.trim() || null,
+    target_lead_department_id: input.leadDepartmentId || null,
+    coordinating_department_ids: input.coordinatingDepartmentIds,
     target_start_date: input.startDate || null,
     target_end_date: input.endDate || null,
     target_status: input.status,
@@ -68,14 +94,15 @@ export async function saveWorkItem(item: WorkItem, input: { name: string; respon
   if (error) throw error
 }
 
-export async function createWorkItem(input: { projectId: string; parentId: string | null; wbs: string; name: string; responsibility: string; startDate: string; endDate: string; status: WorkItemStatus; participantIds: string[] }): Promise<string> {
+export async function createWorkItem(input: { projectId: string; parentId: string | null; wbs: string; name: string; leadDepartmentId: string; coordinatingDepartmentIds: string[]; startDate: string; endDate: string; status: WorkItemStatus; participantIds: string[] }): Promise<string> {
   if (!supabase) throw new Error('Chưa cấu hình Supabase.')
   const { data, error } = await supabase.rpc('create_work_item', {
     target_project_id: input.projectId,
     target_parent_id: input.parentId,
     target_wbs: input.wbs,
     target_name: input.name.trim(),
-    target_responsibility: input.responsibility.trim() || null,
+    target_lead_department_id: input.leadDepartmentId || null,
+    coordinating_department_ids: input.coordinatingDepartmentIds,
     target_start_date: input.startDate || null,
     target_end_date: input.endDate || null,
     target_status: input.status,
@@ -123,6 +150,22 @@ export async function addProgress(workItemId: string, content: string, userId: s
   if (!supabase) throw new Error('Chưa cấu hình Supabase.')
   const { error } = await supabase.from('progress_updates').insert({ work_item_id: workItemId, content: content.trim(), created_by: userId })
   if (error) throw error
+}
+
+export async function markWorkItemActivitySeen(workItemId: string, userId: string) {
+  if (!supabase) return
+  const { error } = await supabase.from('work_item_activity_reads').upsert({ work_item_id: workItemId, user_id: userId, last_seen_at: new Date().toISOString() }, { onConflict: 'work_item_id,user_id' })
+  if (error) throw error
+}
+
+export async function markProjectActivitySeen(projectId: string, userId: string) {
+  if (!supabase) return
+  const { data, error } = await supabase.from('work_items').select('id').eq('project_id', projectId)
+  if (error) throw error
+  if (!data?.length) return
+  const lastSeenAt = new Date().toISOString()
+  const { error: upsertError } = await supabase.from('work_item_activity_reads').upsert(data.map((item) => ({ work_item_id: item.id, user_id: userId, last_seen_at: lastSeenAt })), { onConflict: 'work_item_id,user_id' })
+  if (upsertError) throw upsertError
 }
 
 export async function uploadEvidence(workItemId: string, file: File, userId: string) {

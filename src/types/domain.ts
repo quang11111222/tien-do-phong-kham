@@ -46,6 +46,10 @@ export interface WorkItem {
   wbs: string
   name: string
   source_responsibility_text: string | null
+  lead_department_id: string | null
+  lead_department: Department | null
+  coordinating_department_ids: string[]
+  coordinating_departments: Department[]
   start_date: string | null
   end_date: string | null
   status: WorkItemStatus
@@ -55,6 +59,7 @@ export interface WorkItem {
   updated_at: string
   participant_ids: string[]
   attachment: Attachment | null
+  has_unseen_activity: boolean
 }
 
 export interface Attachment {

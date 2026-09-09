@@ -1,5 +1,6 @@
 
 :root{
+  color-scheme:light only;
   --brand:#1668C4; --brand-d:#0F4E97; --brand-soft:#E9F2FC; --brand-line:#CFE2F7;
   --ground:#F2F6FB; --surface:#FFFFFF; --surface-2:#F8FBFE; --line:#E1EAF4; --line-2:#EDF3F9;
   --ink:#12263F; --ink-2:#4E6787; --ink-3:#8A9CB4;
@@ -8,26 +9,6 @@
   --shadow:0 1px 2px rgba(18,38,63,.06), 0 8px 24px -12px rgba(18,38,63,.18);
   --weekend:#F4F7FB; --today:#C8393B;
   --row:36px; --lw:764px;
-}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --brand:#4E9BE8; --brand-d:#7FB9F0; --brand-soft:#17293D; --brand-line:#23405C;
-    --ground:#0C1420; --surface:#141E2C; --surface-2:#18242F; --line:#243346; --line-2:#1D2A3A;
-    --ink:#E7EEF7; --ink-2:#9FB3CB; --ink-3:#6E8299;
-    --st-todo:#7F93AC; --st-doing:#4E9BE8; --st-pending:#DCA33F; --st-done:#43B183; --st-late:#E4696B;
-    --st-todo-bg:#1B2634; --st-doing-bg:#152C44; --st-pending-bg:#33280F; --st-done-bg:#122E23; --st-late-bg:#361A1C;
-    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
-    --weekend:#101A27; --today:#E4696B;
-  }
-}
-:root[data-theme="dark"]{
-  --brand:#4E9BE8; --brand-d:#7FB9F0; --brand-soft:#17293D; --brand-line:#23405C;
-  --ground:#0C1420; --surface:#141E2C; --surface-2:#18242F; --line:#243346; --line-2:#1D2A3A;
-  --ink:#E7EEF7; --ink-2:#9FB3CB; --ink-3:#6E8299;
-  --st-todo:#7F93AC; --st-doing:#4E9BE8; --st-pending:#DCA33F; --st-done:#43B183; --st-late:#E4696B;
-  --st-todo-bg:#1B2634; --st-doing-bg:#152C44; --st-pending-bg:#33280F; --st-done-bg:#122E23; --st-late-bg:#361A1C;
-  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.7);
-  --weekend:#101A27; --today:#E4696B;
 }
 *{box-sizing:border-box}
 html,body,#root{height:100%;min-height:0}
@@ -56,7 +37,6 @@ button,input,select,textarea{font:inherit;color:inherit}
 .sub button.on{background:var(--brand);color:#fff;font-weight:600}
 .sub .cap{font-size:9.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--ink-3);padding:7px 9px 3px;font-weight:700}
 .clock{margin:10px 12px 14px;background:#132438;color:#DCE9F8;border-radius:11px;padding:9px 12px;text-align:center}
-:root[data-theme="dark"] .clock{background:#0A1220}
 .clock b{display:block;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:17px;letter-spacing:1px}
 .clock span{font-size:10.5px;color:#7E9AC0}
 

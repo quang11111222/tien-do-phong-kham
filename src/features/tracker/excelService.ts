@@ -70,19 +70,19 @@ export async function exportProject(project: Project, items: WorkItem[]) {
   const { utils, writeFileXLSX } = await import('xlsx')
   const byParent = new Map<string, WorkItem[]>()
   items.forEach((item) => { if (item.parent_id) byParent.set(item.parent_id, [...(byParent.get(item.parent_id) ?? []), item]) })
-  const rows: (string | number)[][] = [[project.name + ' — tiến độ tại ngày ' + formatDate(today())], [], ['STT', 'Hạng mục công việc', 'Chủ trì / phối hợp', 'Bắt đầu', 'Kết thúc', 'Số ngày KH', 'Trạng thái', 'Số tài liệu']]
+  const rows: (string | number)[][] = [[project.name + ' — tiến độ tại ngày ' + formatDate(today())], [], ['STT', 'Hạng mục công việc', 'Đơn vị chủ trì', 'Đơn vị phối hợp', 'Bắt đầu', 'Kết thúc', 'Số ngày KH', 'Trạng thái', 'Số tài liệu']]
   const visit = (item: WorkItem) => {
     const children = byParent.get(item.id) ?? []
     const spanItems = children.length ? allDescendants(item.id, items).filter((node) => node.start_date || node.end_date) : [item]
     const start = spanItems.map((node) => node.start_date).filter(Boolean).sort()[0] ?? null
     const end = spanItems.map((node) => node.end_date).filter(Boolean).sort().at(-1) ?? null
     const state = item.status !== 'completed' && item.status !== 'pending_approval' && item.end_date && item.end_date < today() ? 'late' : item.status
-    rows.push([item.wbs, `${item.parent_id ? '   ' : ''}${item.name}`, item.source_responsibility_text ?? '', start ? formatDate(start) : '', end ? formatDate(end) : '', start && end ? dayDiff(start, end) + 1 : '', statusLabels[state], children.length ? '' : item.attachment ? 1 : 0])
+    rows.push([item.wbs, `${item.parent_id ? '   ' : ''}${item.name}`, item.lead_department?.code ?? '', item.coordinating_departments.map((department) => department.code).join(', '), start ? formatDate(start) : '', end ? formatDate(end) : '', start && end ? dayDiff(start, end) + 1 : '', statusLabels[state], children.length ? '' : item.attachment ? 1 : 0])
     children.forEach(visit)
   }
   items.filter((item) => !item.parent_id).forEach(visit)
   const sheet = utils.aoa_to_sheet(rows)
-  sheet['!cols'] = [{ wch: 10 }, { wch: 58 }, { wch: 28 }, { wch: 13 }, { wch: 13 }, { wch: 12 }, { wch: 18 }, { wch: 12 }]
+  sheet['!cols'] = [{ wch: 10 }, { wch: 58 }, { wch: 20 }, { wch: 30 }, { wch: 13 }, { wch: 13 }, { wch: 12 }, { wch: 18 }, { wch: 12 }]
   const workbook = utils.book_new()
   utils.book_append_sheet(workbook, sheet, 'Tien do')
   writeFileXLSX(workbook, `tien-do-${project.code.toLowerCase()}-${today()}.xlsx`)

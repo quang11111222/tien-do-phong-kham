@@ -85,7 +85,8 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Mỗi vòng gửi/duyệt phải được lưu riêng để truy vết.
 - Chỉ import sheet đầu của Excel; các sheet khác không thuộc luồng import.
 - Chuỗi phòng ban từ Excel không tự động trở thành người tham gia.
-- Phòng ban/đơn vị chỉ gắn vào hạng mục hoặc công việc ở trường chủ trì/phối hợp, độc lập với tài khoản và danh sách người tham gia.
+- Phòng ban/đơn vị chỉ gắn vào hạng mục hoặc công việc, độc lập với tài khoản và danh sách người tham gia. Đơn vị chủ trì là một trường chọn riêng; đơn vị phối hợp là danh sách chọn nhiều, không nhập chuỗi phân cách bằng dấu `/`.
+- Khi công việc có diễn biến hoặc vòng duyệt mới mà người dùng chưa xem, Gantt hiển thị dấu sáng tại dòng công việc và menu Nhật ký diễn biến. Trạng thái đã xem được lưu riêng theo từng tài khoản.
 - Xóa dự án là xóa mềm: người dùng thường không còn xem được dự án và dữ liệu con; sếp có thể xem danh sách đã xóa và khôi phục. MVP không xóa vĩnh viễn dự án từ giao diện.
 
 ## 9. Dữ liệu và tích hợp
@@ -100,6 +101,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Bảo mật: không tự đăng ký, RLS ở database, tệp bằng chứng không public, không lưu secret trong Git.
 - Hiệu năng: đáp ứng dữ liệu nhiều dự án ở quy mô nội bộ PTPK; bảng dài cần lọc và phân trang/ảo hóa khi cần.
 - Thiết bị/trình duyệt: ưu tiên máy tính trên Chrome/Edge; responsive để xem trên điện thoại.
+- Giao diện: luôn dùng chế độ sáng, không thay đổi theo theme của trình duyệt hoặc hệ điều hành.
 - Triển khai: Cloudflare Pages Free và Supabase Free trong giai đoạn MVP.
 - Sao lưu: cần export định kỳ vì Supabase Free không cung cấp automatic backup.
 

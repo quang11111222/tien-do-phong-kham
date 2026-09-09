@@ -58,7 +58,8 @@ Mỗi lần gửi duyệt là một `completion_request` riêng để lưu đư�
 - Nhập tên, chuỗi đơn vị nguồn, ngày bắt đầu và ngày kết thúc.
 - Không nhập các ô đánh dấu Gantt theo ngày; giao diện tự tính từ khoảng ngày.
 - Không tự gán người tham gia từ chuỗi phòng ban cũ.
-- Chuỗi `Chủ trì / phối hợp` được giữ trong `source_responsibility_text` để truy vết.
+- `work_items.lead_department_id` lưu một đơn vị chủ trì; `work_item_coordinating_departments` lưu nhiều đơn vị phối hợp. Chuỗi Excel ban đầu vẫn được giữ trong `source_responsibility_text` để truy vết và migration tự ánh xạ alias sang danh mục chuẩn.
+- `work_item_activity_reads` lưu thời điểm từng người dùng đã xem diễn biến của từng công việc; frontend so sánh với cập nhật tiến độ và vòng duyệt gần nhất để hiển thị dấu chưa xem.
 - Danh mục phòng ban chỉ dùng để gợi ý đơn vị chủ trì/phối hợp trên hạng mục hoặc công việc, độc lập với hồ sơ người dùng.
 - Sau preview, sếp xác nhận rồi mới ghi dữ liệu.
 

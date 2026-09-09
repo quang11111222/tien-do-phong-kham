@@ -1295,7 +1295,7 @@ function renderGantt(){
     '<div class="cell c-wbs">Mã</div><div class="cell c-name">Hạng mục công việc</div>'+
     '<div class="cell c-lead">Chủ trì</div><div class="cell c-d">Bắt đầu</div><div class="cell c-d">Kết thúc</div>'+
     '<div class="cell c-n">Số ngày</div><div class="cell c-st">Trạng thái</div><div class="cell c-act"></div></div>'+
-    '<div class="time" style="width:'+W+'px">'+mo+dy+mkH+'<div class="now" style="left:'+nowX+'px"></div><div class="nowlab" style="left:'+nowX+'px">06/09</div></div></div>';
+    '<div class="time" style="width:'+W+'px">'+mo+dy+mkH+'<div class="now" style="left:'+nowX+'px"></div><div class="nowlab" style="left:'+nowX+'px">'+vn(TODAY).slice(0,5)+'</div></div></div>';
   rows.forEach(function(t){
     var sp=span(t),st=stOf(t),n=sp.s&&sp.e?days(sp.s,sp.e):0;
     var x=sp.s?diffd(s0,sp.s)*PPD:0,w=sp.s?Math.max(3,n*PPD):0;

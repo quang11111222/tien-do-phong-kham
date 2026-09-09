@@ -57,14 +57,22 @@ export async function saveWorkItem(item: WorkItem, input: { name: string; respon
   }
 }
 
-export async function addWorkItem(projectId: string, parent: WorkItem | null, allItems: WorkItem[]) {
+export async function createWorkItem(input: { projectId: string; parentId: string | null; wbs: string; name: string; responsibility: string; startDate: string; endDate: string; status: WorkItemStatus; participantIds: string[] }): Promise<string> {
   if (!supabase) throw new Error('Chưa cấu hình Supabase.')
-  const siblings = allItems.filter((item) => item.parent_id === (parent?.id ?? null))
-  const next = siblings.length + 1
-  const parentWbs = parent?.wbs ?? ''
-  const wbs = parent ? `${parentWbs}.${next}` : roman(next)
-  const { error } = await supabase.from('work_items').insert({ project_id: projectId, parent_id: parent?.id ?? null, wbs, name: parent ? 'Công việc mới' : 'HẠNG MỤC MỚI', sort_order: allItems.reduce((max, item) => Math.max(max, item.sort_order), -1) + 1 })
+  const { data, error } = await supabase.rpc('create_work_item', {
+    target_project_id: input.projectId,
+    target_parent_id: input.parentId,
+    target_wbs: input.wbs,
+    target_name: input.name.trim(),
+    target_responsibility: input.responsibility.trim() || null,
+    target_start_date: input.startDate || null,
+    target_end_date: input.endDate || null,
+    target_status: input.status,
+    participant_ids: input.participantIds,
+  })
   if (error) throw error
+  if (!data) throw new Error('Không tạo được hạng mục/công việc.')
+  return data as string
 }
 
 export async function removeWorkItem(id: string) {
@@ -188,6 +196,5 @@ export async function getProjectActivity(projectId: string): Promise<ProjectActi
   return entries.sort((a, b) => b.created_at.localeCompare(a.created_at))
 }
 
-function roman(value: number) { const pairs: [number, string][] = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']]; let rest=value; let result=''; for(const [amount,symbol] of pairs){while(rest>=amount){result+=symbol;rest-=amount}} return result }
 function dayDifference(start: string, end: string) { return Math.round((new Date(`${end}T00:00:00`).getTime() - new Date(`${start}T00:00:00`).getTime()) / 86_400_000) }
 function shiftDate(value: string | null, days: number) { if (!value) return ''; const date = new Date(`${value}T00:00:00`); date.setDate(date.getDate() + days); return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` }

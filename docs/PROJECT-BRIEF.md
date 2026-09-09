@@ -67,6 +67,12 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 9. Quản lý mốc kiểm soát theo dự án.
 10. Lưu audit log và export dữ liệu.
 
+### Quy tắc nhập liệu hạng mục/công việc
+
+- Bấm thêm hạng mục hoặc công việc chỉ mở panel và tạo bản nháp trên trình duyệt, chưa ghi vào database.
+- Chỉ thao tác **Lưu hạng mục/Lưu công việc** mới tạo dữ liệu thật.
+- Đóng bằng nút `X`, lớp nền hoặc **Hủy bỏ** phải bỏ bản nháp; nếu đã nhập liệu thì cần cảnh báo trước khi bỏ.
+
 ## 8. Business Rules và ngoại lệ
 
 - Mọi người dùng đã đăng nhập được xem toàn bộ dự án.

@@ -4,10 +4,11 @@ Repository độc lập để phân tích, thiết kế và phát triển ứng 
 
 ## Trạng thái
 
-- Giai đoạn: Xây dựng nền tảng V2
+- Giai đoạn: MVP đang chạy với dữ liệu Supabase
 - Frontend: React 19, TypeScript, Vite
 - Backend: Supabase Auth, PostgreSQL, Storage và Edge Functions
-- Prototype đã duyệt: [`prototype/index.html`](prototype/index.html)
+- Giao diện và nghiệp vụ nguồn: [`prototype/index.html`](prototype/index.html)
+- Dữ liệu mẫu đã đưa lên database: 5 dự án; Khe Tre có 25 hạng mục, 132 công việc và 14 mốc kiểm soát
 
 ## Toolchain hiện có
 
@@ -43,7 +44,7 @@ npm run build
 - [Project Brief](docs/PROJECT-BRIEF.md)
 - [Decision Log](docs/DECISIONS.md)
 - [Kiến trúc V2](docs/ARCHITECTURE.md)
-- Database migration: `supabase/migrations/202609090001_initial_schema.sql`
+- Database migrations: `supabase/migrations/`
 - Edge Function tạo tài khoản: `supabase/functions/admin-create-user/index.ts`
 
 ## Nguyên tắc repository

@@ -23,8 +23,9 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 
 - Quy trình hiện tại: lập và cập nhật tiến độ theo từng dự án trong Excel.
 - Dữ liệu mẫu đã khảo sát: `TIEN DO KHE TRE 25.8.xlsx`; sheet đầu có 25 hạng mục và 132 công việc.
-- Prototype web hiện là một file `index.html`, dùng dữ liệu hard-code và `localStorage` riêng trên từng trình duyệt.
-- Điểm nghẽn: dữ liệu không dùng chung, không có tài khoản thật, không có phân quyền phía server, không có duyệt hoàn thành và backup tập trung.
+- Prototype gốc là một file `index.html`, dùng dữ liệu hard-code và `localStorage` riêng trên từng trình duyệt.
+- MVP mới đã tách giao diện theo module React và đưa dữ liệu mẫu lên Supabase; prototype tiếp tục là chuẩn đối chiếu giao diện và luồng nghiệp vụ.
+- Điểm còn phải hoàn thiện trước vận hành chính thức: kiểm thử nghiệm thu đủ hai vai trò và chốt phương án backup định kỳ.
 
 ## 5. Desired State
 
@@ -104,7 +105,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 
 ## 12. Open Questions
 
-1. Ai là tài khoản sếp đầu tiên và ai chịu trách nhiệm cấp/khóa tài khoản?
+1. Ai chịu trách nhiệm vận hành tài khoản sếp đầu tiên và cấp/khóa tài khoản về sau?
 2. `PTNL1`, `PTNL2` và `Z1` có tên đầy đủ cần hiển thị hay giữ nguyên mã?
 3. Chính sách dung lượng, định dạng và thời gian lưu tài liệu bằng chứng là gì?
 4. Tần suất backup/export dữ liệu trong giai đoạn MVP?

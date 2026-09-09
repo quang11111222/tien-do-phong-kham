@@ -14,3 +14,7 @@ Ghi các quyết định ảnh hưởng đến phạm vi, dữ liệu, kiến tr
 | 2026-09-09 | Danh mục chuẩn gồm 21 phòng ban/đơn vị | Chuẩn hóa cách ghi tắt không nhất quán trong Excel | Có bảng alias cho NVY, MKT, BQLDA, P.Kỹ thuật, TBTN, TBYT và các biến thể |
 | 2026-09-09 | Tắt self-signup; sếp tạo tài khoản qua Edge Function | Sếp đồng thời là admin nghiệp vụ, người dùng không tự đăng ký | Edge Function kiểm tra role `manager`; `service_role` chỉ nằm trong Supabase backend |
 | 2026-09-09 | Người dùng đăng nhập bằng username + password, không nhập email | Giảm thao tác cho hệ thống nội bộ | Frontend ánh xạ username sang email kỹ thuật ẩn `@ptpk.local`; profile lưu username duy nhất |
+| 2026-09-09 | Dùng `prototype/index.html` làm chuẩn giao diện và logic nghiệp vụ | Prototype đã được duyệt; không cần thiết kế lại trải nghiệm | V2 tái sử dụng bố cục, màu sắc, Gantt, drawer và các luồng chính rồi tách thành module React/service/database |
+| 2026-09-09 | Menu trái chỉ giữ 5 chức năng đang dùng | Loại bỏ các mục điều hướng không có nghiệp vụ trong phạm vi hiện tại | Giữ Danh mục dự án, Tiến độ & Gantt, Mốc kiểm soát, Chờ duyệt và Quản lý người dùng |
+| 2026-09-09 | Luôn dùng giao diện sáng | Phù hợp yêu cầu sử dụng tại đơn vị | Ứng dụng ép `data-theme=light`, không phụ thuộc dark mode của hệ điều hành |
+| 2026-09-09 | Chuyển dữ liệu prototype lên Supabase làm dữ liệu khởi tạo | Tránh màn hình rỗng và bỏ phụ thuộc `localStorage` | Khởi tạo 5 dự án; Khe Tre có 25 hạng mục, 132 công việc và 14 mốc kiểm soát |

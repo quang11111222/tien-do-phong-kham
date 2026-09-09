@@ -102,3 +102,14 @@ export interface CompletionRequest {
   submitter?: Pick<Profile, 'username' | 'full_name'> | null
   project?: Pick<Project, 'id' | 'code' | 'name'> | null
 }
+
+export interface ProjectActivity {
+  id: string
+  work_item_id: string
+  work_item_wbs: string
+  work_item_name: string
+  content: string
+  actor_name: string
+  created_at: string
+  kind: 'progress' | 'submitted' | 'approved' | 'rejected'
+}

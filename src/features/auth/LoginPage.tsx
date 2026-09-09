@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth } from './authContext'
+import { tthLogoDataUrl } from '../../assets/tthLogo'
 
 export function LoginPage() {
   const { signIn } = useAuth()
@@ -20,7 +21,7 @@ export function LoginPage() {
   return (
     <main className="auth-page">
       <section className="auth-brand">
-        <span className="brand-mark">TTH</span>
+        <img className="auth-logo" src={tthLogoDataUrl} alt="TTH GROUP" />
         <p className="eyebrow">PHÒNG PHÁT TRIỂN PHÒNG KHÁM</p>
         <h1>Theo dõi tiến độ dự án trên một nguồn dữ liệu thống nhất.</h1>
         <p>Quản lý kế hoạch, người tham gia, mốc kiểm soát và quy trình duyệt hoàn thành.</p>

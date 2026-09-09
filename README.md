@@ -7,7 +7,7 @@ Repository độc lập để phân tích, thiết kế và phát triển ứng 
 - Giai đoạn: MVP đang chạy với dữ liệu Supabase
 - Frontend: React 19, TypeScript, Vite
 - Backend: Supabase Auth, PostgreSQL, Storage và Edge Functions
-- Giao diện và nghiệp vụ nguồn: [`prototype/index.html`](prototype/index.html)
+- Giao diện và nghiệp vụ nguồn: [`main/index.html`](https://github.com/quang11111222/tien-do-phong-kham/blob/main/index.html); bản local trong `prototype/` chỉ dùng để đối chiếu lịch sử
 - Dữ liệu mẫu đã đưa lên database: 5 dự án; Khe Tre có 25 hạng mục, 132 công việc và 14 mốc kiểm soát
 
 ## Toolchain hiện có

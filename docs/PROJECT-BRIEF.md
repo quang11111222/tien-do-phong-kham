@@ -24,7 +24,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Quy trình hiện tại: lập và cập nhật tiến độ theo từng dự án trong Excel.
 - Dữ liệu mẫu đã khảo sát: `TIEN DO KHE TRE 25.8.xlsx`; sheet đầu có 25 hạng mục và 132 công việc.
 - Prototype gốc là một file `index.html`, dùng dữ liệu hard-code và `localStorage` riêng trên từng trình duyệt.
-- MVP mới đã tách giao diện theo module React và đưa dữ liệu mẫu lên Supabase; prototype tiếp tục là chuẩn đối chiếu giao diện và luồng nghiệp vụ.
+- MVP mới đã tách giao diện theo module React và đưa dữ liệu mẫu lên Supabase; file `main/index.html` mới nhất tiếp tục là chuẩn đối chiếu giao diện và luồng nghiệp vụ.
 - Điểm còn phải hoàn thiện trước vận hành chính thức: kiểm thử nghiệm thu đủ hai vai trò và chốt phương án backup định kỳ.
 
 ## 5. Desired State

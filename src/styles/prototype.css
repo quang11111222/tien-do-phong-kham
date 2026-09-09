@@ -30,7 +30,7 @@
   --weekend:#101A27; --today:#E4696B;
 }
 *{box-sizing:border-box}
-html,body{height:100%}
+html,body,#root{height:100%;min-height:0}
 body{overflow:hidden}
 body{background:var(--ground);color:var(--ink);font-family:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}

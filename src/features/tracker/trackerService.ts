@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/supabase'
-import type { Attachment, CompletionRequest, Milestone, ProgressUpdate, Project, UserProfile, WorkItem, WorkItemStatus } from '../../types/domain'
+import type { Attachment, CompletionRequest, Milestone, ProgressUpdate, Project, ProjectActivity, UserProfile, WorkItem, WorkItemStatus } from '../../types/domain'
 import type { ImportedWorkItem } from './excelService'
 
 export async function getProjects(): Promise<Project[]> {
@@ -80,6 +80,19 @@ export async function importProjectPlan(projectId: string, items: ImportedWorkIt
   if (error) throw error
 }
 
+export async function cloneProjectPlan(targetProjectId: string, sourceProjectId: string, targetStartDate: string) {
+  const source = await getWorkItems(sourceProjectId)
+  const dated = source.flatMap((item) => [item.start_date, item.end_date]).filter((value): value is string => Boolean(value)).sort()
+  if (!source.length || !dated.length) throw new Error('Dự án nguồn chưa có tiến độ có ngày kế hoạch.')
+  const shift = dayDifference(dated[0], targetStartDate)
+  const payload: ImportedWorkItem[] = source.map((item, index) => ({
+    client_id: item.id, parent_client_id: item.parent_id, wbs: item.wbs, name: item.name,
+    responsibility: item.source_responsibility_text ?? '', start_date: shiftDate(item.start_date, shift), end_date: shiftDate(item.end_date, shift),
+    sort_order: index, source_row: index + 1, error: null,
+  }))
+  await importProjectPlan(targetProjectId, payload)
+}
+
 export async function getProgressUpdates(workItemId: string): Promise<ProgressUpdate[]> {
   if (!supabase) return []
   const { data, error } = await supabase.from('progress_updates').select('id, work_item_id, content, created_by, created_at, author:profiles!progress_updates_created_by_fkey(username, full_name)').eq('work_item_id', workItemId).order('created_at', { ascending: false })
@@ -139,6 +152,13 @@ export async function saveMilestone(projectId: string, item: Partial<Milestone> 
   if (result.error) throw result.error
 }
 
+export async function saveMilestoneDraft(projectId: string, items: Milestone[]) {
+  if (!supabase) throw new Error('Chưa cấu hình Supabase.')
+  const payload = items.map((item, index) => ({ id: item.id.startsWith('new-') ? null : item.id, name: item.name, due_date: item.due_date, owner_text: item.owner_text ?? '', condition_text: item.condition_text ?? '', achieved: item.achieved, achieved_at: item.achieved ? item.achieved_at || new Date().toISOString().slice(0, 10) : null, sort_order: index }))
+  const { error } = await supabase.rpc('save_project_milestones', { target_project_id: projectId, milestone_items: payload })
+  if (error) throw error
+}
+
 export async function removeMilestone(id: string) { if (!supabase) return; const { error } = await supabase.from('milestones').delete().eq('id', id); if (error) throw error }
 
 export async function getPendingRequests(): Promise<CompletionRequest[]> {
@@ -150,4 +170,24 @@ export async function getPendingRequests(): Promise<CompletionRequest[]> {
 
 export async function reviewRequest(id: string, decision: 'approved' | 'rejected', note: string) { if (!supabase) return; const { error } = await supabase.rpc('review_completion_request', { target_request_id: id, decision, manager_note: note.trim() || null }); if (error) throw error }
 
+export async function getProjectActivity(projectId: string): Promise<ProjectActivity[]> {
+  if (!supabase) return []
+  const [{ data: progress, error: progressError }, { data: requests, error: requestError }] = await Promise.all([
+    supabase.from('progress_updates').select('id, work_item_id, content, created_at, author:profiles!progress_updates_created_by_fkey(full_name, username), work_item:work_items!inner(wbs, name, project_id)').eq('work_item.project_id', projectId),
+    supabase.from('completion_requests').select('id, work_item_id, note, status, submitted_at, reviewed_at, manager_note, submitter:profiles!completion_requests_submitted_by_fkey(full_name, username), reviewer:profiles!completion_requests_reviewed_by_fkey(full_name, username), work_item:work_items!inner(wbs, name, project_id)').eq('work_item.project_id', projectId),
+  ])
+  if (progressError) throw progressError
+  if (requestError) throw requestError
+  const pick = <T,>(value: T | T[] | null): T | null => Array.isArray(value) ? value[0] ?? null : value
+  const entries: ProjectActivity[] = (progress ?? []).map((row) => { const work = pick(row.work_item); const actor = pick(row.author); return { id: `progress-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work?.wbs ?? '', work_item_name: work?.name ?? '', content: row.content, actor_name: actor?.full_name || actor?.username || '—', created_at: row.created_at, kind: 'progress' } })
+  ;(requests ?? []).forEach((row) => {
+    const work = pick(row.work_item); const submitter = pick(row.submitter); const reviewer = pick(row.reviewer)
+    entries.push({ id: `submitted-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work?.wbs ?? '', work_item_name: work?.name ?? '', content: row.note ? `Gửi hoàn thành: ${row.note}` : 'Gửi công việc hoàn thành để duyệt.', actor_name: submitter?.full_name || submitter?.username || '—', created_at: row.submitted_at, kind: 'submitted' })
+    if (row.status !== 'pending' && row.reviewed_at) entries.push({ id: `reviewed-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work?.wbs ?? '', work_item_name: work?.name ?? '', content: row.manager_note || (row.status === 'approved' ? 'Đã duyệt hoàn thành.' : 'Đã từ chối yêu cầu hoàn thành.'), actor_name: reviewer?.full_name || reviewer?.username || '—', created_at: row.reviewed_at, kind: row.status as 'approved' | 'rejected' })
+  })
+  return entries.sort((a, b) => b.created_at.localeCompare(a.created_at))
+}
+
 function roman(value: number) { const pairs: [number, string][] = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']]; let rest=value; let result=''; for(const [amount,symbol] of pairs){while(rest>=amount){result+=symbol;rest-=amount}} return result }
+function dayDifference(start: string, end: string) { return Math.round((new Date(`${end}T00:00:00`).getTime() - new Date(`${start}T00:00:00`).getTime()) / 86_400_000) }
+function shiftDate(value: string | null, days: number) { if (!value) return ''; const date = new Date(`${value}T00:00:00`); date.setDate(date.getDate() + days); return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` }

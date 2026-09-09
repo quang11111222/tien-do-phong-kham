@@ -3,7 +3,7 @@ import type { Milestone, Project } from '../../types/domain'
 import { getMilestones, saveMilestoneDraft } from './trackerService'
 import { ProjectHeader } from './ProjectHeader'
 
-export function MilestonesView({ project, isManager, onBack }: { project: Project; isManager: boolean; onBack: () => void }) {
+export function MilestonesView({ project, isManager, onBack, onDirtyChange }: { project: Project; isManager: boolean; onBack: () => void; onDirtyChange: (dirty: boolean) => void }) {
   const [saved, setSaved] = useState<Milestone[]>([])
   const [draft, setDraft] = useState<Milestone[]>([])
   const [loading, setLoading] = useState(true)
@@ -12,6 +12,8 @@ export function MilestonesView({ project, isManager, onBack }: { project: Projec
   const load = async () => { const data = await getMilestones(project.id); setSaved(data); setDraft(data) }
   useEffect(() => { let active = true; void getMilestones(project.id).then((data) => { if (active) { setSaved(data); setDraft(data) } }).catch(() => { if (active) setError('Không tải được mốc kiểm soát.') }).finally(() => { if (active) setLoading(false) }); return () => { active = false } }, [project.id])
   const dirty = useMemo(() => JSON.stringify(saved) !== JSON.stringify(draft), [saved, draft])
+  useEffect(() => { onDirtyChange(dirty) }, [dirty, onDirtyChange])
+  useEffect(() => { const warn = (event: BeforeUnloadEvent) => { if (!dirty) return; event.preventDefault() }; window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn) }, [dirty])
   const change = (id: string, patch: Partial<Milestone>) => setDraft((current) => current.map((item) => item.id === id ? { ...item, ...patch } : item))
   const add = () => setDraft((current) => [...current, { id: `new-${crypto.randomUUID()}`, project_id: project.id, name: 'Mốc mới', due_date: today(), condition_text: null, owner_text: null, achieved: false, achieved_at: null, sort_order: current.length }])
   const save = async () => { setSaving(true); setError(null); try { await saveMilestoneDraft(project.id, draft); await load() } catch (caught) { setError(caught instanceof Error ? caught.message : 'Không lưu được mốc kiểm soát.') } finally { setSaving(false) } }

@@ -58,7 +58,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 
 1. Đăng nhập/đăng xuất.
 2. Sếp quản lý tài khoản: tạo người dùng, gán vai trò và phòng ban.
-3. Tạo, sửa, lưu trữ dự án.
+3. Tạo, sửa, xóa mềm và khôi phục dự án; chỉ sếp xem được danh sách đã xóa.
 4. Import sheet đầu của file tiến độ Excel, xem trước và xác nhận.
 5. Quản lý hạng mục, công việc và nhiều người tham gia.
 6. Xem Gantt, tổng quan và công việc cần xử lý.
@@ -85,6 +85,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Mỗi vòng gửi/duyệt phải được lưu riêng để truy vết.
 - Chỉ import sheet đầu của Excel; các sheet khác không thuộc luồng import.
 - Chuỗi phòng ban từ Excel không tự động trở thành người tham gia.
+- Xóa dự án là xóa mềm: người dùng thường không còn xem được dự án và dữ liệu con; sếp có thể xem danh sách đã xóa và khôi phục. MVP không xóa vĩnh viễn dự án từ giao diện.
 
 ## 9. Dữ liệu và tích hợp
 

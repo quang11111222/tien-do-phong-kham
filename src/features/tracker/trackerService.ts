@@ -2,9 +2,11 @@ import { supabase } from '../../lib/supabase'
 import type { Attachment, CompletionRequest, Milestone, ProgressUpdate, Project, ProjectActivity, UserProfile, WorkItem, WorkItemStatus } from '../../types/domain'
 import type { ImportedWorkItem } from './excelService'
 
-export async function getProjects(): Promise<Project[]> {
+export async function getProjects(includeDeleted = false): Promise<Project[]> {
   if (!supabase) return []
-  const { data, error } = await supabase.from('projects').select('id, code, name, site, start_date, end_date, status, created_at, updated_at').neq('status', 'archived').order('name')
+  let query = supabase.from('projects').select('id, code, name, site, start_date, end_date, status, deleted_at, deleted_by, created_at, updated_at')
+  if (!includeDeleted) query = query.is('deleted_at', null)
+  const { data, error } = await query.order('name')
   if (error) throw error
   return (data ?? []) as Project[]
 }
@@ -16,9 +18,9 @@ export async function saveProject(input: { id?: string; code: string; name: stri
   if (result.error) throw result.error
 }
 
-export async function archiveProject(id: string) {
-  if (!supabase) return
-  const { error } = await supabase.from('projects').update({ status: 'archived' }).eq('id', id)
+export async function setProjectDeleted(id: string, deleted: boolean) {
+  if (!supabase) throw new Error('Chưa cấu hình Supabase.')
+  const { error } = await supabase.rpc('set_project_deleted', { target_project_id: id, deleted })
   if (error) throw error
 }
 
@@ -46,15 +48,17 @@ export async function getUsers(): Promise<UserProfile[]> {
 
 export async function saveWorkItem(item: WorkItem, input: { name: string; responsibility: string; startDate: string; endDate: string; status: WorkItemStatus; participantIds: string[] }) {
   if (!supabase) throw new Error('Chưa cấu hình Supabase.')
-  const { data, error } = await supabase.from('work_items').update({ name: input.name.trim(), source_responsibility_text: input.responsibility.trim() || null, start_date: input.startDate || null, end_date: input.endDate || null, status: input.status, version: item.version + 1 }).eq('id', item.id).eq('version', item.version).select('id')
+  const { error } = await supabase.rpc('update_work_item_details', {
+    target_work_item_id: item.id,
+    expected_version: item.version,
+    target_name: input.name.trim(),
+    target_responsibility: input.responsibility.trim() || null,
+    target_start_date: input.startDate || null,
+    target_end_date: input.endDate || null,
+    target_status: input.status,
+    participant_ids: input.participantIds,
+  })
   if (error) throw error
-  if (!data?.length) throw new Error('Công việc vừa được người khác cập nhật. Hãy tải lại rồi thử lại.')
-  const { error: removeError } = await supabase.from('work_item_participants').delete().eq('work_item_id', item.id)
-  if (removeError) throw removeError
-  if (input.participantIds.length) {
-    const { error: assignError } = await supabase.from('work_item_participants').insert(input.participantIds.map((userId) => ({ work_item_id: item.id, user_id: userId })))
-    if (assignError) throw assignError
-  }
 }
 
 export async function createWorkItem(input: { projectId: string; parentId: string | null; wbs: string; name: string; responsibility: string; startDate: string; endDate: string; status: WorkItemStatus; participantIds: string[] }): Promise<string> {
@@ -182,7 +186,7 @@ export async function getProjectActivity(projectId: string): Promise<ProjectActi
   if (!supabase) return []
   const [{ data: progress, error: progressError }, { data: requests, error: requestError }] = await Promise.all([
     supabase.from('progress_updates').select('id, work_item_id, content, created_at, author:profiles!progress_updates_created_by_fkey(full_name, username), work_item:work_items!inner(wbs, name, project_id)').eq('work_item.project_id', projectId),
-    supabase.from('completion_requests').select('id, work_item_id, note, status, submitted_at, reviewed_at, manager_note, submitter:profiles!completion_requests_submitted_by_fkey(full_name, username), reviewer:profiles!completion_requests_reviewed_by_fkey(full_name, username), work_item:work_items!inner(wbs, name, project_id)').eq('work_item.project_id', projectId),
+    supabase.from('completion_requests').select('id, work_item_id, note, status, submitted_at, reviewed_at, review_note, submitter:profiles!completion_requests_submitted_by_fkey(full_name, username), reviewer:profiles!completion_requests_reviewed_by_fkey(full_name, username), work_item:work_items!inner(wbs, name, project_id)').eq('work_item.project_id', projectId),
   ])
   if (progressError) throw progressError
   if (requestError) throw requestError
@@ -191,7 +195,7 @@ export async function getProjectActivity(projectId: string): Promise<ProjectActi
   ;(requests ?? []).forEach((row) => {
     const work = pick(row.work_item); const submitter = pick(row.submitter); const reviewer = pick(row.reviewer)
     entries.push({ id: `submitted-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work?.wbs ?? '', work_item_name: work?.name ?? '', content: row.note ? `Gửi hoàn thành: ${row.note}` : 'Gửi công việc hoàn thành để duyệt.', actor_name: submitter?.full_name || submitter?.username || '—', created_at: row.submitted_at, kind: 'submitted' })
-    if (row.status !== 'pending' && row.reviewed_at) entries.push({ id: `reviewed-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work?.wbs ?? '', work_item_name: work?.name ?? '', content: row.manager_note || (row.status === 'approved' ? 'Đã duyệt hoàn thành.' : 'Đã từ chối yêu cầu hoàn thành.'), actor_name: reviewer?.full_name || reviewer?.username || '—', created_at: row.reviewed_at, kind: row.status as 'approved' | 'rejected' })
+    if (row.status !== 'pending' && row.reviewed_at) entries.push({ id: `reviewed-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work?.wbs ?? '', work_item_name: work?.name ?? '', content: row.review_note || (row.status === 'approved' ? 'Đã duyệt hoàn thành.' : 'Đã từ chối yêu cầu hoàn thành.'), actor_name: reviewer?.full_name || reviewer?.username || '—', created_at: row.reviewed_at, kind: row.status as 'approved' | 'rejected' })
   })
   return entries.sort((a, b) => b.created_at.localeCompare(a.created_at))
 }

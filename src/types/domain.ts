@@ -36,6 +36,8 @@ export interface Project {
   start_date: string | null
   end_date: string | null
   status: ProjectStatus
+  deleted_at: string | null
+  deleted_by: string | null
   created_at: string
   updated_at: string
 }

@@ -8,6 +8,7 @@
 .whoami > div:first-child b { font-size: 11.5px; }
 .whoami > div:first-child span { color: var(--ink-3); font-size: 10px; }
 .logout-mini { background: none; border: 0; color: var(--ink-2); font-size: 10.5px; padding: 3px 5px; }
+.top-spacer { flex: 1; }
 .approval-row { grid-template-columns: 110px 1fr minmax(360px, auto); }
 .approval-box { display: flex; gap: 6px; }
 .approval-box input { border: 1px solid var(--line); border-radius: 7px; min-width: 220px; padding: 5px 7px; }
@@ -39,6 +40,10 @@
 .milestone-table-wrap { overflow-x: auto; }
 .milestone-actions { align-items: center; background: color-mix(in srgb, var(--ground) 92%, transparent); bottom: -40px; display: flex; flex-wrap: wrap; gap: 8px; margin: 0 -18px -40px; padding: 12px 18px 16px; position: sticky; z-index: 12; }
 .unsaved { color: var(--st-pending); font-weight: 700; }
+.project-list-tabs { display: flex; gap: 8px; margin: 0 0 10px; }
+.project-table-wrap { overflow-x: auto; }
+.deleted-project-row { cursor: default !important; opacity: .78; }
+.deleted-project-row:hover { background: transparent !important; }
 @media (max-width: 900px) {
   .side { width: 200px; flex-basis: 200px; }
   .approval-row { grid-template-columns: 1fr; }

@@ -20,3 +20,4 @@ Ghi các quyết định ảnh hưởng đến phạm vi, dữ liệu, kiến tr
 | 2026-09-09 | Chuyển dữ liệu prototype lên Supabase làm dữ liệu khởi tạo | Tránh màn hình rỗng và bỏ phụ thuộc `localStorage` | Khởi tạo 5 dự án; Khe Tre có 25 hạng mục, 132 công việc và 14 mốc kiểm soát |
 | 2026-09-09 | Theme chính trắng–xanh theo nhận diện TTH GROUP | Đồng bộ logo và giảm cảm giác cảnh báo do dùng đỏ làm màu điều hướng | Xanh là màu thương hiệu; đỏ chỉ dùng cho quá hạn, lỗi hoặc hành động nguy hiểm |
 | 2026-09-09 | Thêm hạng mục/công việc theo cơ chế bản nháp trong panel | Khớp prototype gốc và tránh tạo dòng rác khi người dùng đóng form | Chỉ nút Lưu gọi RPC tạo dữ liệu; X, lớp nền và Hủy bỏ không ghi database |
+| 2026-09-09 | Nút “Xóa” dự án dùng cơ chế xóa mềm, không xóa vĩnh viễn | Giữ lịch sử tiến độ, duyệt, nhật ký và bằng chứng để đối chiếu; vẫn dùng từ ngữ người dùng dễ hiểu | Dự án bị ẩn khỏi nhân viên; sếp có tab “Đã xóa” để khôi phục; database lưu người và thời điểm xóa |

@@ -6,7 +6,7 @@ export interface AuthContextValue {
   session: Session | null
   profile: Profile | null
   loading: boolean
-  signIn: (email: string, password: string) => Promise<string | null>
+  signIn: (username: string, password: string) => Promise<string | null>
   signOut: () => Promise<void>
 }
 

@@ -3,7 +3,7 @@ import { useAuth } from './authContext'
 
 export function LoginPage() {
   const { signIn } = useAuth()
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -12,7 +12,7 @@ export function LoginPage() {
     event.preventDefault()
     setSubmitting(true)
     setError(null)
-    const message = await signIn(email.trim(), password)
+    const message = await signIn(username, password)
     setError(message)
     setSubmitting(false)
   }
@@ -34,12 +34,12 @@ export function LoginPage() {
         </div>
         <form onSubmit={handleSubmit}>
           <label>
-            Email
+            Tài khoản
             <input
-              type="email"
+              type="text"
               autoComplete="username"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              value={username}
+              onChange={(event) => setUsername(event.target.value)}
               required
             />
           </label>

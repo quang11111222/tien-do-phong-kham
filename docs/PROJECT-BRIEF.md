@@ -34,7 +34,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 
 ### Trong phạm vi
 
-- Đăng nhập bằng tài khoản do sếp tạo; không có màn hình hoặc API tự đăng ký công khai.
+- Đăng nhập bằng tên tài khoản và mật khẩu do sếp tạo; không có màn hình hoặc API tự đăng ký công khai.
 - Danh mục 21 phòng ban/đơn vị.
 - Danh mục dự án, hạng mục và công việc.
 - Import có preview từ sheet đầu của Excel.

@@ -2,6 +2,7 @@ import type { Session } from '@supabase/supabase-js'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { isSupabaseConfigured, supabase } from '../../lib/supabase'
 import type { Profile } from '../../types/domain'
+import { usernameToInternalEmail } from '../../lib/username'
 import { AuthContext, type AuthContextValue } from './authContext'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -41,10 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       profile,
       loading,
-      async signIn(email, password) {
+      async signIn(username, password) {
         if (!supabase) return 'Chưa cấu hình kết nối Supabase.'
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
-        return error?.message ?? null
+        const { error } = await supabase.auth.signInWithPassword({
+          email: usernameToInternalEmail(username),
+          password,
+        })
+        return error ? 'Tài khoản hoặc mật khẩu không đúng.' : null
       },
       async signOut() {
         if (supabase) await supabase.auth.signOut()

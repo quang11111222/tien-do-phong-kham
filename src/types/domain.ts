@@ -10,6 +10,7 @@ export type WorkItemStatus =
 
 export interface Profile {
   id: string
+  username: string
   full_name: string
   role: AppRole
   department_id: string | null

@@ -8,8 +8,7 @@ const corsHeaders = {
 type AppRole = 'manager' | 'employee'
 
 interface RequestBody {
-  email?: string
-  full_name?: string
+  username?: string
   password?: string
   role?: AppRole
   department_id?: string
@@ -62,29 +61,34 @@ Deno.serve(async (request) => {
     return json({ error: 'Dữ liệu không hợp lệ.' }, 400)
   }
 
-  const email = body.email?.trim().toLowerCase()
-  const fullName = body.full_name?.trim()
+  const username = body.username?.trim().toLowerCase()
   const password = body.password ?? ''
   const role = body.role === 'manager' ? 'manager' : 'employee'
-  const departmentId = body.department_id?.trim()
+  const departmentId = body.department_id?.trim() || null
 
-  if (!email || !/^\S+@\S+\.\S+$/.test(email) || !fullName || password.length < 8 || !departmentId) {
+  if (!username || !/^[a-z0-9._-]{3,32}$/.test(username) || password.length < 8) {
     return json({ error: 'Thiếu hoặc sai dữ liệu tài khoản.' }, 400)
   }
 
-  const { data: department } = await adminClient
-    .from('departments')
-    .select('id')
-    .eq('id', departmentId)
-    .eq('active', true)
-    .maybeSingle()
-  if (!department) return json({ error: 'Phòng ban không hợp lệ.' }, 400)
+  if (role === 'employee' && !departmentId) {
+    return json({ error: 'Nhân viên phải được gán phòng ban.' }, 400)
+  }
+
+  if (departmentId) {
+    const { data: department } = await adminClient
+      .from('departments')
+      .select('id')
+      .eq('id', departmentId)
+      .eq('active', true)
+      .maybeSingle()
+    if (!department) return json({ error: 'Phòng ban không hợp lệ.' }, 400)
+  }
 
   const { data: created, error: createError } = await adminClient.auth.admin.createUser({
-    email,
+    email: `${username}@ptpk.local`,
     password,
     email_confirm: true,
-    user_metadata: { full_name: fullName },
+    user_metadata: { username, full_name: username },
   })
   if (createError || !created.user) {
     return json({ error: createError?.message ?? 'Không tạo được tài khoản.' }, 400)
@@ -92,7 +96,7 @@ Deno.serve(async (request) => {
 
   const { error: profileError } = await adminClient
     .from('profiles')
-    .update({ full_name: fullName, role, department_id: departmentId, active: true })
+    .update({ username, full_name: username, role, department_id: departmentId, active: true })
     .eq('id', created.user.id)
 
   if (profileError) {
@@ -100,5 +104,5 @@ Deno.serve(async (request) => {
     return json({ error: 'Không gán được hồ sơ người dùng.' }, 500)
   }
 
-  return json({ id: created.user.id, email, full_name: fullName, role }, 201)
+  return json({ id: created.user.id, username, role }, 201)
 })

@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import type { AppRole, Department, UserProfile } from '../../types/domain'
 import { createUser, listDepartments, listUsers } from './userService'
+import { normalizeUsername, USERNAME_PATTERN } from '../../lib/username'
 
 const emptyForm = {
-  email: '',
-  fullName: '',
+  username: '',
   password: '',
   role: 'employee' as AppRole,
   departmentId: '',
@@ -71,14 +71,24 @@ export function UsersPage() {
       return
     }
 
+    const username = normalizeUsername(form.username)
+    if (!USERNAME_PATTERN.test(username)) {
+      setError('Tài khoản gồm 3–32 ký tự: chữ thường, số, dấu chấm, gạch ngang hoặc gạch dưới.')
+      return
+    }
+    if (form.role === 'employee' && !form.departmentId) {
+      setError('Nhân viên phải được gán phòng ban.')
+      return
+    }
+
     setSubmitting(true)
     try {
-      await createUser(form)
-      setSuccess(`Đã tạo tài khoản cho ${form.fullName.trim()}.`)
+      await createUser({ ...form, username, departmentId: form.departmentId || null })
+      setSuccess(`Đã tạo tài khoản ${username}.`)
       setForm({ ...emptyForm, departmentId: departments[0]?.id || '' })
       await loadData()
     } catch {
-      setError('Không tạo được tài khoản. Kiểm tra email trùng hoặc quyền sếp.')
+      setError('Không tạo được tài khoản. Kiểm tra tên trùng hoặc quyền sếp.')
     } finally {
       setSubmitting(false)
     }
@@ -98,12 +108,12 @@ export function UsersPage() {
         <form className="content-card user-form" onSubmit={handleSubmit}>
           <div>
             <h2>Tạo tài khoản</h2>
-            <p className="muted">Mật khẩu tạm được chuyển trực tiếp cho người dùng.</p>
+            <p className="muted">Người dùng chỉ cần tài khoản và mật khẩu để đăng nhập.</p>
           </div>
-          <label>Họ và tên<input required value={form.fullName} onChange={(event) => setForm({ ...form, fullName: event.target.value })} /></label>
-          <label>Email<input required type="email" autoComplete="off" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label>
+          <label>Tài khoản<input required autoComplete="off" pattern="[a-z0-9._-]{3,32}" value={form.username} onChange={(event) => setForm({ ...form, username: event.target.value.toLowerCase() })} /></label>
           <label>Mật khẩu tạm<input required minLength={8} type="password" autoComplete="new-password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} /></label>
-          <label>Phòng ban<select required value={form.departmentId} onChange={(event) => setForm({ ...form, departmentId: event.target.value })}>
+          <label>Phòng ban<select value={form.departmentId} onChange={(event) => setForm({ ...form, departmentId: event.target.value })}>
+            <option value="">Không gán (dùng cho admin)</option>
             {departments.map((department) => <option key={department.id} value={department.id}>{department.code} — {department.name}</option>)}
           </select></label>
           <label>Vai trò<select value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value as AppRole })}>
@@ -122,9 +132,9 @@ export function UsersPage() {
           {loading && <div className="state-message">Đang tải người dùng…</div>}
           {!loading && users.length === 0 && <div className="state-message">Chưa có tài khoản.</div>}
           {users.length > 0 && <div className="table-wrap"><table>
-            <thead><tr><th>Họ tên</th><th>Phòng ban</th><th>Vai trò</th><th>Trạng thái</th></tr></thead>
+            <thead><tr><th>Tài khoản</th><th>Phòng ban</th><th>Vai trò</th><th>Trạng thái</th></tr></thead>
             <tbody>{users.map((user) => <tr key={user.id}>
-              <td><strong>{user.full_name}</strong></td>
+              <td><strong>{user.username}</strong></td>
               <td>{user.department?.code || '—'}</td>
               <td>{user.role === 'manager' ? 'Sếp' : 'Nhân viên'}</td>
               <td><span className={`status ${user.active ? 'active' : 'archived'}`}>{user.active ? 'Đang hoạt động' : 'Đã khóa'}</span></td>

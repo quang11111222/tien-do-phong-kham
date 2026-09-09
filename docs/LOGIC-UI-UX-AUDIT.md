@@ -1,6 +1,6 @@
 # Rà soát Logic nghiệp vụ, UI và UX
 
-Ngày rà soát: 2026-09-09  
+Ngày rà soát: 2026-09-09
 Nguồn đối chiếu: `index.html` tại `origin/main`, ứng dụng React hiện tại và schema/RLS Supabase.
 
 ## Kết quả đã xử lý

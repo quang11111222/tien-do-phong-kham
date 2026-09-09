@@ -16,6 +16,17 @@ export interface Profile {
   active: boolean
 }
 
+export interface Department {
+  id: string
+  code: string
+  name: string
+  active: boolean
+}
+
+export interface UserProfile extends Profile {
+  department: Pick<Department, 'code' | 'name'> | null
+}
+
 export interface Project {
   id: string
   code: string

@@ -12,3 +12,4 @@ Ghi các quyết định ảnh hưởng đến phạm vi, dữ liệu, kiến tr
 | 2026-09-09 | Chỉ import sheet đầu của Excel | Sheet đầu là tiến độ cần số hóa; các sheet khác là phụ/đối chiếu | Import phải preview, giữ chuỗi đơn vị nguồn và không nhập mốc kiểm soát |
 | 2026-09-09 | Mốc kiểm soát quản lý độc lập trên web | Prototype đã có màn hình riêng và dữ liệu mốc không lấy từ Excel | Dùng bảng `milestones` theo dự án |
 | 2026-09-09 | Danh mục chuẩn gồm 21 phòng ban/đơn vị | Chuẩn hóa cách ghi tắt không nhất quán trong Excel | Có bảng alias cho NVY, MKT, BQLDA, P.Kỹ thuật, TBTN, TBYT và các biến thể |
+| 2026-09-09 | Tắt self-signup; sếp tạo tài khoản qua Edge Function | Sếp đồng thời là admin nghiệp vụ, người dùng không tự đăng ký | Edge Function kiểm tra role `manager`; `service_role` chỉ nằm trong Supabase backend |

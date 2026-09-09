@@ -34,7 +34,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 
 ### Trong phạm vi
 
-- Đăng nhập bằng tài khoản được cấp; không tự đăng ký.
+- Đăng nhập bằng tài khoản do sếp tạo; không có màn hình hoặc API tự đăng ký công khai.
 - Danh mục 21 phòng ban/đơn vị.
 - Danh mục dự án, hạng mục và công việc.
 - Import có preview từ sheet đầu của Excel.
@@ -56,7 +56,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 ## 7. Yêu cầu chức năng
 
 1. Đăng nhập/đăng xuất.
-2. Quản lý tài khoản, vai trò và phòng ban.
+2. Sếp quản lý tài khoản: tạo người dùng, gán vai trò và phòng ban.
 3. Tạo, sửa, lưu trữ dự án.
 4. Import sheet đầu của file tiến độ Excel, xem trước và xác nhận.
 5. Quản lý hạng mục, công việc và nhiều người tham gia.
@@ -69,6 +69,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 ## 8. Business Rules và ngoại lệ
 
 - Mọi người dùng đã đăng nhập được xem toàn bộ dự án.
+- Chỉ sếp được tạo tài khoản; Supabase Auth tắt self-signup và frontend không giữ `service_role` key.
 - Nhân viên chỉ cập nhật công việc mình tham gia.
 - Một công việc có thể có nhiều người tham gia; tất cả người tham gia có quyền cập nhật và gửi duyệt.
 - Khi đã gửi duyệt, công việc tạm khóa cập nhật cho đến khi sếp duyệt hoặc từ chối.

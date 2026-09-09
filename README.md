@@ -6,7 +6,7 @@ Repository độc lập để phân tích, thiết kế và phát triển ứng 
 
 - Giai đoạn: Xây dựng nền tảng V2
 - Frontend: React 19, TypeScript, Vite
-- Backend dự kiến: Supabase Auth, PostgreSQL và Storage
+- Backend: Supabase Auth, PostgreSQL, Storage và Edge Functions
 - Prototype đã duyệt: [`prototype/index.html`](prototype/index.html)
 
 ## Toolchain hiện có
@@ -44,6 +44,7 @@ npm run build
 - [Decision Log](docs/DECISIONS.md)
 - [Kiến trúc V2](docs/ARCHITECTURE.md)
 - Database migration: `supabase/migrations/202609090001_initial_schema.sql`
+- Edge Function tạo tài khoản: `supabase/functions/admin-create-user/index.ts`
 
 ## Nguyên tắc repository
 

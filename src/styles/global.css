@@ -15,7 +15,7 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; min-height: 100vh; }
-button, input { font: inherit; }
+button, input, select { font: inherit; }
 button { cursor: pointer; }
 h1, h2, p { margin-top: 0; }
 .muted { color: var(--muted); }
@@ -40,6 +40,7 @@ h1, h2, p { margin-top: 0; }
 .alert { border-radius: 9px; font-size: 0.82rem; line-height: 1.55; padding: 0.8rem 0.9rem; }
 .alert.error { background: #fff0f1; color: #a11220; }
 .alert.info { background: #edf5ff; color: #24578c; }
+.alert.success { background: #e9f7f0; color: #18764a; }
 
 .setup-page, .app-loading { align-items: center; display: flex; justify-content: center; min-height: 100vh; padding: 2rem; }
 .setup-card { background: white; border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 22px 60px rgb(16 35 60 / 10%); max-width: 620px; padding: 2.5rem; }
@@ -71,6 +72,15 @@ h1, h2, p { margin-top: 0; }
 .metric-card strong { color: var(--navy); font-size: 1.8rem; }
 .metric-card span { color: var(--muted); font-size: 0.8rem; }
 .content-card { overflow: hidden; }
+.admin-grid { align-items: start; display: grid; gap: 1.2rem; grid-template-columns: minmax(300px, 390px) minmax(0, 1fr); }
+.user-form { display: grid; gap: 1rem; padding: 1.25rem; }
+.user-form h2, .card-heading h2 { font-size: 1.05rem; margin-bottom: 0.35rem; }
+.user-form label { color: #34445a; display: grid; font-size: 0.8rem; font-weight: 600; gap: 0.4rem; }
+.user-form input, .user-form select { background: white; border: 1px solid #cbd5e1; border-radius: 8px; min-width: 0; padding: 0.72rem 0.8rem; }
+.user-form input:focus, .user-form select:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgb(178 30 43 / 12%); outline: none; }
+.card-heading { align-items: center; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; padding: 1.15rem 1rem; }
+.card-heading h2 { margin: 0; }
+.card-heading span { color: var(--muted); font-size: 0.78rem; }
 .state-message { color: var(--muted); padding: 4rem 2rem; text-align: center; }
 .state-message h2 { color: var(--navy); font-size: 1.1rem; }
 .table-wrap { overflow-x: auto; }
@@ -94,4 +104,5 @@ td { font-size: 0.82rem; }
   .account { justify-content: space-between; width: 100%; }
   .page-content { padding: 1rem; }
   .metric-grid { grid-template-columns: 1fr; }
+  .admin-grid { grid-template-columns: 1fr; }
 }

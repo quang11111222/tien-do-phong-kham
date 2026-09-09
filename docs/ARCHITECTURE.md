@@ -11,7 +11,7 @@ React + TypeScript + Vite
         |
         | Supabase client với JWT
         v
-Supabase Auth + PostgreSQL + Storage
+Supabase Auth + PostgreSQL + Storage + Edge Functions
         |
         v
 RLS, database functions và audit log
@@ -27,10 +27,12 @@ RLS, database functions và audit log
 - Mọi người dùng đã đăng nhập được xem toàn bộ dự án.
 - Nhân viên chỉ cập nhật công việc mình tham gia.
 - Sếp quản lý dự án, phân công và duyệt hoàn thành.
+- Self-signup bị tắt. Sếp tạo tài khoản qua Edge Function; hàm xác thực JWT và kiểm tra profile `manager` trước khi dùng Admin API.
 
 ## Module
 
 - `auth`: đăng nhập, phiên làm việc, hồ sơ và vai trò.
+- `users`: sếp tạo tài khoản, gán phòng ban và vai trò.
 - `projects`: danh mục và thông tin dự án.
 - `work-items`: hạng mục, công việc, Gantt và người tham gia.
 - `completion-requests`: gửi duyệt, duyệt và từ chối.

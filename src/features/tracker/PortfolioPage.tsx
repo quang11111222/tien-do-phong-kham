@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import type { Project, WorkItem } from '../../types/domain'
 import { getProjects, getWorkItems, saveProject, setProjectDeleted } from './trackerService'
+import { useConfirm } from '../../components/confirmContext'
 
 interface ProjectRow { project: Project; items: WorkItem[] }
 const emptyForm = { id: '', code: '', name: '', site: '', startDate: '', endDate: '' }
@@ -13,6 +14,7 @@ export function PortfolioPage({ isManager, onOpen }: { isManager: boolean; onOpe
   const [modalOpen, setModalOpen] = useState(false)
   const [showDeleted, setShowDeleted] = useState(false)
   const [busyProjectId, setBusyProjectId] = useState<string | null>(null)
+  const confirm = useConfirm()
 
   const fetchRows = useCallback(async () => {
     const projects = await getProjects(isManager)
@@ -46,10 +48,18 @@ export function PortfolioPage({ isManager, onOpen }: { isManager: boolean; onOpe
   }
 
   const changeDeleted = async (project: Project, deleted: boolean) => {
-    const question = deleted
-      ? `Xóa dự án ${project.name}? Dự án sẽ ẩn khỏi danh sách sử dụng nhưng toàn bộ tiến độ và nhật ký vẫn được giữ để có thể khôi phục.`
-      : `Khôi phục dự án ${project.name} về danh sách đang theo dõi?`
-    if (!window.confirm(question)) return
+    const accepted = await confirm(deleted ? {
+      title: 'Xóa dự án?',
+      message: `${project.name} sẽ bị ẩn khỏi danh sách sử dụng. Toàn bộ tiến độ, bằng chứng và nhật ký vẫn được giữ để có thể khôi phục.`,
+      confirmLabel: 'Xóa dự án',
+      tone: 'danger',
+    } : {
+      title: 'Khôi phục dự án?',
+      message: `${project.name} sẽ xuất hiện trở lại trong danh sách dự án đang theo dõi.`,
+      confirmLabel: 'Khôi phục',
+      tone: 'primary',
+    })
+    if (!accepted) return
     try {
       setError(null)
       setBusyProjectId(project.id)

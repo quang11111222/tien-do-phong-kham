@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import type { ImportedWorkItem } from './excelService'
 import { parseFirstSheet } from './excelService'
+import { useConfirm } from '../../components/confirmContext'
 
 export function ExcelImportModal({ onClose, onImport }: { onClose: () => void; onImport: (items: ImportedWorkItem[]) => Promise<void> }) {
   const [items, setItems] = useState<ImportedWorkItem[]>([])
   const [fileName, setFileName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const confirm = useConfirm()
   const tasks = items.filter((item) => item.parent_client_id)
   const invalid = tasks.filter((item) => item.error)
   const choose = async (file?: File) => {
@@ -16,7 +18,7 @@ export function ExcelImportModal({ onClose, onImport }: { onClose: () => void; o
   }
   const submit = async () => {
     if (!items.length) return
-    if (!window.confirm('Nạp file này sẽ thay toàn bộ tiến độ hiện tại của dự án. Tiếp tục?')) return
+    if (!await confirm({ title: 'Thay toàn bộ tiến độ?', message: 'Dữ liệu trong file sẽ thay thế toàn bộ hạng mục và công việc hiện tại của dự án. Thao tác này không thể hoàn tác.', confirmLabel: 'Nạp và thay thế', tone: 'danger' })) return
     setBusy(true); setError(null)
     try { await onImport(items); onClose() } catch (caught) { setError(caught instanceof Error ? caught.message : 'Không nạp được tiến độ.') } finally { setBusy(false) }
   }

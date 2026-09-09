@@ -16,6 +16,7 @@ Nguồn đối chiếu: `index.html` tại `origin/main`, ứng dụng React hi�
 | Chờ duyệt | Lúc tải có thể nháy trạng thái rỗng; có thể bấm xử lý lặp | Thêm loading và khóa các nút của yêu cầu đang xử lý |
 | Bản nháp chưa lưu | Có thể rời panel công việc hoặc bảng mốc bằng menu và mất bản nháp mà không cảnh báo | Cảnh báo khi đổi menu/quay về danh mục và khi đóng hoặc tải lại tab trình duyệt |
 | Header | Ô tìm nhanh và phím `Ctrl+K` mới chỉ là giao diện, bấm không hoạt động | Tạm bỏ khỏi MVP để không tạo affordance giả; chỉ đưa lại khi có chức năng tìm thật |
+| Xác nhận thao tác | Hộp thoại mặc định của trình duyệt thô và không thống nhất giao diện | Thay bằng popup dùng chung theo theme TTH, có tiêu đề, mô tả hậu quả, màu hành động và hỗ trợ phím Escape |
 
 ## Luồng nghiệp vụ đã đối chiếu
 

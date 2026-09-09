@@ -39,6 +39,18 @@ npm run test
 npm run build
 ```
 
+## Triển khai
+
+Mỗi lần thay đổi được đưa vào nhánh `main`, workflow
+`.github/workflows/deploy-pages.yml` sẽ kiểm tra, build và triển khai thư mục
+`dist` lên GitHub Pages. Repository cần có hai Actions variables (đây là cấu
+hình publishable được đóng gói vào frontend, không phải `service_role` secret):
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+Trong **Settings → Pages**, nguồn triển khai phải được đặt là **GitHub Actions**.
+
 ## Tài liệu
 
 - [Project Brief](docs/PROJECT-BRIEF.md)

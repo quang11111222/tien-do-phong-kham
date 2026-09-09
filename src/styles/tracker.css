@@ -59,6 +59,14 @@
 .overview-stats { grid-template-columns: repeat(7, minmax(110px, 1fr)); overflow-x: auto; }
 .overview-list { padding: 6px 15px; }
 .activity-card { padding: 14px 16px; }
+.activity-layout { align-items: start; display: grid; gap: 12px; grid-template-columns: minmax(300px, 390px) minmax(0, 1fr); }
+.activity-compose { display: grid; gap: 12px; padding: 16px; position: sticky; top: 10px; }
+.activity-compose h2, .activity-list-heading h2 { font-size: 15px; margin: 0; }
+.activity-compose .eyebrow { margin-bottom: 5px; }
+.activity-compose textarea { min-height: 112px; resize: vertical; }
+.activity-compose .btn { justify-content: center; width: 100%; }
+.activity-list-heading { align-items: center; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; margin: -2px -2px 12px; padding: 0 2px 12px; }
+.success-note { background: var(--st-done-bg); border-color: #b8e4cf; color: var(--st-done); }
 .activity-link { background: none; border: 0; color: var(--brand); font-weight: 600; padding: 0; }
 .activity-submitted .dot { background: var(--st-pending); }
 .activity-approved .dot { background: var(--st-done); }
@@ -112,4 +120,6 @@
   .approval-box { flex-wrap: wrap; }
   .whoami > div:first-child, .search { display: none; }
   .users-host .admin-grid { grid-template-columns: 1fr; }
+  .activity-layout { grid-template-columns: 1fr; }
+  .activity-compose { position: static; }
 }

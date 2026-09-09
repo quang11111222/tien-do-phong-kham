@@ -14,6 +14,7 @@ import { parseRouteHash, routeHash, type Page } from '../../lib/routes'
 import '../../styles/prototype.css'
 import '../../styles/tracker.css'
 import { useConfirm } from '../../components/confirmContext'
+import { ChangePasswordDialog } from '../auth/ChangePasswordDialog'
 
 export function TrackerShell() {
   const { profile, signOut } = useAuth()
@@ -23,6 +24,7 @@ export function TrackerShell() {
   const [clock, setClock] = useState(new Date())
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [unreadActivityCount, setUnreadActivityCount] = useState(0)
+  const [showChangePassword, setShowChangePassword] = useState(false)
   const dirtyRef = useRef(false)
   const lastHashRef = useRef(window.location.hash || routeHash('projects'))
   const confirm = useConfirm()
@@ -130,9 +132,9 @@ export function TrackerShell() {
       </div>{isManager && <><div className="navlabel nav-section">Quản trị</div><div className="sub root-sub"><button className={page === 'approvals' ? 'on' : ''} onClick={() => navigate('approvals')}>Chờ duyệt</button><button className={page === 'users' ? 'on' : ''} onClick={() => navigate('users')}>Quản lý người dùng</button></div></>}</nav></div>
       <div className="clock"><b>{clock.toLocaleTimeString('vi-VN')}</b><span>{clock.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span></div>
     </aside>
-    <div className="main"><header className="top"><span className="top-spacer" />{projectPage && <div className="chip">{project.code}</div>}<div className="whoami"><div><b>{profile.full_name}</b><span>{isManager ? 'Quản trị viên' : 'Nhân viên'}</span></div><div className="av">{initials(profile.full_name)}</div><button className="logout-mini" onClick={() => void signOut()}>Đăng xuất</button></div></header>
-      <main className="view">{page === 'projects' && <PortfolioPage isManager={isManager} onOpen={openProject} />}{page === 'overview' && project && <ProjectOverview project={project} onBack={backToPortfolio} onOpenWork={() => navigate('gantt')} />}{page === 'gantt' && project && <GanttView project={project} profile={profile} onBack={backToPortfolio} onDirtyChange={trackDirty} onUnreadCountChange={setUnreadActivityCount} />}{page === 'milestones' && project && <MilestonesView project={project} isManager={isManager} onBack={backToPortfolio} onDirtyChange={trackDirty} />}{page === 'activity' && project && <ProjectActivity project={project} profileId={profile.id} onBack={backToPortfolio} onOpenGantt={() => navigate('gantt')} onSeen={clearUnreadActivity} />}{page === 'approvals' && <ApprovalsView isManager={isManager} />}{page === 'users' && isManager && <div className="users-host"><UsersPage /></div>}</main>
-    </div>
+    <div className="main"><header className="top"><span className="top-spacer" />{projectPage && <div className="chip">{project.code}</div>}<div className="whoami"><div><b>{profile.full_name}</b><span>{isManager ? 'Quản trị viên' : 'Nhân viên'}</span></div><div className="av">{initials(profile.full_name)}</div><button className="logout-mini" onClick={() => setShowChangePassword(true)}>Đổi mật khẩu</button><button className="logout-mini" onClick={() => void signOut()}>Đăng xuất</button></div></header>
+      <main className="view">{page === 'projects' && <PortfolioPage isManager={isManager} onOpen={openProject} />}{page === 'overview' && project && <ProjectOverview project={project} onBack={backToPortfolio} onOpenWork={() => navigate('gantt')} />}{page === 'gantt' && project && <GanttView project={project} profile={profile} onBack={backToPortfolio} onDirtyChange={trackDirty} onUnreadCountChange={setUnreadActivityCount} />}{page === 'milestones' && project && <MilestonesView project={project} isManager={isManager} onBack={backToPortfolio} onDirtyChange={trackDirty} />}{page === 'activity' && project && <ProjectActivity project={project} profile={profile} onBack={backToPortfolio} onOpenGantt={() => navigate('gantt')} onSeen={clearUnreadActivity} />}{page === 'approvals' && <ApprovalsView isManager={isManager} />}{page === 'users' && isManager && <div className="users-host"><UsersPage /></div>}</main>
+    </div>{showChangePassword && <ChangePasswordDialog onClose={() => setShowChangePassword(false)} />}
   </div>
 }
 

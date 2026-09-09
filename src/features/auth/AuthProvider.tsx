@@ -53,6 +53,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async signOut() {
         if (supabase) await supabase.auth.signOut()
       },
+      async changePassword(currentPassword, newPassword) {
+        if (!supabase || !profile) return 'Không xác định được tài khoản đang đăng nhập.'
+        if (newPassword.length < 8) return 'Mật khẩu mới phải có ít nhất 8 ký tự.'
+        if (currentPassword === newPassword) return 'Mật khẩu mới phải khác mật khẩu hiện tại.'
+        const { error: verifyError } = await supabase.auth.signInWithPassword({
+          email: usernameToInternalEmail(profile.username),
+          password: currentPassword,
+        })
+        if (verifyError) return 'Mật khẩu hiện tại không đúng.'
+        const { error } = await supabase.auth.updateUser({ password: newPassword })
+        return error ? 'Không đổi được mật khẩu. Vui lòng thử lại.' : null
+      },
     }),
     [loading, profile, session],
   )

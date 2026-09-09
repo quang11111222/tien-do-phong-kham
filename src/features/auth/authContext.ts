@@ -8,6 +8,7 @@ export interface AuthContextValue {
   loading: boolean
   signIn: (username: string, password: string) => Promise<string | null>
   signOut: () => Promise<void>
+  changePassword: (currentPassword: string, newPassword: string) => Promise<string | null>
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

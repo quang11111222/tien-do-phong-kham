@@ -316,7 +316,7 @@ h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-.2px;text-wrap:balanc
   <div class="main">
     <header class="top">
       <div class="search"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg>Tìm nhanh module, báo cáo…<span class="kbd">Ctrl+K</span></div>
-      <div class="chip">CN, 06/09</div>
+      <div class="chip" id="topd">—</div>
       <div class="whoami"><label for="who" class="tiny muted">Bạn:</label><input id="who" value="Nguyễn Hào Quang" aria-label="Tên người dùng"><div class="av" id="avi">HQ</div></div>
     </header>
     <main class="view" id="view"></main>
@@ -1637,7 +1637,9 @@ $("#avi").textContent=initials($("#who").value).toUpperCase();
 (function tick(){
   var d=new Date(),p=function(n){return String(n).padStart(2,"0")};
   $("#clk").textContent=p(d.getHours())+":"+p(d.getMinutes())+":"+p(d.getSeconds());
-  $("#clkd").textContent=["CN","T2","T3","T4","T5","T6","T7"][d.getDay()]+", "+p(d.getDate())+"/"+p(d.getMonth()+1);
+  var dl=["CN","T2","T3","T4","T5","T6","T7"][d.getDay()]+", "+p(d.getDate())+"/"+p(d.getMonth()+1);
+  $("#clkd").textContent=dl;
+  var td=$("#topd");if(td&&td.textContent!==dl)td.textContent=dl;
   setTimeout(tick,1000);
 })();
 drawNav();render();boot();

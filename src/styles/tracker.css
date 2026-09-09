@@ -97,6 +97,8 @@
 .department-menu-list button i { align-items: center; background: var(--line-2); border-radius: 50%; display: flex; flex: 0 0 auto; font-size: 11px; font-style: normal; height: 21px; justify-content: center; width: 21px; }
 .department-menu-list button.selected i { background: var(--brand); color: #fff; }
 .department-menu-empty { color: var(--ink-3); font-size: 11px; padding: 15px 8px; text-align: center; }
+.participant-chip { background: #e9f5ff; border-color: #bfdcf5; color: #124f83; }
+.participant-menu { z-index: 16; }
 @keyframes activity-glow { 50% { box-shadow: 0 0 0 5px rgba(32, 184, 106, .08), 0 0 14px rgba(32, 184, 106, .9); transform: scale(1.12); } }
 .milestone-table-wrap { overflow-x: auto; }
 .milestone-actions { align-items: center; background: color-mix(in srgb, var(--ground) 92%, transparent); bottom: -40px; display: flex; flex-wrap: wrap; gap: 8px; margin: 0 -18px -40px; padding: 12px 18px 16px; position: sticky; z-index: 12; }

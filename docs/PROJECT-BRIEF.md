@@ -82,6 +82,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Khóa tài khoản không xóa hồ sơ hoặc lịch sử thao tác; khi được mở lại, tài khoản tiếp tục sử dụng dữ liệu cũ.
 - Nhân viên chỉ cập nhật công việc mình tham gia.
 - Một công việc có thể có nhiều người tham gia; tất cả người tham gia có quyền cập nhật và gửi duyệt.
+- Người tham gia được chọn bằng dropdown nhiều lựa chọn có tìm kiếm theo họ tên hoặc tài khoản và hiển thị thành thẻ; không bày toàn bộ danh sách bằng checkbox trên form.
 - Khi đã gửi duyệt, công việc tạm khóa cập nhật cho đến khi quản trị viên duyệt hoặc từ chối.
 - Chỉ quản trị viên được thay đổi công việc thành hoàn thành.
 - Từ chối duyệt đưa công việc về trạng thái đang thực hiện và bắt buộc lưu lý do.

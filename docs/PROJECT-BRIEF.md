@@ -44,7 +44,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Nhật ký diễn biến và tài liệu bằng chứng.
 - Gửi duyệt, duyệt và từ chối hoàn thành.
 - Mốc kiểm soát được quản lý riêng trên web, không import từ Excel.
-- Dashboard, lọc, báo cáo và export dữ liệu cơ bản.
+- Dashboard, lọc và export dữ liệu Excel cơ bản.
 
 ### Ngoài phạm vi
 
@@ -110,7 +110,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 ## 9. Dữ liệu và tích hợp
 
 - Dữ liệu đầu vào: Excel tiến độ theo mẫu Khe Tre và dữ liệu cập nhật trên web.
-- Dữ liệu đầu ra: danh sách dự án, Gantt, công việc trễ/chờ duyệt, mốc kiểm soát, báo cáo và Excel export.
+- Dữ liệu đầu ra: danh sách dự án, Gantt, công việc trễ/chờ duyệt, mốc kiểm soát và Excel export.
 - Tích hợp MVP: Supabase Auth, PostgreSQL và Storage.
 - Lưu trữ: dữ liệu nghiệp vụ trong PostgreSQL, tệp trong private Storage, lịch sử gửi duyệt và audit log riêng.
 

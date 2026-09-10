@@ -221,14 +221,6 @@ h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-.2px;text-wrap:balanc
 .mk-tooltip::before{content:"";position:absolute;left:50%;top:-5px;width:10px;height:10px;background:#0d2946;transform:translateX(-50%) rotate(45deg)}
 .mk:hover .mk-tooltip,.mk:focus .mk-tooltip{opacity:1;transform:translate(-50%,0);visibility:visible}
 .mk-tooltip b{font-size:11.5px;line-height:1.35}.mk-tooltip span{font-size:9.5px;line-height:1.35;color:#d8e8f6}.mk-tooltip strong{color:#fff}.mk-tooltip em{justify-self:start;background:rgba(255,255,255,.12);border-radius:99px;font-size:9px;font-style:normal;font-weight:700;margin-top:2px;padding:2px 6px}.mk-tooltip em.done{background:rgba(32,184,106,.22);color:#a9f0cf}.mk-tooltip em.late{background:rgba(216,55,68,.25);color:#ffc3c8}
-@media print{
-  .side,.top,.tbar,.dtabs,.drawer,.scrim,.modal,.toast,.rowact,.crumb button{display:none!important}
-  body,.app,.main,.view{display:block!important;overflow:visible!important;height:auto!important;background:#fff!important}
-  .view{padding:0!important}
-  .card,.stat,.sum{break-inside:avoid}
-  .prt{display:block!important}
-}
-.prt{display:none}
 .sec{border:1px solid var(--line);border-radius:11px;padding:12px 13px;background:var(--surface-2)}
 .sec>h3{margin:0 0 9px;font-size:10.5px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;color:var(--ink-3)}
 .fg{display:grid;grid-template-columns:1fr 1fr;gap:9px}

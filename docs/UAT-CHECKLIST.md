@@ -40,11 +40,11 @@ Quy ước: `[x]` đạt; `[~]` kiểm tra một phần hoặc không thực hi�
 - [x] Thiếu bằng chứng thì nút gửi bị khóa; có đúng một bằng chứng thì gửi được.
 - [x] Từ chối không có lý do bị chặn; từ chối có lý do, gửi lại lần 2 và duyệt đều thành công; Nhật ký ghi đủ 6 sự kiện.
 
-## 5. Mốc, import/export và báo cáo
+## 5. Mốc và import/export
 
 - [x] Thêm mốc, Hủy bỏ bản nháp, Lưu mốc và Xóa + Lưu đều hoạt động; mốc UAT đã được dọn.
 - [ ] Chưa chạy import production vì thao tác thay toàn bộ tiến độ dự án; cần một project sandbox cố định để kiểm thử hồi quy import.
-- [~] Đã kích hoạt Xuất Excel không phát sinh lỗi giao diện; chưa xác minh nội dung file tải về và chưa mở hộp thoại in trong vòng UAT này.
+- [~] Đã kích hoạt Xuất Excel không phát sinh lỗi giao diện; chưa xác minh nội dung file tải về trong vòng UAT này.
 
 ## Lỗi phát hiện và xử lý
 

@@ -1,11 +1,13 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useConfirm } from '../../components/confirmContext'
 import { useAuth } from '../auth/authContext'
 import type { AppRole, UserProfile } from '../../types/domain'
 import { normalizeUsername, USERNAME_PATTERN } from '../../lib/username'
 import { createUser, listUsers, resetUserPassword, setUserActive, updateUserProfile } from './userService'
+import { useAutoRefresh } from '../../lib/useAutoRefresh'
 
 const emptyForm = { fullName: '', username: '', password: '', role: 'employee' as AppRole }
+const PAGE_SIZE = 10
 type UserDialog = { kind: 'edit'; user: UserProfile } | { kind: 'password'; user: UserProfile } | null
 
 export function UsersPage() {
@@ -19,19 +21,30 @@ export function UsersPage() {
   const [busyUserId, setBusyUserId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
+  const [page, setPage] = useState(1)
 
-  const loadData = useCallback(async () => {
-    setLoading(true)
-    setError(null)
+  const loadData = useCallback(async (showLoading = true) => {
+    if (showLoading) setLoading(true)
     try { setUsers(await listUsers()) }
     catch { setError('Không tải được danh sách người dùng.') }
-    finally { setLoading(false) }
+    finally { if (showLoading) setLoading(false) }
   }, [])
 
   useEffect(() => {
     const timer = window.setTimeout(() => void loadData(), 0)
     return () => window.clearTimeout(timer)
   }, [loadData])
+  useAutoRefresh(() => loadData(false), { enabled: !dialog && !submitting && !busyUserId, intervalMs: 30_000 })
+
+  const filteredUsers = useMemo(() => {
+    const keyword = query.trim().toLocaleLowerCase('vi')
+    if (!keyword) return users
+    return users.filter((user) => `${user.full_name} ${user.username}`.toLocaleLowerCase('vi').includes(keyword))
+  }, [query, users])
+  const pageCount = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE))
+  const currentPage = Math.min(page, pageCount)
+  const visibleUsers = filteredUsers.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
@@ -86,13 +99,15 @@ export function UsersPage() {
       </form>
 
       <div className="content-card user-list-card">
-        <div className="card-heading"><div><h2>Danh sách tài khoản</h2><small>Không xóa tài khoản để giữ lịch sử thao tác.</small></div><span>{users.length} người</span></div>
+        <div className="card-heading"><div><h2>Danh sách tài khoản</h2><small>Không xóa tài khoản để giữ lịch sử thao tác.</small></div><span>{query ? `${filteredUsers.length}/${users.length}` : users.length} người</span></div>
+        <div className="user-list-toolbar"><input type="search" value={query} onChange={(event) => { setQuery(event.target.value); setPage(1) }} placeholder="Tìm theo họ tên hoặc tài khoản…" aria-label="Tìm người dùng" /></div>
         {(error || success) && <div className={`user-page-alert alert ${error ? 'error' : 'success'}`}>{error ?? success}</div>}
         {loading && <div className="state-message">Đang tải người dùng…</div>}
         {!loading && users.length === 0 && <div className="state-message">Chưa có tài khoản.</div>}
-        {!loading && users.length > 0 && <div className="table-wrap"><table className="users-table">
+        {!loading && users.length > 0 && !filteredUsers.length && <div className="state-message">Không có tài khoản khớp từ khóa.</div>}
+        {!loading && visibleUsers.length > 0 && <><div className="table-wrap"><table className="users-table">
           <thead><tr><th>Người dùng</th><th>Vai trò</th><th>Trạng thái</th><th aria-label="Thao tác" /></tr></thead>
-          <tbody>{users.map((user) => {
+          <tbody>{visibleUsers.map((user) => {
             const isRoot = user.username === 'admin'
             const isSelf = user.id === profile?.id
             const busy = busyUserId === user.id
@@ -107,7 +122,7 @@ export function UsersPage() {
               </div></td>
             </tr>
           })}</tbody>
-        </table></div>}
+        </table></div>{pageCount > 1 && <div className="user-pagination"><span>Trang {currentPage}/{pageCount}</span><div><button className="btn" disabled={currentPage === 1} onClick={() => setPage(Math.max(1, currentPage - 1))}>← Trước</button><button className="btn" disabled={currentPage === pageCount} onClick={() => setPage(Math.min(pageCount, currentPage + 1))}>Sau →</button></div></div>}</>}
       </div>
     </div>
 

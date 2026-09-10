@@ -214,8 +214,13 @@ h1{font-size:21px;font-weight:700;margin:0;letter-spacing:-.2px;text-wrap:balanc
 .mile input,.mile select{width:100%;background:transparent;border:1px solid transparent;border-radius:6px;padding:4px 6px;font-size:12.6px}
 .mile input:hover,.mile select:hover{border-color:var(--line)}
 .mile input:focus,.mile select:focus{border-color:var(--brand);background:var(--surface)}
-.mk{position:absolute;top:26px;transform:translateX(-50%);width:9px;height:9px;background:var(--brand-d);transform-origin:center;rotate:45deg;z-index:19;cursor:default}
-.mk.ok{background:var(--st-done)} .mk.bad{background:var(--st-late)}
+.mk{position:absolute;top:21px;transform:translateX(-50%);width:18px;height:18px;z-index:19;cursor:help;outline:none}
+.mk-diamond{position:absolute;left:5px;top:5px;width:9px;height:9px;background:var(--brand-d);transform:rotate(45deg);transform-origin:center}
+.mk.ok .mk-diamond{background:var(--st-done)} .mk.bad .mk-diamond{background:var(--st-late)}
+.mk-tooltip{position:absolute;top:23px;left:50%;transform:translate(-50%,5px);width:260px;background:#0d2946;color:#fff;border-radius:9px;box-shadow:0 12px 30px rgba(8,24,43,.28);display:grid;gap:5px;padding:10px 11px;opacity:0;pointer-events:none;text-align:left;transition:opacity .12s,transform .12s;visibility:hidden;z-index:80}
+.mk-tooltip::before{content:"";position:absolute;left:50%;top:-5px;width:10px;height:10px;background:#0d2946;transform:translateX(-50%) rotate(45deg)}
+.mk:hover .mk-tooltip,.mk:focus .mk-tooltip{opacity:1;transform:translate(-50%,0);visibility:visible}
+.mk-tooltip b{font-size:11.5px;line-height:1.35}.mk-tooltip span{font-size:9.5px;line-height:1.35;color:#d8e8f6}.mk-tooltip strong{color:#fff}.mk-tooltip em{justify-self:start;background:rgba(255,255,255,.12);border-radius:99px;font-size:9px;font-style:normal;font-weight:700;margin-top:2px;padding:2px 6px}.mk-tooltip em.done{background:rgba(32,184,106,.22);color:#a9f0cf}.mk-tooltip em.late{background:rgba(216,55,68,.25);color:#ffc3c8}
 @media print{
   .side,.top,.tbar,.dtabs,.drawer,.scrim,.modal,.toast,.rowact,.crumb button{display:none!important}
   body,.app,.main,.view{display:block!important;overflow:visible!important;height:auto!important;background:#fff!important}

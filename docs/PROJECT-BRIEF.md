@@ -38,7 +38,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Đăng nhập bằng tên tài khoản và mật khẩu do quản trị viên tạo; không có màn hình hoặc API tự đăng ký công khai.
 - Danh mục 21 phòng ban/đơn vị.
 - Danh mục dự án, hạng mục và công việc.
-- Import có preview từ sheet đầu của Excel.
+- Import có preview từ sheet đầu của Excel và có file mẫu tải trực tiếp tại màn hình nạp dữ liệu.
 - Gán nhiều người tham gia một công việc, không chia người chính/phối hợp.
 - Gantt được tính từ ngày bắt đầu/kết thúc.
 - Nhật ký diễn biến và tài liệu bằng chứng.
@@ -59,7 +59,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 1. Đăng nhập/đăng xuất.
 2. Quản trị viên quản lý tài khoản: tạo người dùng với họ tên, gán hoặc thay đổi vai trò, đặt lại mật khẩu và bật/tắt hoạt động; tài khoản không gắn phòng ban.
 3. Tạo, sửa, xóa mềm và khôi phục dự án; chỉ quản trị viên xem được danh sách đã xóa.
-4. Import sheet đầu của file tiến độ Excel, xem trước và xác nhận.
+4. Tải file Excel mẫu; import sheet đầu của file tiến độ Excel, xem trước và xác nhận.
 5. Quản lý hạng mục, công việc và nhiều người tham gia.
 6. Xem Gantt, tổng quan và công việc cần xử lý.
 7. Cập nhật diễn biến, nguyên nhân chậm và bằng chứng.
@@ -67,6 +67,10 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 9. Quản lý mốc kiểm soát theo dự án.
 10. Lưu audit log và export dữ liệu.
 11. Mỗi người dùng đã đăng nhập được tự đổi mật khẩu sau khi nhập đúng mật khẩu hiện tại.
+12. Các màn hình dữ liệu tự làm mới định kỳ khi tab đang hiển thị và làm mới ngay khi người dùng quay lại tab; tạm dừng khi đang có bản nháp hoặc thao tác ghi dữ liệu.
+13. Từ Tổng quan và Nhật ký, bấm một đầu việc phải mở đúng panel công việc trên Gantt; URL chứa định danh công việc để có thể tải lại hoặc chia sẻ.
+14. Danh sách người dùng có tìm kiếm và phân trang 10 tài khoản mỗi trang.
+15. Quản trị viên có thể duyệt hoặc từ chối ngay trong panel của công việc đang chờ duyệt; màn Chờ duyệt tổng hợp vẫn được giữ nguyên.
 
 ### Quy tắc nhập liệu hạng mục/công việc
 
@@ -84,16 +88,22 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Một công việc có thể có nhiều người tham gia; tất cả người tham gia có quyền cập nhật và gửi duyệt.
 - Người tham gia được chọn bằng dropdown nhiều lựa chọn có tìm kiếm theo họ tên hoặc tài khoản và hiển thị thành thẻ; không bày toàn bộ danh sách bằng checkbox trên form.
 - Khi đã gửi duyệt, công việc tạm khóa cập nhật cho đến khi quản trị viên duyệt hoặc từ chối.
+- Khi quản trị viên mở một công việc đang chờ duyệt, panel ưu tiên mở phần Xét duyệt với thông tin người gửi, ghi chú, bằng chứng và nút duyệt/từ chối.
 - Chỉ quản trị viên được thay đổi công việc thành hoàn thành.
 - Từ chối duyệt đưa công việc về trạng thái đang thực hiện và bắt buộc lưu lý do.
 - Mỗi vòng gửi/duyệt phải được lưu riêng để truy vết.
 - Chỉ import sheet đầu của Excel; các sheet khác không thuộc luồng import.
 - Chuỗi phòng ban từ Excel không tự động trở thành người tham gia.
 - Phòng ban/đơn vị chỉ gắn vào hạng mục hoặc công việc, độc lập với tài khoản và danh sách người tham gia. Đơn vị chủ trì là một trường chọn riêng; đơn vị phối hợp dùng dropdown chọn nhiều có tìm kiếm và hiển thị thành thẻ, không nhập chuỗi phân cách bằng dấu `/` và không bày toàn bộ checkbox trên form.
-- Khi công việc có diễn biến hoặc vòng duyệt mới mà người dùng chưa xem, Gantt hiển thị dấu sáng tại dòng công việc và menu Nhật ký diễn biến. Trạng thái đã xem được lưu riêng theo từng tài khoản.
+- Khi công việc có diễn biến hoặc vòng duyệt mới mà người dùng chưa xem, Gantt hiển thị nhãn Mới tại dòng công việc, dấu sáng trên thanh tiến độ, dải thông báo và số lượng tại menu Nhật ký diễn biến. Trạng thái đã xem được lưu riêng theo từng tài khoản và thông báo tự cập nhật khi người dùng đang mở hệ thống.
+- File Excel mẫu có sẵn hạng mục, công việc, cột đơn vị và ngày minh họa; có sheet hướng dẫn nhưng hệ thống vẫn chỉ nhập dữ liệu từ sheet đầu tiên.
+- Thao tác tải lên hoặc xóa bằng chứng phải giữ người dùng ở tab Bằng chứng; tải lại dữ liệu không được tự đưa panel về tab Thông tin.
 - Nhật ký diễn biến cho phép quản trị viên ghi vào mọi công việc đang mở; nhân viên chỉ ghi vào công việc chi tiết mình tham gia. Công việc chờ duyệt hoặc hoàn thành khóa cập nhật và phải hiển thị rõ lý do thay vì ẩn ô nhập.
 - Cột Chủ trì trên bảng tiến độ hiển thị tên đầy đủ của đơn vị. Mọi thanh trên Gantt phải hiển thị tên hạng mục/công việc, kể cả thanh ngắn.
 - Mỗi màn hình có URL riêng để mở trực tiếp và chia sẻ; URL dự án chứa mã dự án và tên màn hình, ví dụ `#/projects/PK-KHETRE/gantt`.
+- URL công việc có dạng `#/projects/{mã-dự-án}/gantt/work/{id-công-việc}`. Hệ thống tự mở các cấp cha đang thu gọn và mở panel của đúng công việc; nếu công việc không còn tồn tại phải báo rõ và trở về URL Gantt.
+- Dữ liệu đang xem được tự làm mới sau tối đa khoảng 15 giây (30 giây với danh mục lớn), đồng thời làm mới khi cửa sổ/tab được mở lại. Không tự làm mới lúc người dùng đang sửa bản nháp để tránh mất dữ liệu nhập.
+- Di chuột hoặc dùng bàn phím focus vào hình thoi mốc kiểm soát trên Gantt phải hiển thị tên mốc, ngày phải đạt, đơn vị chủ trì, điều kiện kiểm soát và trạng thái.
 - Xóa dự án là xóa mềm: người dùng thường không còn xem được dự án và dữ liệu con; quản trị viên có thể xem danh sách đã xóa và khôi phục. MVP không xóa vĩnh viễn dự án từ giao diện.
 
 ## 9. Dữ liệu và tích hợp

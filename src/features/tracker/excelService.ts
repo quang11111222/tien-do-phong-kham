@@ -15,6 +15,41 @@ export interface ImportedWorkItem {
 
 const statusLabels: Record<WorkItemStatus | 'late', string> = { not_started: 'Chưa thực hiện', in_progress: 'Đang thực hiện', pending_approval: 'Chờ duyệt', completed: 'Hoàn thành', late: 'Quá hạn' }
 
+export async function downloadImportTemplate() {
+  const { utils, writeFileXLSX } = await import('xlsx')
+  const planRows: (string | number)[][] = [
+    ['MẪU NẠP TIẾN ĐỘ DỰ ÁN PTPK'],
+    ['Chỉ nhập dữ liệu tiến độ tại sheet này. Có thể thay nội dung mẫu bên dưới bằng dữ liệu thực tế.'],
+    [],
+    ['STT', 'Hạng mục công việc', 'Đơn vị chủ trì', 'Đơn vị phối hợp', 'Bắt đầu', 'Kết thúc'],
+    ['I', 'CHUẨN BỊ - THIẾT KẾ', '', '', '', ''],
+    [1, 'Rà soát hiện trạng và nhu cầu', 'THIETKE', '', '01/10/2026', '03/10/2026'],
+    [2, 'Hoàn thiện phương án thiết kế', 'THIETKE', 'PTPK', '04/10/2026', '08/10/2026'],
+    ['II', 'TRIỂN KHAI', '', '', '', ''],
+    [1, 'Chuẩn bị mặt bằng', 'KT', 'BQLDA', '09/10/2026', '12/10/2026'],
+  ]
+  const guideRows: string[][] = [
+    ['HƯỚNG DẪN DÙNG FILE MẪU'],
+    ['1. Hệ thống chỉ nạp dữ liệu ở sheet đầu tiên (sheet Tien do).'],
+    ['2. Dòng có STT là số La Mã như I, II, III được hiểu là hạng mục cha.'],
+    ['3. Dòng có STT là số 1, 2, 3... được hiểu là công việc thuộc hạng mục gần nhất phía trên.'],
+    ['4. Mỗi công việc cần có tên, ngày bắt đầu và ngày kết thúc.'],
+    ['5. Ngày dùng định dạng DD/MM/YYYY hoặc YYYY-MM-DD.'],
+    ['6. Đơn vị chủ trì và đơn vị phối hợp là hai cột riêng; dùng mã hoặc tên phòng/ban.'],
+    ['7. Nếu có nhiều đơn vị phối hợp, có thể ngăn cách bằng dấu phẩy hoặc dấu /.'],
+    ['8. Hãy thay các dòng minh họa bằng dữ liệu thực tế trước khi nạp.'],
+  ]
+  const planSheet = utils.aoa_to_sheet(planRows)
+  planSheet['!cols'] = [{ wch: 10 }, { wch: 55 }, { wch: 22 }, { wch: 32 }, { wch: 15 }, { wch: 15 }]
+  planSheet['!autofilter'] = { ref: 'A4:F9' }
+  const guideSheet = utils.aoa_to_sheet(guideRows)
+  guideSheet['!cols'] = [{ wch: 100 }]
+  const workbook = utils.book_new()
+  utils.book_append_sheet(workbook, planSheet, 'Tien do')
+  utils.book_append_sheet(workbook, guideSheet, 'Huong dan')
+  writeFileXLSX(workbook, 'mau-nap-tien-do-ptpk.xlsx')
+}
+
 export async function parseFirstSheet(file: File): Promise<ImportedWorkItem[]> {
   const { read, utils } = await import('xlsx')
   const workbook = read(await file.arrayBuffer(), { type: 'array', cellDates: true })
@@ -22,13 +57,16 @@ export async function parseFirstSheet(file: File): Promise<ImportedWorkItem[]> {
   if (!firstSheet) throw new Error('File Excel không có sheet dữ liệu.')
   const rows = utils.sheet_to_json<unknown[]>(firstSheet, { header: 1, raw: false, dateNF: 'yyyy-mm-dd', defval: '' })
   let headerIndex = -1
-  let columns: { stt?: number; name?: number; responsibility?: number; start?: number; end?: number } = {}
+  let columns: { stt?: number; name?: number; responsibility?: number; lead?: number; coordinating?: number; start?: number; end?: number } = {}
   for (let rowIndex = 0; rowIndex < Math.min(rows.length, 25); rowIndex += 1) {
     const found: typeof columns = {}
     rows[rowIndex].forEach((cell, columnIndex) => {
       const value = String(cell ?? '').toLowerCase().trim()
       if (/hạng mục|công việc|nội dung/.test(value) && found.name === undefined) found.name = columnIndex
-      if (/chủ trì|phối hợp|đơn vị|bộ phận/.test(value) && found.responsibility === undefined) found.responsibility = columnIndex
+      if ((/chủ trì.*phối hợp|phối hợp.*chủ trì/.test(value)) && found.responsibility === undefined) found.responsibility = columnIndex
+      else if (/chủ trì/.test(value) && found.lead === undefined) found.lead = columnIndex
+      else if (/phối hợp/.test(value) && found.coordinating === undefined) found.coordinating = columnIndex
+      else if (/đơn vị|bộ phận/.test(value) && found.responsibility === undefined) found.responsibility = columnIndex
       if (/^bắt đầu|ngày bắt đầu|start/.test(value) && found.start === undefined) found.start = columnIndex
       if (/^kết thúc|ngày kết thúc|end|hoàn thành/.test(value) && found.end === undefined) found.end = columnIndex
       if (/^stt|^mã|^tt$/.test(value) && found.stt === undefined) found.stt = columnIndex
@@ -47,7 +85,10 @@ export async function parseFirstSheet(file: File): Promise<ImportedWorkItem[]> {
     const stt = String(row[sttColumn] ?? '').trim()
     const start = parseDate(row[columns.start!])
     const end = parseDate(row[columns.end!])
-    const responsibility = String(columns.responsibility === undefined ? '' : row[columns.responsibility] ?? '').replace(/\s+/g, ' ').trim()
+    const legacyResponsibility = String(columns.responsibility === undefined ? '' : row[columns.responsibility] ?? '').replace(/\s+/g, ' ').trim()
+    const lead = String(columns.lead === undefined ? '' : row[columns.lead] ?? '').replace(/\s+/g, ' ').trim()
+    const coordinating = String(columns.coordinating === undefined ? '' : row[columns.coordinating] ?? '').replace(/\s+/g, ' ').trim()
+    const responsibility = legacyResponsibility || [lead, coordinating].filter(Boolean).join(' / ')
     const isGroup = /^[IVXLCDM]+$/i.test(stt) || (!stt && !start && !end)
     if (isGroup) {
       group += 1; child = 0; parentId = `group-${group}`

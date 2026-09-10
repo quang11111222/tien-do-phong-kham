@@ -64,6 +64,11 @@ export async function getWorkItems(projectId: string): Promise<WorkItem[]> {
   }) as WorkItem[]
 }
 
+export async function getUnreadWorkItemCount(projectId: string): Promise<number> {
+  const items = await getWorkItems(projectId)
+  return items.filter((item) => item.has_unseen_activity).length
+}
+
 export async function getUsers(): Promise<UserProfile[]> {
   if (!supabase) return []
   const { data, error } = await supabase.from('profiles').select('id, username, full_name, role, active').eq('active', true).order('full_name')

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react
 import type { Project, WorkItem } from '../../types/domain'
 import { getProjects, getWorkItems, saveProject, setProjectDeleted } from './trackerService'
 import { useConfirm } from '../../components/confirmContext'
+import { useAutoRefresh } from '../../lib/useAutoRefresh'
 
 interface ProjectRow { project: Project; items: WorkItem[] }
 const emptyForm = { id: '', code: '', name: '', site: '', startDate: '', endDate: '' }
@@ -29,6 +30,7 @@ export function PortfolioPage({ isManager, onOpen }: { isManager: boolean; onOpe
     void fetchRows().then((data) => { if (active) setRows(data) }).catch(() => { if (active) setError('Không tải được danh mục dự án.') }).finally(() => { if (active) setLoading(false) })
     return () => { active = false }
   }, [fetchRows])
+  useAutoRefresh(() => fetchRows().then(setRows).catch(() => setError('Không tự cập nhật được danh mục dự án.')), { enabled: !modalOpen && !busyProjectId, intervalMs: 30_000 })
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()

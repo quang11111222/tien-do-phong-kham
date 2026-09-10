@@ -35,7 +35,8 @@ Quy ước: `[x]` đạt; `[~]` kiểm tra một phần hoặc không thực hi�
 
 - [x] Quản trị viên và nhân viên đều ghi diễn biến thành công từ trang Nhật ký.
 - [x] Nhân viên chỉ được chọn việc mình tham gia; việc khác không xuất hiện trong form ghi diễn biến.
-- [~] Việc chờ duyệt hiển thị rõ lý do khóa; logic hoàn thành dùng cùng nhánh nhưng chưa chụp lại panel sau duyệt trước khi dọn UAT.
+- [ ] Việc Chờ duyệt/Hoàn thành vẫn sửa thông tin, ghi diễn biến và thêm việc con; trạng thái mục cha tự tổng hợp theo các việc cuối nhánh.
+- [ ] Bằng chứng Chờ duyệt/Hoàn thành chỉ xem, không thay/xóa; bị từ chối thì được cập nhật để gửi lại.
 - [~] Một file bằng chứng được tải lên và hiển thị đúng; công cụ UAT không điều khiển được native file picker nên bước truyền file được gọi qua cùng Supabase session, sau đó toàn bộ luồng tiếp tục trên web.
 - [x] Thiếu bằng chứng thì nút gửi bị khóa; có đúng một bằng chứng thì gửi được.
 - [x] Từ chối không có lý do bị chặn; từ chối có lý do, gửi lại lần 2 và duyệt đều thành công; Nhật ký ghi đủ 6 sự kiện.

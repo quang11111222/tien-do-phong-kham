@@ -87,7 +87,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Nhân viên chỉ cập nhật công việc mình tham gia.
 - Một công việc có thể có nhiều người tham gia; tất cả người tham gia có quyền cập nhật và gửi duyệt.
 - Người tham gia được chọn bằng dropdown nhiều lựa chọn có tìm kiếm theo họ tên hoặc tài khoản và hiển thị thành thẻ; không bày toàn bộ danh sách bằng checkbox trên form.
-- Khi đã gửi duyệt, công việc tạm khóa cập nhật cho đến khi quản trị viên duyệt hoặc từ chối.
+- Khi đã gửi duyệt, tệp bằng chứng bị khóa cho đến khi quản trị viên từ chối; thông tin, phân công, diễn biến và cấu trúc công việc vẫn được cập nhật.
 - Khi quản trị viên mở một công việc đang chờ duyệt, panel ưu tiên mở phần Xét duyệt với thông tin người gửi, ghi chú, bằng chứng và nút duyệt/từ chối.
 - Chỉ quản trị viên được thay đổi công việc thành hoàn thành.
 - Từ chối duyệt đưa công việc về trạng thái đang thực hiện và bắt buộc lưu lý do.
@@ -98,8 +98,9 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Khi công việc có diễn biến hoặc vòng duyệt mới mà người dùng chưa xem, Gantt hiển thị nhãn Mới tại dòng công việc, dấu sáng trên thanh tiến độ, dải thông báo và số lượng tại menu Nhật ký diễn biến. Trạng thái đã xem được lưu riêng theo từng tài khoản và thông báo tự cập nhật khi người dùng đang mở hệ thống.
 - File Excel mẫu có sẵn hạng mục, công việc, cột đơn vị và ngày minh họa; có sheet hướng dẫn nhưng hệ thống vẫn chỉ nhập dữ liệu từ sheet đầu tiên.
 - Thao tác tải lên hoặc xóa bằng chứng phải giữ người dùng ở tab Bằng chứng; tải lại dữ liệu không được tự đưa panel về tab Thông tin.
-- Công việc ở trạng thái Chờ duyệt hoặc Hoàn thành bị khóa thông tin và cấu trúc; không được sửa, thêm/xóa công việc con, xóa công việc hoặc tải mới/thay/xóa bằng chứng đã nộp. Người dùng vẫn được xem thông tin, bằng chứng và lịch sử.
-- Nhật ký diễn biến cho phép quản trị viên ghi vào mọi công việc đang mở; nhân viên chỉ ghi vào công việc chi tiết mình tham gia. Công việc chờ duyệt hoặc hoàn thành khóa cập nhật và phải hiển thị rõ lý do thay vì ẩn ô nhập.
+- Công việc ở trạng thái Chờ duyệt hoặc Hoàn thành vẫn được sửa thông tin, phân công, ghi diễn biến và thêm công việc con. Trạng thái hiển thị của mục cha tự tổng hợp lại từ các công việc cuối nhánh.
+- Bằng chứng bị khóa khi công việc Chờ duyệt hoặc Hoàn thành: chỉ được xem, không được tải thay thế hoặc xóa. Không được xóa cả công việc/hạng mục nếu thao tác đó làm mất bằng chứng đã khóa. Khi yêu cầu bị từ chối và công việc trở lại Đang thực hiện, bằng chứng được phép cập nhật để gửi lại.
+- Nhật ký diễn biến cho phép quản trị viên ghi vào mọi công việc; nhân viên chỉ ghi vào công việc chi tiết mình tham gia, không phụ thuộc trạng thái công việc.
 - Cột Chủ trì trên bảng tiến độ hiển thị tên đầy đủ của đơn vị. Mọi thanh trên Gantt phải hiển thị tên hạng mục/công việc, kể cả thanh ngắn.
 - Mỗi màn hình có URL riêng để mở trực tiếp và chia sẻ; URL dự án chứa mã dự án và tên màn hình, ví dụ `#/projects/PK-KHETRE/gantt`.
 - URL công việc có dạng `#/projects/{mã-dự-án}/gantt/work/{id-công-việc}`. Hệ thống tự mở các cấp cha đang thu gọn và mở panel của đúng công việc; nếu công việc không còn tồn tại phải báo rõ và trở về URL Gantt.

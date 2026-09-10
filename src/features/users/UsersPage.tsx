@@ -116,8 +116,8 @@ export function UsersPage() {
               <td>{user.role === 'manager' ? 'Quản trị viên' : 'Nhân viên'}</td>
               <td><span className={`status ${user.active ? 'active' : 'archived'}`}>{user.active ? 'Đang hoạt động' : 'Đã khóa'}</span></td>
               <td><div className="user-actions">
-                <button className="btn" disabled={busy} onClick={() => setDialog({ kind: 'edit', user })}>Chỉnh sửa</button>
-                <button className="btn" disabled={busy} onClick={() => setDialog({ kind: 'password', user })}>Đặt lại mật khẩu</button>
+                <button className="btn" disabled={busy || isRoot} title={isRoot ? 'Tài khoản admin gốc không được chỉnh sửa' : undefined} onClick={() => setDialog({ kind: 'edit', user })}>Chỉnh sửa</button>
+                <button className="btn" disabled={busy || isRoot} title={isRoot ? 'Tài khoản admin gốc không được đặt lại mật khẩu' : undefined} onClick={() => setDialog({ kind: 'password', user })}>Đặt lại mật khẩu</button>
                 <button className={`btn ${user.active ? 'danger-outline' : ''}`} disabled={busy || isRoot || isSelf} title={isRoot ? 'Tài khoản admin gốc luôn được bảo vệ' : isSelf ? 'Không thể tự khóa tài khoản đang đăng nhập' : undefined} onClick={() => void toggleActive(user)}>{busy ? 'Đang xử lý…' : user.active ? 'Khóa' : 'Mở lại'}</button>
               </div></td>
             </tr>
@@ -141,6 +141,7 @@ function EditUserDialog({ currentUserId, user, onClose, onSaved }: { currentUser
 
   const save = async (event: FormEvent) => {
     event.preventDefault()
+    if (isRoot) return setError('Tài khoản admin gốc không được chỉnh sửa.')
     const nextName = fullName.trim()
     if (nextName.length < 2) return setError('Họ và tên phải có ít nhất 2 ký tự.')
     setSaving(true)
@@ -166,6 +167,7 @@ function PasswordDialog({ user, onClose, onSaved }: { user: UserProfile; onClose
 
   const save = async (event: FormEvent) => {
     event.preventDefault()
+    if (user.username === 'admin') return setError('Tài khoản admin gốc không được đặt lại mật khẩu.')
     if (password.length < 8) return setError('Mật khẩu mới phải có ít nhất 8 ký tự.')
     if (password !== confirmation) return setError('Hai lần nhập mật khẩu chưa khớp.')
     setSaving(true)

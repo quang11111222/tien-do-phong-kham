@@ -106,9 +106,12 @@ Deno.serve(async (request) => {
     .maybeSingle()
   if (targetError || !targetProfile) return json({ error: 'Không tìm thấy tài khoản.' }, 404)
 
+  if (targetProfile.username === 'admin') {
+    return json({ error: 'Tài khoản admin gốc được bảo vệ và không thể chỉnh sửa.' }, 400)
+  }
+
   if (action === 'update_profile') {
     if (fullName.length < 2 || fullName.length > 100) return json({ error: 'Họ và tên phải có từ 2 đến 100 ký tự.' }, 400)
-    if (targetProfile.username === 'admin' && role !== 'manager') return json({ error: 'Không được hạ quyền tài khoản admin gốc.' }, 400)
     if (targetProfile.id === callerData.user.id && role !== targetProfile.role) return json({ error: 'Không được tự thay đổi vai trò.' }, 400)
 
     const { error } = await callerClient.from('profiles').update({ full_name: fullName, role }).eq('id', targetProfile.id)
@@ -118,7 +121,6 @@ Deno.serve(async (request) => {
 
   if (action === 'set_active') {
     if (typeof body.active !== 'boolean') return json({ error: 'Trạng thái tài khoản không hợp lệ.' }, 400)
-    if (targetProfile.username === 'admin' && !body.active) return json({ error: 'Không được khóa tài khoản admin gốc.' }, 400)
     if (targetProfile.id === callerData.user.id) return json({ error: 'Không được tự thay đổi trạng thái tài khoản.' }, 400)
 
     const { error: authError } = await adminClient.auth.admin.updateUserById(targetProfile.id, {

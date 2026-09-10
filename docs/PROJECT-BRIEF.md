@@ -82,7 +82,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 
 - Mọi người dùng đã đăng nhập được xem toàn bộ dự án.
 - Chỉ quản trị viên được tạo tài khoản; Supabase Auth tắt self-signup và frontend không giữ `service_role` key.
-- Tài khoản `admin` gốc luôn giữ vai trò Quản trị viên và không thể bị khóa. Quản trị viên không thể tự khóa hoặc tự hạ quyền tài khoản đang đăng nhập.
+- Tài khoản `admin` gốc được bảo vệ tuyệt đối: không ai được chỉnh sửa hồ sơ/vai trò, đặt lại hoặc tự đổi mật khẩu, khóa hay mở trạng thái tài khoản này. Quản trị viên không thể tự khóa hoặc tự hạ quyền tài khoản đang đăng nhập.
 - Khóa tài khoản không xóa hồ sơ hoặc lịch sử thao tác; khi được mở lại, tài khoản tiếp tục sử dụng dữ liệu cũ.
 - Nhân viên chỉ cập nhật công việc mình tham gia.
 - Một công việc có thể có nhiều người tham gia; tất cả người tham gia có quyền cập nhật và gửi duyệt.

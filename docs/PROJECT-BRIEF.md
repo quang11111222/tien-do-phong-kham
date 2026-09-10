@@ -98,6 +98,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Khi công việc có diễn biến hoặc vòng duyệt mới mà người dùng chưa xem, Gantt hiển thị nhãn Mới tại dòng công việc, dấu sáng trên thanh tiến độ, dải thông báo và số lượng tại menu Nhật ký diễn biến. Trạng thái đã xem được lưu riêng theo từng tài khoản và thông báo tự cập nhật khi người dùng đang mở hệ thống.
 - File Excel mẫu có sẵn hạng mục, công việc, cột đơn vị và ngày minh họa; có sheet hướng dẫn nhưng hệ thống vẫn chỉ nhập dữ liệu từ sheet đầu tiên.
 - Thao tác tải lên hoặc xóa bằng chứng phải giữ người dùng ở tab Bằng chứng; tải lại dữ liệu không được tự đưa panel về tab Thông tin.
+- Công việc ở trạng thái Chờ duyệt hoặc Hoàn thành bị khóa thông tin và cấu trúc; không được sửa, thêm/xóa công việc con, xóa công việc hoặc tải mới/thay/xóa bằng chứng đã nộp. Người dùng vẫn được xem thông tin, bằng chứng và lịch sử.
 - Nhật ký diễn biến cho phép quản trị viên ghi vào mọi công việc đang mở; nhân viên chỉ ghi vào công việc chi tiết mình tham gia. Công việc chờ duyệt hoặc hoàn thành khóa cập nhật và phải hiển thị rõ lý do thay vì ẩn ô nhập.
 - Cột Chủ trì trên bảng tiến độ hiển thị tên đầy đủ của đơn vị. Mọi thanh trên Gantt phải hiển thị tên hạng mục/công việc, kể cả thanh ngắn.
 - Mỗi màn hình có URL riêng để mở trực tiếp và chia sẻ; URL dự án chứa mã dự án và tên màn hình, ví dụ `#/projects/PK-KHETRE/gantt`.

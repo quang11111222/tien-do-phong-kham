@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useConfirm } from '../../components/confirmContext'
 import { useAuth } from '../auth/authContext'
-import type { AppRole, UserProfile } from '../../types/domain'
+import type { AppRole, Department, UserProfile } from '../../types/domain'
 import { normalizeUsername, USERNAME_PATTERN } from '../../lib/username'
-import { createUser, listUsers, resetUserPassword, setUserActive, updateUserProfile } from './userService'
+import { createUser, listDepartments, listUsers, resetUserPassword, setUserActive, updateUserProfile } from './userService'
 import { useAutoRefresh } from '../../lib/useAutoRefresh'
 
-const emptyForm = { fullName: '', username: '', password: '', role: 'employee' as AppRole }
+const emptyForm = { fullName: '', username: '', password: '', role: 'employee' as AppRole, departmentId: '', isDepartmentAdmin: false }
 const PAGE_SIZE = 10
 type UserDialog = { kind: 'edit'; user: UserProfile } | { kind: 'password'; user: UserProfile } | null
 
@@ -14,6 +14,7 @@ export function UsersPage() {
   const { profile } = useAuth()
   const confirm = useConfirm()
   const [users, setUsers] = useState<UserProfile[]>([])
+  const [departments, setDepartments] = useState<Department[]>([])
   const [form, setForm] = useState(emptyForm)
   const [dialog, setDialog] = useState<UserDialog>(null)
   const [loading, setLoading] = useState(true)
@@ -26,7 +27,7 @@ export function UsersPage() {
 
   const loadData = useCallback(async (showLoading = true) => {
     if (showLoading) setLoading(true)
-    try { setUsers(await listUsers()) }
+    try { const [nextUsers, nextDepartments] = await Promise.all([listUsers(), listDepartments()]); setUsers(nextUsers); setDepartments(nextDepartments) }
     catch { setError('Không tải được danh sách người dùng.') }
     finally { if (showLoading) setLoading(false) }
   }, [])
@@ -55,10 +56,11 @@ export function UsersPage() {
     if (form.password.length < 8) return setError('Mật khẩu tạm phải có ít nhất 8 ký tự.')
     const username = normalizeUsername(form.username)
     if (!USERNAME_PATTERN.test(username)) return setError('Tài khoản gồm 3–32 ký tự: chữ thường, số, dấu chấm, gạch ngang hoặc gạch dưới.')
+    if (form.role === 'employee' && !form.departmentId) return setError('Nhân viên phải được gắn với một phòng/ban.')
 
     setSubmitting(true)
     try {
-      await createUser({ ...form, fullName, username })
+      await createUser({ ...form, departmentId: form.departmentId || null, fullName, username })
       setSuccess(`Đã tạo tài khoản ${username} cho ${fullName}.`)
       setForm(emptyForm)
       await loadData()
@@ -87,14 +89,16 @@ export function UsersPage() {
   }
 
   return <section>
-    <div className="page-heading"><div><p className="eyebrow">QUẢN TRỊ HỆ THỐNG</p><h1>Quản lý người dùng</h1><p className="muted">Tạo tài khoản, cập nhật họ tên và vai trò, đặt lại mật khẩu hoặc khóa quyền truy cập.</p></div></div>
+    <div className="page-heading"><div><p className="eyebrow">QUẢN TRỊ HỆ THỐNG</p><h1>Quản lý người dùng</h1><p className="muted">Gắn mỗi người với phòng/ban; quản trị phòng đồng thời vẫn làm việc như nhân viên của phòng đó.</p></div></div>
     <div className="admin-grid">
       <form className="content-card user-form" onSubmit={handleSubmit}>
         <div><h2>Tạo tài khoản</h2><p className="muted">Không có đăng ký công khai; quản trị viên cấp tài khoản cho từng người.</p></div>
         <label>Họ và tên<input required maxLength={100} autoComplete="name" value={form.fullName} onChange={(event) => setForm({ ...form, fullName: event.target.value })} placeholder="Nguyễn Văn An" /></label>
         <label>Tài khoản<input required autoComplete="off" pattern="[a-z0-9._-]{3,32}" value={form.username} onChange={(event) => setForm({ ...form, username: event.target.value.toLowerCase() })} placeholder="nguyenvanan" /></label>
         <label>Mật khẩu tạm<input required minLength={8} type="password" autoComplete="new-password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} /></label>
-        <label>Vai trò<select value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value as AppRole })}><option value="employee">Nhân viên</option><option value="manager">Quản trị viên</option></select></label>
+        <label>Phòng/ban<select required={form.role === 'employee'} value={form.departmentId} onChange={(event) => setForm({ ...form, departmentId: event.target.value })}><option value="">Chưa gắn phòng/ban</option>{departments.map((department) => <option key={department.id} value={department.id}>{department.code} — {department.name}</option>)}</select></label>
+        <label>Cấp quyền<select value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value as AppRole, isDepartmentAdmin: event.target.value === 'manager' ? false : form.isDepartmentAdmin })}><option value="employee">Theo phòng/ban</option><option value="manager">Quản trị hệ thống</option></select></label>
+        {form.role === 'employee' && <label className="user-check"><input type="checkbox" checked={form.isDepartmentAdmin} onChange={(event) => setForm({ ...form, isDepartmentAdmin: event.target.checked })} /> Quản trị phòng/ban</label>}
         <button className="primary-button" disabled={submitting} type="submit">{submitting ? 'Đang tạo…' : 'Tạo tài khoản'}</button>
       </form>
 
@@ -106,14 +110,15 @@ export function UsersPage() {
         {!loading && users.length === 0 && <div className="state-message">Chưa có tài khoản.</div>}
         {!loading && users.length > 0 && !filteredUsers.length && <div className="state-message">Không có tài khoản khớp từ khóa.</div>}
         {!loading && visibleUsers.length > 0 && <><div className="table-wrap"><table className="users-table">
-          <thead><tr><th>Người dùng</th><th>Vai trò</th><th>Trạng thái</th><th aria-label="Thao tác" /></tr></thead>
+          <thead><tr><th>Người dùng</th><th>Phòng/ban</th><th>Vai trò</th><th>Trạng thái</th><th aria-label="Thao tác" /></tr></thead>
           <tbody>{visibleUsers.map((user) => {
             const isRoot = user.username === 'admin'
             const isSelf = user.id === profile?.id
             const busy = busyUserId === user.id
             return <tr key={user.id}>
               <td><strong>{user.full_name}</strong><small className="user-account">@{user.username}{isRoot && <span className="root-badge">Gốc</span>}{isSelf && <span className="self-badge">Bạn</span>}</small></td>
-              <td>{user.role === 'manager' ? 'Quản trị viên' : 'Nhân viên'}</td>
+              <td>{user.department ? `${user.department.code} — ${user.department.name}` : '—'}</td>
+              <td>{user.role === 'manager' ? 'Quản trị hệ thống' : user.is_department_admin ? 'Quản trị phòng/ban' : 'Nhân viên'}</td>
               <td><span className={`status ${user.active ? 'active' : 'archived'}`}>{user.active ? 'Đang hoạt động' : 'Đã khóa'}</span></td>
               <td><div className="user-actions">
                 <button className="btn" disabled={busy || isRoot} title={isRoot ? 'Tài khoản admin gốc không được chỉnh sửa' : undefined} onClick={() => setDialog({ kind: 'edit', user })}>Chỉnh sửa</button>
@@ -126,16 +131,18 @@ export function UsersPage() {
       </div>
     </div>
 
-    {dialog?.kind === 'edit' && <EditUserDialog currentUserId={profile?.id ?? ''} user={dialog.user} onClose={() => setDialog(null)} onSaved={async (message) => { setDialog(null); setSuccess(message); await loadData() }} />}
+    {dialog?.kind === 'edit' && <EditUserDialog departments={departments} currentUserId={profile?.id ?? ''} user={dialog.user} onClose={() => setDialog(null)} onSaved={async (message) => { setDialog(null); setSuccess(message); await loadData() }} />}
     {dialog?.kind === 'password' && <PasswordDialog user={dialog.user} onClose={() => setDialog(null)} onSaved={(message) => { setDialog(null); setSuccess(message) }} />}
   </section>
 }
 
-function EditUserDialog({ currentUserId, user, onClose, onSaved }: { currentUserId: string; user: UserProfile; onClose: () => void; onSaved: (message: string) => Promise<void> }) {
+function EditUserDialog({ currentUserId, user, departments, onClose, onSaved }: { currentUserId: string; user: UserProfile; departments: Department[]; onClose: () => void; onSaved: (message: string) => Promise<void> }) {
   const isRoot = user.username === 'admin'
   const isSelf = user.id === currentUserId
   const [fullName, setFullName] = useState(user.full_name)
   const [role, setRole] = useState(user.role)
+  const [departmentId, setDepartmentId] = useState(user.department_id ?? '')
+  const [isDepartmentAdmin, setIsDepartmentAdmin] = useState(user.is_department_admin)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
@@ -144,16 +151,19 @@ function EditUserDialog({ currentUserId, user, onClose, onSaved }: { currentUser
     if (isRoot) return setError('Tài khoản admin gốc không được chỉnh sửa.')
     const nextName = fullName.trim()
     if (nextName.length < 2) return setError('Họ và tên phải có ít nhất 2 ký tự.')
+    if (role === 'employee' && !departmentId) return setError('Nhân viên phải được gắn với một phòng/ban.')
     setSaving(true)
     setError(null)
-    try { await updateUserProfile(user.id, nextName, role); await onSaved(`Đã cập nhật tài khoản ${user.username}.`) }
+    try { await updateUserProfile(user.id, nextName, role, departmentId || null, role === 'employee' && isDepartmentAdmin); await onSaved(`Đã cập nhật tài khoản ${user.username}.`) }
     catch { setError('Không cập nhật được tài khoản. Kiểm tra quyền và dữ liệu nhập.'); setSaving(false) }
   }
 
   return <div className="user-dialog-layer" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}><form className="user-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-user-title" onSubmit={save}>
     <div className="user-dialog-heading"><div><p className="eyebrow">CHỈNH SỬA TÀI KHOẢN</p><h2 id="edit-user-title">@{user.username}</h2></div><button type="button" className="user-dialog-close" aria-label="Đóng" onClick={onClose}>×</button></div>
     <label>Họ và tên<input required maxLength={100} value={fullName} onChange={(event) => setFullName(event.target.value)} autoFocus /></label>
-    <label>Vai trò<select value={role} disabled={isRoot || isSelf} onChange={(event) => setRole(event.target.value as AppRole)}><option value="employee">Nhân viên</option><option value="manager">Quản trị viên</option></select><small>{isRoot ? 'Tài khoản admin gốc luôn giữ quyền Quản trị viên.' : isSelf ? 'Không thể tự thay đổi vai trò của tài khoản đang đăng nhập.' : 'Thay đổi có hiệu lực từ lần kiểm tra quyền tiếp theo.'}</small></label>
+    <label>Phòng/ban<select value={departmentId} disabled={isRoot} onChange={(event) => setDepartmentId(event.target.value)}><option value="">Chưa gắn phòng/ban</option>{departments.map((department) => <option key={department.id} value={department.id}>{department.code} — {department.name}</option>)}</select></label>
+    <label>Cấp quyền<select value={role} disabled={isRoot || isSelf} onChange={(event) => { const next = event.target.value as AppRole; setRole(next); if (next === 'manager') setIsDepartmentAdmin(false) }}><option value="employee">Theo phòng/ban</option><option value="manager">Quản trị hệ thống</option></select><small>{isRoot ? 'Tài khoản admin gốc luôn giữ quyền Quản trị hệ thống.' : isSelf ? 'Không thể tự thay đổi cấp quyền của tài khoản đang đăng nhập.' : 'Quyền quản trị dự án được gắn riêng tại từng dự án.'}</small></label>
+    {role === 'employee' && <label className="user-check"><input type="checkbox" checked={isDepartmentAdmin} disabled={isRoot || isSelf} onChange={(event) => setIsDepartmentAdmin(event.target.checked)} /> Quản trị phòng/ban</label>}
     {error && <div className="alert error">{error}</div>}
     <div className="user-dialog-actions"><button type="button" className="btn" onClick={onClose}>Hủy bỏ</button><button className="btn pri" disabled={saving}>{saving ? 'Đang lưu…' : 'Lưu thay đổi'}</button></div>
   </form></div>

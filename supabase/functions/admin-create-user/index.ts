@@ -15,6 +15,8 @@ interface RequestBody {
   password?: string
   role?: AppRole
   active?: boolean
+  departmentId?: string | null
+  isDepartmentAdmin?: boolean
 }
 
 function json(body: unknown, status = 200) {
@@ -49,7 +51,7 @@ Deno.serve(async (request) => {
   })
   const { data: callerProfile } = await adminClient
     .from('profiles')
-    .select('role, active')
+      .select('role, active')
     .eq('id', callerData.user.id)
     .maybeSingle()
 
@@ -68,10 +70,12 @@ Deno.serve(async (request) => {
   const password = body.password ?? ''
   const role = body.role === 'manager' ? 'manager' : 'employee'
   const fullName = body.fullName?.trim() ?? ''
+  const departmentId = body.departmentId || null
+  const isDepartmentAdmin = role === 'employee' && Boolean(body.isDepartmentAdmin)
 
   if (action === 'create') {
     const username = body.username?.trim().toLowerCase()
-    if (!username || !/^[a-z0-9._-]{3,32}$/.test(username) || fullName.length < 2 || fullName.length > 100 || password.length < 8) {
+    if (!username || !/^[a-z0-9._-]{3,32}$/.test(username) || fullName.length < 2 || fullName.length > 100 || password.length < 8 || (role === 'employee' && !departmentId)) {
       return json({ error: 'Thiếu hoặc sai dữ liệu tài khoản.' }, 400)
     }
 
@@ -87,7 +91,7 @@ Deno.serve(async (request) => {
 
     const { error: profileError } = await callerClient
       .from('profiles')
-      .update({ username, full_name: fullName, role, active: true })
+      .update({ username, full_name: fullName, role, department_id: departmentId, is_department_admin: isDepartmentAdmin, active: true })
       .eq('id', created.user.id)
 
     if (profileError) {
@@ -101,7 +105,7 @@ Deno.serve(async (request) => {
 
   const { data: targetProfile, error: targetError } = await adminClient
     .from('profiles')
-    .select('id, username, full_name, role, active')
+    .select('id, username, full_name, role, department_id, is_department_admin, active')
     .eq('id', body.targetUserId)
     .maybeSingle()
   if (targetError || !targetProfile) return json({ error: 'Không tìm thấy tài khoản.' }, 404)
@@ -112,9 +116,10 @@ Deno.serve(async (request) => {
 
   if (action === 'update_profile') {
     if (fullName.length < 2 || fullName.length > 100) return json({ error: 'Họ và tên phải có từ 2 đến 100 ký tự.' }, 400)
+    if (role === 'employee' && !departmentId) return json({ error: 'Nhân viên phải được gắn với một phòng/ban.' }, 400)
     if (targetProfile.id === callerData.user.id && role !== targetProfile.role) return json({ error: 'Không được tự thay đổi vai trò.' }, 400)
 
-    const { error } = await callerClient.from('profiles').update({ full_name: fullName, role }).eq('id', targetProfile.id)
+    const { error } = await callerClient.from('profiles').update({ full_name: fullName, role, department_id: departmentId, is_department_admin: isDepartmentAdmin }).eq('id', targetProfile.id)
     if (error) return json({ error: error.message }, 400)
     return json({ ok: true })
   }

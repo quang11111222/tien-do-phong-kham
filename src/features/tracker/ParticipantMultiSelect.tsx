@@ -6,9 +6,11 @@ interface ParticipantMultiSelectProps {
   disabled?: boolean
   selectedIds: string[]
   onChange: (ids: string[]) => void
+  label?: string
+  placeholder?: string
 }
 
-export function ParticipantMultiSelect({ users, disabled = false, selectedIds, onChange }: ParticipantMultiSelectProps) {
+export function ParticipantMultiSelect({ users, disabled = false, selectedIds, onChange, label = 'Người tham gia', placeholder = 'Chọn người tham gia' }: ParticipantMultiSelectProps) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const root = useRef<HTMLDivElement | null>(null)
@@ -28,9 +30,9 @@ export function ParticipantMultiSelect({ users, disabled = false, selectedIds, o
   const toggle = (id: string) => onChange(selectedIds.includes(id) ? selectedIds.filter((selectedId) => selectedId !== id) : [...selectedIds, id])
 
   return <div className="f wide department-multi participant-multi" ref={root}>
-    <label id="participants-label">Người tham gia <small>(có thể chọn nhiều)</small></label>
+    <label id="participants-label">{label} <small>(có thể chọn nhiều)</small></label>
     <button type="button" disabled={disabled} className={`department-multi-trigger ${open ? 'open' : ''}`} aria-expanded={open && !disabled} aria-haspopup="listbox" aria-labelledby="participants-label" onClick={() => setOpen((current) => !current)}>
-      <span className={`department-chip-list ${selected.length ? '' : 'empty'}`}>{selected.length ? selected.map((user) => <span className="department-chip participant-chip" key={user.id}>{user.full_name}</span>) : 'Chọn người tham gia'}</span>
+      <span className={`department-chip-list ${selected.length ? '' : 'empty'}`}>{selected.length ? selected.map((user) => <span className="department-chip participant-chip" key={user.id}>{user.full_name}</span>) : placeholder}</span>
       <span className="department-chevron" aria-hidden="true">⌄</span>
     </button>
     {open && !disabled && <div className="department-menu participant-menu">
@@ -39,7 +41,7 @@ export function ParticipantMultiSelect({ users, disabled = false, selectedIds, o
         {available.map((user) => {
           const isSelected = selectedIds.includes(user.id)
           return <button type="button" role="option" aria-selected={isSelected} className={isSelected ? 'selected' : ''} key={user.id} onClick={() => toggle(user.id)}>
-            <span><b>{user.full_name}</b><small>@{user.username} · {user.role === 'manager' ? 'Quản trị viên' : 'Nhân viên'}</small></span>
+            <span><b>{user.full_name}</b><small>@{user.username} · {user.role === 'manager' ? 'Quản trị hệ thống' : user.is_department_admin ? 'Quản trị phòng/ban' : 'Nhân viên'}</small></span>
             <i aria-hidden="true">{isSelected ? '✓' : '+'}</i>
           </button>
         })}

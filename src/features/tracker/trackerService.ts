@@ -8,14 +8,34 @@ export async function getProjects(includeDeleted = false): Promise<Project[]> {
   if (!includeDeleted) query = query.is('deleted_at', null)
   const { data, error } = await query.order('name')
   if (error) throw error
-  return (data ?? []) as Project[]
+  const projectIds = (data ?? []).map((project) => project.id)
+  const { data: administrators, error: administratorError } = projectIds.length
+    ? await supabase.from('project_administrators').select('project_id, user_id').in('project_id', projectIds)
+    : { data: [], error: null }
+  if (administratorError) throw administratorError
+  const { data: authData } = await supabase.auth.getUser()
+  return (data ?? []).map((project) => ({
+    ...project,
+    administrator_ids: (administrators ?? []).filter((row) => row.project_id === project.id).map((row) => row.user_id),
+    can_manage: (administrators ?? []).some((row) => row.project_id === project.id && row.user_id === authData.user?.id),
+  })) as Project[]
 }
 
-export async function saveProject(input: { id?: string; code: string; name: string; site: string; startDate: string; endDate: string }) {
+export async function saveProject(input: { id?: string; code: string; name: string; site: string; startDate: string; endDate: string; administratorIds?: string[] }) {
   if (!supabase) throw new Error('Chưa cấu hình Supabase.')
   const row = { code: input.code.trim().toUpperCase(), name: input.name.trim(), site: input.site.trim() || null, start_date: input.startDate || null, end_date: input.endDate || null, status: 'active' as const }
-  const result = input.id ? await supabase.from('projects').update(row).eq('id', input.id) : await supabase.from('projects').insert(row)
+  const result = input.id
+    ? await supabase.from('projects').update(row).eq('id', input.id).select('id').single()
+    : await supabase.from('projects').insert(row).select('id').single()
   if (result.error) throw result.error
+  if (input.administratorIds) {
+    const { error: deleteError } = await supabase.from('project_administrators').delete().eq('project_id', result.data.id)
+    if (deleteError) throw deleteError
+    if (input.administratorIds.length) {
+      const { error: insertError } = await supabase.from('project_administrators').insert(input.administratorIds.map((userId) => ({ project_id: result.data.id, user_id: userId })))
+      if (insertError) throw insertError
+    }
+  }
 }
 
 export async function setProjectDeleted(id: string, deleted: boolean) {
@@ -71,9 +91,9 @@ export async function getUnreadWorkItemCount(projectId: string): Promise<number>
 
 export async function getUsers(): Promise<UserProfile[]> {
   if (!supabase) return []
-  const { data, error } = await supabase.from('profiles').select('id, username, full_name, role, active').eq('active', true).order('full_name')
+  const { data, error } = await supabase.from('profiles').select('id, username, full_name, role, department_id, is_department_admin, active, department:departments(id, code, name, active)').eq('active', true).order('full_name')
   if (error) throw error
-  return (data ?? []) as UserProfile[]
+  return (data ?? []).map((row) => ({ ...row, department: Array.isArray(row.department) ? row.department[0] ?? null : row.department })) as unknown as UserProfile[]
 }
 
 export async function getDepartments(): Promise<Department[]> {

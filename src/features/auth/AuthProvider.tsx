@@ -15,8 +15,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!client) return
 
     const loadProfile = async (userId: string) => {
-      const { data } = await client.from('profiles').select('*').eq('id', userId).maybeSingle()
-      setProfile((data as Profile | null) ?? null)
+      const { data } = await client.from('profiles').select('*, department:departments(id, code, name, active)').eq('id', userId).maybeSingle()
+      if (!data) { setProfile(null); return }
+      setProfile({ ...data, department: Array.isArray(data.department) ? data.department[0] ?? null : data.department } as Profile)
     }
 
     void client.auth.getSession().then(async ({ data }) => {

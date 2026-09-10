@@ -13,6 +13,9 @@ export interface Profile {
   username: string
   full_name: string
   role: AppRole
+  department_id: string | null
+  department: Department | null
+  is_department_admin: boolean
   active: boolean
 }
 
@@ -37,6 +40,8 @@ export interface Project {
   deleted_by: string | null
   created_at: string
   updated_at: string
+  administrator_ids: string[]
+  can_manage: boolean
 }
 
 export interface WorkItem {

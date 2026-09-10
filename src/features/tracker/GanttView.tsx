@@ -153,7 +153,10 @@ function WorkDrawer({ item, items, users, departments, profile, isNew, tab, onTa
         ? 'Công việc đã hoàn thành nên nhật ký được khóa để giữ nguyên lịch sử.'
         : null
   const dirty = isNew || JSON.stringify(form) !== JSON.stringify(initialForm())
-  useEffect(() => { void getProgressUpdates(item.id).then(setUpdates) }, [item.id])
+  useEffect(() => {
+    if (isNew) return
+    void getProgressUpdates(item.id).then(setUpdates)
+  }, [isNew, item.id])
   useEffect(() => {
     if (profile.role !== 'manager' || item.status !== 'pending_approval') return
     let active = true

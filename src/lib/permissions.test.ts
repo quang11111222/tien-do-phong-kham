@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canEditWorkItem, canReviewCompletion } from './permissions'
+import { canAddChildWorkItem, canEditWorkItem, canManageWorkItemStructure, canReviewCompletion } from './permissions'
 
 describe('work item permissions', () => {
   it('allows a manager to edit every work item', () => {
@@ -17,6 +17,27 @@ describe('work item permissions', () => {
     expect(
       canEditWorkItem({ role: 'employee', userId: 'employee-1', participantIds: ['employee-2'] }),
     ).toBe(false)
+  })
+
+  it('allows department administrators to manage work inside their lead branch', () => {
+    const access = {
+      role: 'employee' as const,
+      departmentId: 'ptpk',
+      isDepartmentAdmin: true,
+      leadDepartmentIdsInPath: [null, 'ptpk'],
+    }
+    expect(canManageWorkItemStructure({ ...access, parentId: 'root-item' })).toBe(true)
+    expect(canAddChildWorkItem({ ...access, parentId: 'parent-item' })).toBe(true)
+  })
+
+  it('does not let department administrators manage a top-level category or coordinating-only branch', () => {
+    const access = {
+      role: 'employee' as const,
+      departmentId: 'ptpk',
+      isDepartmentAdmin: true,
+    }
+    expect(canManageWorkItemStructure({ ...access, parentId: null, leadDepartmentIdsInPath: ['ptpk'] })).toBe(false)
+    expect(canAddChildWorkItem({ ...access, parentId: 'parent-item', leadDepartmentIdsInPath: ['marketing'] })).toBe(false)
   })
 
   it('allows one eligible reviewer but never the submitter', () => {

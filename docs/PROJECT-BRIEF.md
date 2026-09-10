@@ -71,6 +71,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 13. Từ Tổng quan và Nhật ký, bấm một đầu việc phải mở đúng panel công việc trên Gantt; URL chứa định danh công việc để có thể tải lại hoặc chia sẻ.
 14. Danh sách người dùng có tìm kiếm và phân trang 10 tài khoản mỗi trang.
 15. Quản trị viên có thể duyệt hoặc từ chối ngay trong panel của công việc đang chờ duyệt; màn Chờ duyệt tổng hợp vẫn được giữ nguyên.
+16. Tổng quan dự án có biểu đồ cơ cấu trạng thái tính theo công việc cuối nhánh; Gantt phân biệt trực quan trạng thái tổng hợp của mục cha với trạng thái trực tiếp của công việc cuối nhánh.
 
 ### Quy tắc nhập liệu hạng mục/công việc
 
@@ -99,6 +100,8 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - File Excel mẫu có sẵn hạng mục, công việc, cột đơn vị và ngày minh họa; có sheet hướng dẫn nhưng hệ thống vẫn chỉ nhập dữ liệu từ sheet đầu tiên.
 - Thao tác tải lên hoặc xóa bằng chứng phải giữ người dùng ở tab Bằng chứng; tải lại dữ liệu không được tự đưa panel về tab Thông tin.
 - Công việc ở trạng thái Chờ duyệt hoặc Hoàn thành vẫn được sửa thông tin, phân công, ghi diễn biến và thêm công việc con. Trạng thái hiển thị của mục cha tự tổng hợp lại từ các công việc cuối nhánh.
+- Màu trạng thái giữ nhất quán giữa mọi cấp. Trên Gantt, trạng thái tổng hợp của hạng mục/công việc cha dùng nhãn viền vuông; trạng thái trực tiếp của công việc cuối nhánh dùng nhãn nền màu bo tròn và có chú thích ngay trên bảng.
+- Biểu đồ Tổng quan chỉ đếm công việc cuối nhánh, chia thành năm nhóm loại trừ lẫn nhau: Hoàn thành, Đang thực hiện, Chờ duyệt, Chưa thực hiện và Quá hạn; công việc quá hạn không được đếm lặp vào trạng thái gốc.
 - Bằng chứng bị khóa khi công việc Chờ duyệt hoặc Hoàn thành: chỉ được xem, không được tải thay thế hoặc xóa. Không được xóa cả công việc/hạng mục nếu thao tác đó làm mất bằng chứng đã khóa. Khi yêu cầu bị từ chối và công việc trở lại Đang thực hiện, bằng chứng được phép cập nhật để gửi lại.
 - Nhật ký diễn biến cho phép quản trị viên ghi vào mọi công việc; nhân viên chỉ ghi vào công việc chi tiết mình tham gia, không phụ thuộc trạng thái công việc.
 - Cột Chủ trì trên bảng tiến độ hiển thị tên đầy đủ của đơn vị. Mọi thanh trên Gantt phải hiển thị tên hạng mục/công việc, kể cả thanh ngắn.

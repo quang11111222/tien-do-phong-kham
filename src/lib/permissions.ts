@@ -41,3 +41,11 @@ export function canReviewCompletion(input: { profile: { id: string; role: AppRol
   if (input.submittedBy === input.profile.id) return false
   return input.profile.role === 'manager' || input.projectCanManage || Boolean(input.profile.is_department_admin && input.profile.department_id && input.profile.department_id === input.leadDepartmentId)
 }
+
+export function canCompleteWorkItemDirectly(input: { profile: { department_id: string | null; is_department_admin: boolean }; projectCanManage: boolean; leadDepartmentId: string | null }) {
+  return input.projectCanManage || Boolean(
+    input.profile.is_department_admin
+    && input.profile.department_id
+    && input.profile.department_id === input.leadDepartmentId,
+  )
+}

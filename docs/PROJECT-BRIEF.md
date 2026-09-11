@@ -18,7 +18,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 |---|---|---|
 | Quản trị hệ thống | Quản lý và cứu hộ toàn bộ hệ thống | Quản lý tài khoản và mọi dự án; có toàn bộ quyền Quản trị dự án |
 | Quản trị dự án | Điều hành các dự án được giao | Toàn quyền nghiệp vụ; tự xác nhận hoàn thành phần việc của mình và được duyệt/từ chối mọi yêu cầu khác trong dự án |
-| Quản trị phòng/ban | Theo dõi và kiểm soát phần việc của đơn vị | Đồng thời là nhân viên; xem mọi việc đơn vị chủ trì/phối hợp; thêm, sửa, xóa công việc trong nhánh do phòng mình chủ trì; phần việc do mình thực hiện vẫn phải được người có quyền khác duyệt |
+| Quản trị phòng/ban | Theo dõi và kiểm soát phần việc của đơn vị | Đồng thời là nhân viên; xem mọi việc đơn vị chủ trì/phối hợp; thêm, sửa, xóa công việc trong nhánh do phòng mình chủ trì; tự xác nhận phần việc được giao khi phòng mình chủ trì |
 | Nhân viên | Theo dõi phần việc liên quan đến đơn vị và cập nhật việc được giao | Xem việc đơn vị chủ trì/phối hợp; cập nhật, thêm bằng chứng và gửi duyệt khi là người tham gia |
 
 ## 4. Current State
@@ -67,7 +67,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 5. Quản lý hạng mục, công việc và nhiều người tham gia.
 6. Xem Gantt, tổng quan và công việc cần xử lý.
 7. Cập nhật diễn biến, nguyên nhân chậm và bằng chứng.
-8. Nhân viên và Quản trị phòng/ban gửi hoàn thành để Quản trị phòng của đơn vị chủ trì hoặc Quản trị dự án duyệt/từ chối; Quản trị dự án vẫn phải tải bằng chứng và bấm nộp nhưng công việc chuyển thẳng sang Hoàn thành mà không tạo yêu cầu chờ duyệt.
+8. Nhân viên và Quản trị phòng/ban thuộc đơn vị phối hợp gửi hoàn thành để Quản trị phòng của đơn vị chủ trì hoặc Quản trị dự án duyệt/từ chối; Quản trị phòng được giao việc do chính phòng mình chủ trì và Quản trị dự án vẫn phải tải bằng chứng, bấm nộp nhưng công việc chuyển thẳng sang Hoàn thành.
 9. Quản lý mốc kiểm soát theo dự án.
 10. Lưu audit log và export dữ liệu.
 11. Mỗi người dùng đã đăng nhập được tự đổi mật khẩu sau khi nhập đúng mật khẩu hiện tại.
@@ -107,9 +107,9 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Chuỗi phòng ban từ Excel không tự động trở thành người tham gia.
 - Mỗi tài khoản được gắn một phòng/ban chính. Phòng/ban của tài khoản dùng để xác định phạm vi nhìn thấy và quyền theo đơn vị; danh sách người tham gia vẫn được quản lý độc lập để xác định người được cập nhật công việc.
 - Đơn vị chủ trì là một trường chọn riêng; đơn vị phối hợp dùng dropdown chọn nhiều có tìm kiếm và hiển thị thành thẻ, không nhập chuỗi phân cách bằng dấu `/` và không bày toàn bộ checkbox trên form.
-- Quản trị dự án không phải chờ người khác duyệt trong dự án mình quản trị, nhưng vẫn phải tải đúng một tệp bằng chứng và bấm nộp. Khi nộp đủ hồ sơ, công việc chuyển thẳng sang Hoàn thành và hệ thống ghi nhận đây là thao tác theo quyền Quản trị dự án.
-- Nếu người thực hiện không phải Quản trị dự án của dự án hiện tại, kể cả khi họ là Quản trị phòng/ban, công việc vẫn phải gửi duyệt.
-- Người được xử lý yêu cầu gồm Quản trị phòng/ban của đơn vị chủ trì công việc và Quản trị dự án. Người gửi bị loại khỏi danh sách người duyệt của chính yêu cầu đó.
+- Quản trị dự án không phải chờ người khác duyệt trong dự án mình quản trị, nhưng vẫn phải tải đúng một tệp bằng chứng và bấm nộp. Khi nộp đủ hồ sơ, công việc chuyển thẳng sang Hoàn thành và hệ thống ghi nhận phạm vi quyền đã sử dụng.
+- Quản trị phòng/ban được giao làm công việc do chính phòng mình chủ trì cũng hoàn thành trực tiếp sau khi tải đúng một tệp bằng chứng và bấm nộp. Nếu phòng của Quản trị phòng/ban chỉ là đơn vị phối hợp, công việc vẫn phải gửi Quản trị phòng của đơn vị chủ trì, Quản trị dự án hoặc Quản trị hệ thống duyệt.
+- Người được xử lý yêu cầu gồm Quản trị hệ thống, Quản trị phòng/ban của đơn vị chủ trì công việc và Quản trị dự án. Người gửi bị loại khỏi danh sách người duyệt của chính yêu cầu đó; trường hợp đủ điều kiện hoàn thành trực tiếp không tạo yêu cầu chờ duyệt.
 - Quy trình duyệt chỉ có một cấp. Một người đủ quyền duyệt hoặc từ chối là yêu cầu kết thúc ngay, không chuyển tiếp sang cấp thứ hai; hệ thống lưu người xử lý, thời điểm và phạm vi quyền đã sử dụng.
 - Khi công việc có diễn biến hoặc vòng duyệt mới mà người dùng chưa xem, Gantt hiển thị nhãn Mới tại dòng công việc, dấu sáng trên thanh tiến độ, dải thông báo và số lượng tại menu Nhật ký diễn biến. Trạng thái đã xem được lưu riêng theo từng tài khoản và thông báo tự cập nhật khi người dùng đang mở hệ thống.
 - File Excel mẫu có sẵn hạng mục, công việc, cột đơn vị và ngày minh họa; có sheet hướng dẫn nhưng hệ thống vẫn chỉ nhập dữ liệu từ sheet đầu tiên.
@@ -149,7 +149,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Người dùng đăng nhập và cùng xem một nguồn dữ liệu thống nhất.
 - Import đúng đủ hạng mục/công việc từ sheet đầu, có báo lỗi trước khi ghi.
 - Nhân viên không nhìn thấy nhánh công việc không liên quan đến phòng/ban và không sửa được công việc ngoài phạm vi tham gia.
-- Nhân viên và Quản trị phòng/ban không thể hoàn thành công việc nếu chưa được một người đủ quyền duyệt; Quản trị dự án được tự xác nhận hoàn thành trong dự án mình quản trị.
+- Nhân viên và Quản trị phòng/ban thuộc đơn vị phối hợp không thể hoàn thành công việc nếu chưa được một người đủ quyền duyệt; Quản trị phòng của đơn vị chủ trì và Quản trị dự án được tự xác nhận sau khi nộp đủ bằng chứng trong đúng phạm vi.
 - Lịch sử cập nhật, gửi duyệt và bằng chứng truy vết được theo người dùng/thời gian.
 
 ## 12. Open Questions

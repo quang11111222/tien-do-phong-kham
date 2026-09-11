@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canAddChildWorkItem, canEditWorkItem, canManageWorkItemStructure, canReviewCompletion } from './permissions'
+import { canAddChildWorkItem, canCompleteWorkItemDirectly, canEditWorkItem, canManageWorkItemStructure, canReviewCompletion } from './permissions'
 
 describe('work item permissions', () => {
   it('allows a manager to edit every work item', () => {
@@ -51,5 +51,12 @@ describe('work item permissions', () => {
     const employee = { id: 'project-admin', role: 'employee' as const, department_id: null, is_department_admin: false }
     expect(canReviewCompletion({ profile: employee, projectCanManage: true, leadDepartmentId: null })).toBe(true)
     expect(canReviewCompletion({ profile: { ...employee, role: 'manager' }, projectCanManage: false, leadDepartmentId: null })).toBe(true)
+  })
+
+  it('completes directly for project administrators and lead department administrators', () => {
+    const departmentAdmin = { department_id: 'ptpk', is_department_admin: true }
+    expect(canCompleteWorkItemDirectly({ profile: departmentAdmin, projectCanManage: false, leadDepartmentId: 'ptpk' })).toBe(true)
+    expect(canCompleteWorkItemDirectly({ profile: departmentAdmin, projectCanManage: false, leadDepartmentId: 'marketing' })).toBe(false)
+    expect(canCompleteWorkItemDirectly({ profile: { department_id: 'ptpk', is_department_admin: false }, projectCanManage: true, leadDepartmentId: 'marketing' })).toBe(true)
   })
 })

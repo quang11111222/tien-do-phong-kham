@@ -7,6 +7,7 @@ import { ProjectHeader } from './ProjectHeader'
 import { DepartmentMultiSelect } from './DepartmentMultiSelect'
 import { ParticipantMultiSelect } from './ParticipantMultiSelect'
 import { eligibleParticipants, retainEligibleParticipantIds } from './participantEligibility'
+import { defaultWorkScope, filterWorkItemsByScope, matchesWorkScopeDirect, type WorkScope } from './workScope'
 import { useConfirm } from '../../components/confirmContext'
 import { useAutoRefresh } from '../../lib/useAutoRefresh'
 import { canAddChildWorkItem, canEditWorkItem, canManageWorkItemStructure, canReviewCompletion } from '../../lib/permissions'
@@ -26,6 +27,7 @@ export function GanttView({ project, profile, initialWorkItemId, onSelectedWorkI
   const [query, setQuery] = useState('')
   const [leadFilter, setLeadFilter] = useState('')
   const [filter, setFilter] = useState<WorkItemStatus | 'late' | ''>('')
+  const [scope, setScope] = useState<WorkScope>(() => defaultWorkScope(profile.role, canManageProject, profile.is_department_admin))
   const [zoom, setZoom] = useState<'day' | 'week' | 'month'>('week')
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   const [selected, setSelected] = useState<string | null>(null)
@@ -52,6 +54,7 @@ export function GanttView({ project, profile, initialWorkItemId, onSelectedWorkI
         return
       }
       if (selected === item.id) return
+      if (!filterWorkItemsByScope(items, scope, profile.id, profile.department_id).some((candidate) => candidate.id === item.id)) setScope('visible')
       setDraftItem(null)
       setSelected(item.id)
       setDrawerTab(canReviewCompletion({ profile, projectCanManage: canManageProject, leadDepartmentId: item.lead_department_id }) && item.status === 'pending_approval' ? 'approval' : 'info')
@@ -64,24 +67,32 @@ export function GanttView({ project, profile, initialWorkItemId, onSelectedWorkI
       if (item.has_unseen_activity) void markWorkItemActivitySeen(item.id, profile.id).catch(() => setError('Không đánh dấu được diễn biến đã xem.'))
     }, 0)
     return () => window.clearTimeout(timer)
-  }, [canManageProject, initialWorkItemId, items, loading, onSelectedWorkItemChange, profile, selected])
+  }, [canManageProject, initialWorkItemId, items, loading, onSelectedWorkItemChange, profile, scope, selected])
 
   const children = useMemo(() => groupByParent(items), [items])
-  const collapsibleIds = useMemo(() => items.filter((item) => children.get(item.id)?.length).map((item) => item.id), [children, items])
+  const scopedItems = useMemo(() => filterWorkItemsByScope(items, scope, profile.id, profile.department_id), [items, profile.department_id, profile.id, scope])
+  const scopedChildren = useMemo(() => groupByParent(scopedItems), [scopedItems])
+  const collapsibleIds = useMemo(() => scopedItems.filter((item) => scopedChildren.get(item.id)?.length).map((item) => item.id), [scopedChildren, scopedItems])
   const allCollapsed = collapsibleIds.length > 0 && collapsibleIds.every((id) => collapsed.has(id))
-  const leaves = items.filter((item) => !(children.get(item.id)?.length))
+  const allLeaves = items.filter((item) => !(children.get(item.id)?.length))
+  const leaves = scopedItems.filter((item) => !(children.get(item.id)?.length))
   const counts = countStatuses(leaves)
+  const scopeCounts = {
+    mine: allLeaves.filter((item) => matchesWorkScopeDirect(item, 'mine', profile.id, profile.department_id)).length,
+    department: allLeaves.filter((item) => matchesWorkScopeDirect(item, 'department', profile.id, profile.department_id)).length,
+    visible: allLeaves.length,
+  }
   const leads = [...new Map(leaves.flatMap((item) => item.lead_department ? [[item.lead_department.id, item.lead_department] as const] : [])).values()].sort((a, b) => a.code.localeCompare(b.code))
-  const startDate = minDate([project.start_date, ...leaves.map((item) => item.start_date), ...milestones.map((item) => item.due_date)]) || today()
-  const endDate = maxDate([project.end_date, ...leaves.map((item) => item.end_date), ...milestones.map((item) => item.due_date)]) || startDate
+  const startDate = minDate([project.start_date, ...allLeaves.map((item) => item.start_date), ...milestones.map((item) => item.due_date)]) || today()
+  const endDate = maxDate([project.end_date, ...allLeaves.map((item) => item.end_date), ...milestones.map((item) => item.due_date)]) || startDate
   const pixelsPerDay = zoom === 'day' ? 22 : zoom === 'week' ? 7 : 3
   const totalDays = Math.max(1, dayDiff(startDate, endDate) + 1)
   const width = totalDays * pixelsPerDay
-  const flatRows = flatten(items, children, collapsed).filter((item) => {
+  const flatRows = flatten(scopedItems, scopedChildren, collapsed).filter((item) => {
     const departmentText = [item.lead_department, ...item.coordinating_departments].filter((department): department is Department => Boolean(department)).map((department) => `${department.code} ${department.name}`).join(' ')
     const matchesText = !query || `${item.wbs} ${item.name} ${departmentText}`.toLowerCase().includes(query.toLowerCase())
-    const matchesLead = !leadFilter || item.lead_department_id === leadFilter || descendants(item.id, items).some((child) => child.lead_department_id === leadFilter)
-    const state = aggregateStatus(item, items, children)
+    const matchesLead = !leadFilter || item.lead_department_id === leadFilter || descendants(item.id, scopedItems).some((child) => child.lead_department_id === leadFilter)
+    const state = aggregateStatus(item, scopedItems, scopedChildren)
     return matchesText && matchesLead && (!filter || state === filter)
   })
   const selectedItem = items.find((item) => item.id === selected) ?? null
@@ -129,14 +140,15 @@ export function GanttView({ project, profile, initialWorkItemId, onSelectedWorkI
     {error && <div className="note warn offline">{error}</div>}
     <div className="sum"><div className="u"><b>{leaves.length}</b><span>Công việc</span></div><div className="u"><b>{counts.completed}</b><span>Hoàn thành</span></div><div className="u"><b>{counts.in_progress}</b><span>Đang thực hiện</span></div><div className="u"><b className="dl">{counts.late}</b><span>Quá hạn</span></div><div className="u"><b className="dw">{counts.pending_approval}</b><span>Chờ duyệt</span></div><div className="grow"><span className="tiny muted">Tiến độ chung {leaves.length ? Math.round(counts.completed / leaves.length * 100) : 0}%</span><div className="bar"><i style={{ width: `${leaves.length ? counts.completed / leaves.length * 100 : 0}%`, background: 'var(--st-done)' }} /></div></div></div>
     {unreadActivityCount > 0 && <button className="activity-unread-note" onClick={() => { const first = items.find((item) => item.has_unseen_activity); if (first) openExisting(first) }}><span className="activity-pulse" aria-hidden="true" /><span><b>{unreadActivityCount} công việc có diễn biến mới</b><small>Bấm để mở công việc đầu tiên chưa xem.</small></span><strong>Xem ngay →</strong></button>}
+    <div className="work-scope"><span>Phạm vi hiển thị</span><div className="seg" role="group" aria-label="Phạm vi công việc"><button className={scope === 'mine' ? 'on' : ''} onClick={() => setScope('mine')}>Việc của tôi <b>{scopeCounts.mine}</b></button>{profile.department_id && <button className={scope === 'department' ? 'on' : ''} onClick={() => setScope('department')}>Việc của phòng tôi <b>{scopeCounts.department}</b></button>}<button className={scope === 'visible' ? 'on' : ''} onClick={() => setScope('visible')}>Tất cả được xem <b>{scopeCounts.visible}</b></button></div><small>{scope === 'mine' ? 'Chỉ hiển thị việc bạn được giao và các hạng mục cha liên quan.' : scope === 'department' ? `Hiển thị các việc ${profile.department?.code ?? 'phòng của bạn'} chủ trì hoặc phối hợp.` : 'Hiển thị toàn bộ công việc tài khoản này có quyền xem.'}</small></div>
     <div className="tbar"><div><input type="search" placeholder="Tìm đầu việc…" value={query} onChange={(event) => setQuery(event.target.value)} /><select aria-label="Lọc theo đơn vị chủ trì" value={leadFilter} onChange={(event) => setLeadFilter(event.target.value)}><option value="">Tất cả đơn vị chủ trì</option>{leads.map((lead) => <option key={lead.id} value={lead.id}>{lead.code}</option>)}</select><StatusFilter value="" active={filter === ''} count={leaves.length} label="Tất cả" onClick={() => setFilter('')} />{(['not_started','in_progress','pending_approval','completed','late'] as const).map((state) => <StatusFilter key={state} value={state} active={filter === state} count={counts[state]} label={state === 'late' ? 'Quá hạn' : labels[state]} onClick={() => setFilter(filter === state ? '' : state)} />)}</div><div><div className="seg">{(['day','week','month'] as const).map((value) => <button key={value} className={zoom === value ? 'on' : ''} onClick={() => setZoom(value)}>{value === 'day' ? 'Ngày' : value === 'week' ? 'Tuần' : 'Tháng'}</button>)}</div><button className="btn" onClick={scrollToday}>Hôm nay</button><button className="btn" aria-pressed={allCollapsed} onClick={() => setCollapsed(allCollapsed ? new Set() : new Set(collapsibleIds))}>{allCollapsed ? 'Mở rộng tất cả' : 'Thu gọn tất cả'}</button><button className="btn" onClick={() => void exportProject(project, items).catch((caught) => setError(caught instanceof Error ? caught.message : 'Không xuất được Excel.'))}>Xuất Excel</button>{canManageProject && <button className="btn" onClick={() => setShowImport(true)}>Nạp Excel</button>}<span style={{ flex: 1 }} />{canManageProject && <button className="btn pri" onClick={() => openDraft(null)}>+ Hạng mục</button>}</div></div>
     {loading ? <div className="card empty">Đang tải tiến độ…</div> : <div className="tt"><div className="trow thead"><div className="lft"><div className="cell c-wbs">Mã</div><div className="cell c-name">Hạng mục công việc</div><div className="cell c-lead">Chủ trì</div><div className="cell c-d">Bắt đầu</div><div className="cell c-d">Kết thúc</div><div className="cell c-n">Số ngày</div><div className="cell c-st">Trạng thái</div><div className="cell c-act" /></div><TimelineHeader start={startDate} end={endDate} width={width} pixelsPerDay={pixelsPerDay} zoom={zoom} milestones={milestones} /></div>{flatRows.map((item) => {
-      const ownChildren = children.get(item.id) ?? []
-      const span = ownChildren.length ? spanOf(item, items) : { start: item.start_date, end: item.end_date }
-      const state = aggregateStatus(item, items, children)
+      const ownChildren = scopedChildren.get(item.id) ?? []
+      const span = ownChildren.length ? spanOf(item, scopedItems) : { start: item.start_date, end: item.end_date }
+      const state = aggregateStatus(item, scopedItems, scopedChildren)
       const left = span.start ? dayDiff(startDate, span.start) * pixelsPerDay : 0
       const barWidth = span.start && span.end ? Math.max(3, (dayDiff(span.start, span.end) + 1) * pixelsPerDay) : 0
-      return <div className={`trow ${ownChildren.length ? 'g' : ''} ${selected === item.id ? 'sel' : ''}`} key={item.id} onClick={() => openExisting(item)}><div className="lft"><div className="cell c-wbs">{ownChildren.length > 0 && <button className="exp" onClick={(event) => { event.stopPropagation(); toggle(item.id) }}>{collapsed.has(item.id) ? '▶' : '▼'}</button>}{shortWbs(item.wbs)}</div><div className="cell c-name" style={{ paddingLeft: 8 + depth(item, items) * 12 }}>{item.has_unseen_activity && <span className="activity-new-badge" title="Có diễn biến mới" aria-label="Có diễn biến mới"><i className="activity-pulse" aria-hidden="true" />Mới</span>}{item.name}</div><div className="cell c-lead" title={responsibilityLabel(item)}>{item.lead_department?.name || '—'}</div><div className="cell c-d">{date(span.start)}</div><div className="cell c-d">{date(span.end)}</div><div className="cell c-n">{span.start && span.end ? dayDiff(span.start, span.end) + 1 : '—'}</div><div className="cell c-st"><span className={`pill ${classes[state]} ${ownChildren.length ? 'status-summary' : 'status-leaf'}`} title={ownChildren.length ? 'Trạng thái tổng hợp từ các công việc cuối nhánh' : 'Trạng thái của công việc cuối nhánh'}><i />{state === 'late' ? 'Quá hạn' : labels[state]}</span></div><div className="cell c-act">{canAddChild(item) && <button className="rowbtn" title="Thêm công việc con" onClick={(event) => { event.stopPropagation(); openDraft(item) }}>+</button>}</div></div><div className="time" style={{ width, backgroundImage: `repeating-linear-gradient(90deg,var(--line-2) 0 1px,transparent 1px ${7 * pixelsPerDay}px)` }}>{barWidth > 0 && <div className={`gbar ${ownChildren.length ? 'pbar' : ''}`} style={{ left, width: barWidth, background: ownChildren.length ? undefined : statusColor(state) }}>{item.has_unseen_activity && <span className="gantt-activity-pulse" />}<span className="gbar-label">{item.name}</span></div>}<TodayLine start={startDate} pixelsPerDay={pixelsPerDay} /></div></div>
+      return <div className={`trow ${ownChildren.length ? 'g' : ''} ${selected === item.id ? 'sel' : ''}`} key={item.id} onClick={() => openExisting(item)}><div className="lft"><div className="cell c-wbs">{ownChildren.length > 0 && <button className="exp" onClick={(event) => { event.stopPropagation(); toggle(item.id) }}>{collapsed.has(item.id) ? '▶' : '▼'}</button>}{shortWbs(item.wbs)}</div><div className="cell c-name" style={{ paddingLeft: 8 + depth(item, scopedItems) * 12 }}>{item.has_unseen_activity && <span className="activity-new-badge" title="Có diễn biến mới" aria-label="Có diễn biến mới"><i className="activity-pulse" aria-hidden="true" />Mới</span>}{item.name}</div><div className="cell c-lead" title={responsibilityLabel(item)}>{item.lead_department?.name || '—'}</div><div className="cell c-d">{date(span.start)}</div><div className="cell c-d">{date(span.end)}</div><div className="cell c-n">{span.start && span.end ? dayDiff(span.start, span.end) + 1 : '—'}</div><div className="cell c-st"><span className={`pill ${classes[state]} ${ownChildren.length ? 'status-summary' : 'status-leaf'}`} title={ownChildren.length ? 'Trạng thái tổng hợp từ các công việc cuối nhánh' : 'Trạng thái của công việc cuối nhánh'}><i />{state === 'late' ? 'Quá hạn' : labels[state]}</span></div><div className="cell c-act">{canAddChild(item) && <button className="rowbtn" title="Thêm công việc con" onClick={(event) => { event.stopPropagation(); openDraft(item) }}>+</button>}</div></div><div className="time" style={{ width, backgroundImage: `repeating-linear-gradient(90deg,var(--line-2) 0 1px,transparent 1px ${7 * pixelsPerDay}px)` }}>{barWidth > 0 && <div className={`gbar ${ownChildren.length ? 'pbar' : ''}`} style={{ left, width: barWidth, background: ownChildren.length ? undefined : statusColor(state) }}>{item.has_unseen_activity && <span className="gantt-activity-pulse" />}<span className="gbar-label">{item.name}</span></div>}<TodayLine start={startDate} pixelsPerDay={pixelsPerDay} /></div></div>
     })}{!flatRows.length && <div className="empty">Không có đầu việc nào khớp bộ lọc.</div>}</div>}
     {(draftItem ?? selectedItem) && <WorkDrawer projectCanManage={canManageProject} canManageStructure={draftItem ? (draftItem.parent_id === null ? canManageProject : Boolean(items.find((item) => item.id === draftItem.parent_id && canAddChild(item)))) : canManageItem(selectedItem!)} canAddChild={draftItem ? false : canAddChild(selectedItem!)} key={`${(draftItem ?? selectedItem)!.id}-${(draftItem ?? selectedItem)!.version}-${(draftItem ?? selectedItem)!.attachment?.id ?? ''}`} item={(draftItem ?? selectedItem)!} items={items} users={users} departments={departments} profile={profile} isNew={Boolean(draftItem)} tab={drawerTab} onTabChange={setDrawerTab} onClose={closeDrawer} onCreated={created} onAddChild={openDraft} onChanged={load} onError={setError} onDirtyChange={reportDirty} />}
     {showImport && <ExcelImportModal onClose={() => setShowImport(false)} onImport={async (imported) => { await importProjectPlan(project.id, imported); await load() }} />}

@@ -78,6 +78,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 16. Tổng quan dự án có biểu đồ cơ cấu trạng thái tính theo công việc cuối nhánh; Gantt phân biệt trực quan trạng thái tổng hợp của mục cha với trạng thái trực tiếp của công việc cuối nhánh.
 17. Quản trị hệ thống chỉ định Quản trị dự án theo từng dự án và Quản trị phòng/ban theo từng đơn vị; quyền hiệu lực của một tài khoản là tổng hợp các phạm vi được giao.
 18. Người dùng thường chỉ thấy các nhánh công việc mà phòng/ban của mình là đơn vị chủ trì hoặc phối hợp; hệ thống vẫn hiển thị các mục cha cần thiết để giữ ngữ cảnh cây công việc.
+19. Gantt có bộ lọc phạm vi **Việc của tôi**, **Việc của phòng tôi** và **Tất cả được xem**; số liệu trạng thái thay đổi theo phạm vi đang chọn.
 
 ### Quy tắc nhập liệu hạng mục/công việc
 
@@ -120,6 +121,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Nhật ký diễn biến cho phép quản trị viên ghi vào mọi công việc; nhân viên chỉ ghi vào công việc chi tiết mình tham gia, không phụ thuộc trạng thái công việc.
 - Cột Chủ trì trên bảng tiến độ hiển thị tên đầy đủ của đơn vị. Mọi thanh trên Gantt phải hiển thị tên hạng mục/công việc, kể cả thanh ngắn.
 - Thẻ màu xanh tại khu vực tài khoản hiển thị mã phòng/ban của người dùng; riêng Quản trị hệ thống hiển thị `ADMIN` thay cho chữ viết tắt họ tên.
+- Khi vào Gantt, Nhân viên mặc định xem **Việc của tôi**, Quản trị phòng/ban mặc định xem **Việc của phòng tôi**, còn Quản trị dự án và Quản trị hệ thống mặc định xem **Tất cả được xem**. Các chế độ lọc vẫn giữ mục cha cần thiết và tính trạng thái mục cha từ các công việc đang được hiển thị.
 - Mỗi màn hình có URL riêng để mở trực tiếp và chia sẻ; URL dự án chứa mã dự án và tên màn hình, ví dụ `#/projects/PK-KHETRE/gantt`.
 - URL công việc có dạng `#/projects/{mã-dự-án}/gantt/work/{id-công-việc}`. Hệ thống tự mở các cấp cha đang thu gọn và mở panel của đúng công việc; nếu công việc không còn tồn tại phải báo rõ và trở về URL Gantt.
 - Dữ liệu đang xem được tự làm mới sau tối đa khoảng 15 giây (30 giây với danh mục lớn), đồng thời làm mới khi cửa sổ/tab được mở lại. Không tự làm mới lúc người dùng đang sửa bản nháp để tránh mất dữ liệu nhập.

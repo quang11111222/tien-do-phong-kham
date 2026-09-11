@@ -131,6 +131,12 @@
 .activity-unread-note b { color: #087d49; font-size: 11.5px; }
 .activity-unread-note small { color: var(--ink-3); font-size: 9.5px; }
 .activity-unread-note strong { color: var(--brand); font-size: 10.5px; margin-left: auto; white-space: nowrap; }
+.work-scope { align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; display: flex; flex-wrap: wrap; gap: 8px 12px; margin-bottom: 8px; padding: 7px 9px; }
+.work-scope > span { color: var(--ink-2); font-size: 10.5px; font-weight: 700; }
+.work-scope .seg button { align-items: center; display: inline-flex; gap: 5px; }
+.work-scope .seg button b { background: rgba(255,255,255,.8); border-radius: 999px; color: inherit; font-size: 9px; min-width: 17px; padding: 1px 5px; }
+.work-scope .seg button.on b { color: var(--brand-d); }
+.work-scope > small { color: var(--ink-3); font-size: 10px; }
 .department-multi { position: relative; }
 .department-multi > label { display: block; }
 .department-multi > label small { color: var(--ink-3); font-weight: 400; }

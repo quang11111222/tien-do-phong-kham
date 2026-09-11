@@ -1,20 +1,18 @@
 import type { AppRole, WorkItem } from '../../types/domain'
 
-export type WorkScope = 'mine' | 'department' | 'visible'
+export type WorkScope = 'mine' | 'visible'
 
 export function defaultWorkScope(role: AppRole, canManageProject: boolean, isDepartmentAdmin: boolean): WorkScope {
-  if (role === 'manager' || canManageProject) return 'visible'
-  if (isDepartmentAdmin) return 'department'
+  if (role === 'manager' || canManageProject || isDepartmentAdmin) return 'visible'
   return 'mine'
 }
 
-export function matchesWorkScopeDirect(item: WorkItem, scope: WorkScope, userId: string, departmentId: string | null) {
+export function matchesWorkScopeDirect(item: WorkItem, scope: WorkScope, userId: string) {
   if (scope === 'visible') return true
-  if (scope === 'mine') return item.participant_ids.includes(userId)
-  return departmentId !== null && (item.lead_department_id === departmentId || item.coordinating_department_ids.includes(departmentId))
+  return item.participant_ids.includes(userId)
 }
 
-export function filterWorkItemsByScope(items: WorkItem[], scope: WorkScope, userId: string, departmentId: string | null) {
+export function filterWorkItemsByScope(items: WorkItem[], scope: WorkScope, userId: string) {
   if (scope === 'visible') return items
   const children = new Map<string, WorkItem[]>()
   items.forEach((item) => {
@@ -27,7 +25,7 @@ export function filterWorkItemsByScope(items: WorkItem[], scope: WorkScope, user
     const ownChildren = children.get(item.id) ?? []
     const result = ownChildren.length
       ? ownChildren.some(visit)
-      : matchesWorkScopeDirect(item, scope, userId, departmentId)
+      : matchesWorkScopeDirect(item, scope, userId)
     included.set(item.id, result)
     return result
   }

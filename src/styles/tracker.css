@@ -8,6 +8,7 @@
 .whoami > div:first-child { display: grid; line-height: 1.25; min-width: 110px; }
 .whoami > div:first-child b { font-size: 11.5px; }
 .whoami > div:first-child span { color: var(--ink-3); font-size: 10px; }
+.whoami .account-department-tag { font-size: 9px; height: 26px; min-width: 26px; padding: 0 7px; width: auto; }
 .logout-mini { background: none; border: 0; color: var(--ink-2); font-size: 10.5px; padding: 3px 5px; }
 .top-spacer { flex: 1; }
 .approval-row { grid-template-columns: 110px 1fr minmax(360px, auto); }

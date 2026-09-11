@@ -8,7 +8,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 
 - Số hóa dữ liệu tiến độ Excel thành dữ liệu dùng chung trên web.
 - Theo dõi hạng mục, công việc, người tham gia, mốc kiểm soát và diễn biến.
-- Mọi người dùng được xem toàn bộ dự án; người tham gia cập nhật công việc của mình.
+- Quản trị phòng/ban được theo dõi toàn bộ dự án; nhân viên chỉ thấy dự án có công việc liên quan đến phòng mình; người tham gia cập nhật công việc được giao.
 - Công việc chỉ hoàn thành sau khi quản trị viên duyệt.
 - Giữ được lịch sử thay đổi và tài liệu bằng chứng.
 
@@ -18,7 +18,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 |---|---|---|
 | Quản trị hệ thống | Quản lý và cứu hộ toàn bộ hệ thống | Quản lý tài khoản và mọi dự án; có toàn bộ quyền Quản trị dự án |
 | Quản trị dự án | Điều hành các dự án được giao | Toàn quyền nghiệp vụ; tự xác nhận hoàn thành phần việc của mình và được duyệt/từ chối mọi yêu cầu khác trong dự án |
-| Quản trị phòng/ban | Theo dõi và kiểm soát phần việc của đơn vị | Đồng thời là nhân viên; xem mọi việc đơn vị chủ trì/phối hợp; thêm, sửa, xóa công việc trong nhánh do phòng mình chủ trì; tự xác nhận phần việc được giao khi phòng mình chủ trì |
+| Quản trị phòng/ban | Theo dõi toàn bộ tiến độ và kiểm soát phần việc của đơn vị | Đồng thời là nhân viên; xem tiến độ mọi dự án, xem chi tiết nghiệp vụ khi đơn vị chủ trì/phối hợp; thêm, sửa, xóa công việc trong nhánh do phòng mình chủ trì; tự xác nhận phần việc được giao khi phòng mình chủ trì |
 | Nhân viên | Theo dõi phần việc liên quan đến đơn vị và cập nhật việc được giao | Xem việc đơn vị chủ trì/phối hợp; cập nhật, thêm bằng chứng và gửi duyệt khi là người tham gia |
 
 ## 4. Current State
@@ -89,7 +89,8 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 ## 8. Business Rules và ngoại lệ
 
 - Quản trị hệ thống xem và quản lý toàn bộ hệ thống; Quản trị dự án xem và quản lý toàn bộ dữ liệu trong dự án được giao.
-- Nhân viên và Quản trị phòng/ban thấy công việc khi phòng của mình là đơn vị chủ trì hoặc đơn vị phối hợp. Các mục cha của nhánh liên quan vẫn được hiển thị, nhưng các nhánh không liên quan bị ẩn.
+- Quản trị phòng/ban thấy toàn bộ dự án và toàn bộ các dòng tiến độ/Gantt. Với nhánh không có phòng mình chủ trì hoặc phối hợp, họ chỉ xem thông tin tiến độ cơ bản và không được đọc bằng chứng, diễn biến hoặc dữ liệu xét duyệt.
+- Nhân viên thấy công việc khi phòng của mình là đơn vị chủ trì hoặc đơn vị phối hợp. Các mục cha của nhánh liên quan vẫn được hiển thị, nhưng các nhánh không liên quan bị ẩn.
 - Quyền nhìn thấy do phòng/ban liên quan không tự động cấp quyền cập nhật; Nhân viên chỉ cập nhật, tải bằng chứng và gửi duyệt khi được chọn trong danh sách người tham gia.
 - Quản trị phòng/ban được thêm, sửa và xóa công việc bên trong nhánh có đơn vị chủ trì là phòng của mình. Quyền này không áp dụng khi phòng chỉ là đơn vị phối hợp, không cho tạo/xóa hạng mục cấp cao nhất và không tự cấp quyền nộp bằng chứng nếu quản trị phòng chưa được chọn là người tham gia.
 - Chỉ quản trị viên được tạo tài khoản; Supabase Auth tắt self-signup và frontend không giữ `service_role` key.
@@ -121,7 +122,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Nhật ký diễn biến cho phép quản trị viên ghi vào mọi công việc; nhân viên chỉ ghi vào công việc chi tiết mình tham gia, không phụ thuộc trạng thái công việc.
 - Cột Chủ trì trên bảng tiến độ hiển thị tên đầy đủ của đơn vị. Mọi thanh trên Gantt phải hiển thị tên hạng mục/công việc, kể cả thanh ngắn.
 - Thẻ màu xanh tại khu vực tài khoản hiển thị mã phòng/ban của người dùng; riêng Quản trị hệ thống hiển thị `ADMIN` thay cho chữ viết tắt họ tên.
-- Khi vào Gantt, Nhân viên mặc định xem **Việc của tôi**; Quản trị phòng/ban, Quản trị dự án và Quản trị hệ thống mặc định xem **Tất cả công việc liên quan**. Các chế độ lọc vẫn giữ mục cha cần thiết và tính trạng thái mục cha từ các công việc đang được hiển thị.
+- Khi vào Gantt, Nhân viên mặc định xem **Việc của tôi**; Quản trị phòng/ban mặc định xem **Công việc phòng tôi**; Quản trị dự án và Quản trị hệ thống mặc định xem toàn bộ tiến độ. Quản trị phòng/ban có đủ ba phạm vi **Việc của tôi**, **Công việc phòng tôi** và **Tất cả tiến độ**. Các chế độ lọc vẫn giữ mục cha cần thiết và tính trạng thái mục cha từ các công việc đang được hiển thị.
 - Mỗi màn hình có URL riêng để mở trực tiếp và chia sẻ; URL dự án chứa mã dự án và tên màn hình, ví dụ `#/projects/PK-KHETRE/gantt`.
 - URL công việc có dạng `#/projects/{mã-dự-án}/gantt/work/{id-công-việc}`. Hệ thống tự mở các cấp cha đang thu gọn và mở panel của đúng công việc; nếu công việc không còn tồn tại phải báo rõ và trở về URL Gantt.
 - Dữ liệu đang xem được tự làm mới sau tối đa khoảng 15 giây (30 giây với danh mục lớn), đồng thời làm mới khi cửa sổ/tab được mở lại. Không tự làm mới lúc người dùng đang sửa bản nháp để tránh mất dữ liệu nhập.

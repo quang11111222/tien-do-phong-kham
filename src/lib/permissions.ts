@@ -16,6 +16,13 @@ interface WorkItemStructureAccessInput {
   leadDepartmentIdsInPath: Array<string | null>
 }
 
+interface WorkItemDetailAccessInput extends WorkItemStructureAccessInput {
+  leadDepartmentIdsInBranch: Array<string | null>
+  coordinatingDepartmentIds: string[]
+  participantIds: string[]
+  userId: string
+}
+
 export function canEditWorkItem({ role, canManageProject, userId, participantIds }: WorkItemAccessInput) {
   return role === 'manager' || canManageProject === true || participantIds.includes(userId)
 }
@@ -35,6 +42,14 @@ export function canManageWorkItemStructure(input: WorkItemStructureAccessInput) 
 
 export function canAddChildWorkItem(input: WorkItemStructureAccessInput) {
   return input.role === 'manager' || input.canManageProject === true || managesDepartmentBranch(input)
+}
+
+export function canViewWorkItemDetails(input: WorkItemDetailAccessInput) {
+  if (input.role === 'manager' || input.canManageProject === true) return true
+  if (input.participantIds.includes(input.userId)) return true
+  if (!input.departmentId) return false
+  if (input.leadDepartmentIdsInBranch.includes(input.departmentId) || input.coordinatingDepartmentIds.includes(input.departmentId)) return true
+  return input.isDepartmentAdmin && input.leadDepartmentIdsInPath.includes(input.departmentId)
 }
 
 export function canReviewCompletion(input: { profile: { id: string; role: AppRole; department_id: string | null; is_department_admin: boolean }; projectCanManage: boolean; leadDepartmentId: string | null; submittedBy?: string }) {

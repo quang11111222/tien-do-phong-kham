@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canAddChildWorkItem, canCompleteWorkItemDirectly, canEditWorkItem, canManageWorkItemStructure, canReviewCompletion } from './permissions'
+import { canAddChildWorkItem, canCompleteWorkItemDirectly, canEditWorkItem, canManageWorkItemStructure, canReviewCompletion, canViewWorkItemDetails } from './permissions'
 
 describe('work item permissions', () => {
   it('allows a manager to edit every work item', () => {
@@ -38,6 +38,26 @@ describe('work item permissions', () => {
     }
     expect(canManageWorkItemStructure({ ...access, parentId: null, leadDepartmentIdsInPath: ['ptpk'] })).toBe(false)
     expect(canAddChildWorkItem({ ...access, parentId: 'parent-item', leadDepartmentIdsInPath: ['marketing'] })).toBe(false)
+  })
+
+  it('separates all-project progress visibility from detailed work data', () => {
+    const base = {
+      role: 'employee' as const,
+      canManageProject: false,
+      departmentId: 'ptpk',
+      isDepartmentAdmin: true,
+      parentId: 'parent-item',
+      leadDepartmentIdsInPath: ['other'],
+      leadDepartmentIdsInBranch: ['other'],
+      coordinatingDepartmentIds: [] as string[],
+      participantIds: [] as string[],
+      userId: 'department-admin',
+    }
+    expect(canViewWorkItemDetails(base)).toBe(false)
+    expect(canViewWorkItemDetails({ ...base, coordinatingDepartmentIds: ['ptpk'] })).toBe(true)
+    expect(canViewWorkItemDetails({ ...base, leadDepartmentIdsInBranch: ['other', 'ptpk'] })).toBe(true)
+    expect(canViewWorkItemDetails({ ...base, coordinatingDepartmentIds: [], leadDepartmentIdsInPath: ['ptpk', 'other'] })).toBe(true)
+    expect(canViewWorkItemDetails({ ...base, isDepartmentAdmin: false, participantIds: ['department-admin'] })).toBe(true)
   })
 
   it('allows one eligible reviewer but never the submitter', () => {

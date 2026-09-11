@@ -8,7 +8,7 @@ import { useAutoRefresh } from '../../lib/useAutoRefresh'
 interface ProjectRow { project: Project; items: WorkItem[] }
 const emptyForm = { id: '', code: '', name: '', site: '', startDate: '', endDate: '', administratorIds: [] as string[] }
 
-export function PortfolioPage({ isManager, onOpen }: { isManager: boolean; onOpen: (project: Project) => void }) {
+export function PortfolioPage({ isManager, isDepartmentAdmin, onOpen }: { isManager: boolean; isDepartmentAdmin: boolean; onOpen: (project: Project) => void }) {
   const [rows, setRows] = useState<ProjectRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -85,7 +85,7 @@ export function PortfolioPage({ isManager, onOpen }: { isManager: boolean; onOpe
   const noDeadline = activeRows.filter((row) => !row.project.end_date).length
 
   return <>
-    <div className="ovhead"><div><div className="eyebrow">Quản lý khảo sát mặt bằng</div><h1>Danh mục dự án phòng khám</h1><p className="tiny muted">Mỗi người chỉ thấy dự án có công việc thuộc phòng/ban của mình hoặc dự án mình quản trị.</p></div>{isManager && <div className="row2"><button className="btn pri" onClick={() => { setForm(emptyForm); setModalOpen(true) }}>+ Thêm dự án</button></div>}</div>
+    <div className="ovhead"><div><div className="eyebrow">Quản lý khảo sát mặt bằng</div><h1>Danh mục dự án phòng khám</h1><p className="tiny muted">{isDepartmentAdmin ? 'Quản trị phòng/ban được theo dõi toàn bộ dự án; chi tiết nghiệp vụ được giới hạn theo phòng/ban.' : 'Nhân viên chỉ thấy dự án có công việc liên quan đến phòng/ban của mình hoặc được giao trực tiếp.'}</p></div>{isManager && <div className="row2"><button className="btn pri" onClick={() => { setForm(emptyForm); setModalOpen(true) }}>+ Thêm dự án</button></div>}</div>
     {error && <div className="note warn offline">{error}</div>}
     <div className="stats"><div className="stat"><b>{activeRows.length}</b><span>Dự án đang theo dõi</span></div><div className={`stat ${lateProjects ? 'hi' : ''}`}><b>{lateProjects}</b><span>Dự án có việc trễ hạn</span></div><div className="stat"><b>{activeRows.length - detailed.length}</b><span>Chưa lập tiến độ chi tiết</span></div><div className="stat"><b>{noDeadline}</b><span>Chưa chốt hạn hoàn thành</span></div></div>
     {isManager && <div className="project-list-tabs" role="tablist" aria-label="Trạng thái dự án"><button role="tab" aria-selected={!showDeleted} className={`btn ${!showDeleted ? 'pri' : ''}`} onClick={() => setShowDeleted(false)}>Đang theo dõi ({activeRows.length})</button><button role="tab" aria-selected={showDeleted} className={`btn ${showDeleted ? 'pri' : ''}`} onClick={() => setShowDeleted(true)}>Đã xóa ({deletedRows.length})</button></div>}

@@ -100,11 +100,6 @@
 .overview-chart-summary .needs-attention { background: var(--st-pending-bg); border-color: #ead3aa; }
 .overview-group-progress { background: var(--line-2); border-radius: 99px; height: 4px; margin-top: 8px; overflow: hidden; }
 .overview-group-progress i { background: var(--st-done); display: block; height: 100%; }
-.status-level-hint { align-items: center; color: var(--ink-3); display: flex; flex-wrap: wrap; font-size: 10px; gap: 14px; margin: -3px 2px 8px; }
-.status-level-hint > span { align-items: center; display: flex; gap: 5px; }
-.status-shape { display: inline-block; height: 9px; width: 14px; }
-.status-shape.summary { background: var(--surface); border: 1px solid var(--st-doing); border-radius: 3px; box-shadow: inset 3px 0 var(--st-doing); }
-.status-shape.leaf { background: var(--st-doing-bg); border-radius: 99px; }
 .pill.status-summary { background: var(--surface); border: 1px solid currentColor; border-radius: 5px; box-shadow: inset 3px 0 currentColor; }
 .pill.status-summary i { border-radius: 2px; transform: rotate(45deg); }
 .activity-card { padding: 14px 16px; }

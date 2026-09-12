@@ -3,6 +3,7 @@ import type { Profile, Project, ProjectActivity as Activity, WorkItem } from '..
 import { addProgress, getProjectActivity, getWorkItems, markProjectActivitySeen, markWorkItemActivitySeen } from './trackerService'
 import { ProjectHeader } from './ProjectHeader'
 import { useAutoRefresh } from '../../lib/useAutoRefresh'
+import { useToast } from '../../components/toastContext'
 
 type ActivityFilter = 'all' | 'progress' | 'approval' | 'deleted'
 const PAGE_SIZE = 10
@@ -18,6 +19,7 @@ export function ProjectActivity({ project, profile, canViewDeleteAudit, onBack, 
   const [success, setSuccess] = useState<string | null>(null)
   const [filter, setFilter] = useState<ActivityFilter>('all')
   const [page, setPage] = useState(1)
+  const notify = useToast()
 
   const loadData = async () => {
     const [activity, tasks] = await Promise.all([getProjectActivity(project.id, canViewDeleteAudit), getWorkItems(project.id)])
@@ -62,8 +64,9 @@ export function ProjectActivity({ project, profile, canViewDeleteAudit, onBack, 
       await markWorkItemActivitySeen(workItemId, profile.id)
       setContent('')
       setSuccess('Đã ghi diễn biến mới vào công việc.')
+      notify('Đã ghi diễn biến mới vào công việc.')
       await loadData()
-    } catch (caught) { setError(caught instanceof Error ? caught.message : 'Không ghi được diễn biến.') }
+    } catch (caught) { const message = caught instanceof Error ? caught.message : 'Không ghi được diễn biến.'; setError(message); notify(message, 'error') }
     finally { setSaving(false) }
   }
 

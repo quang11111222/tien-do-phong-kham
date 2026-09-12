@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canAddChildWorkItem, canCompleteWorkItemDirectly, canEditWorkItem, canManageWorkItemStructure, canReviewCompletion, canViewWorkItemDetails } from './permissions'
+import { canAddChildWorkItem, canCompleteWorkItemDirectly, canEditWorkItem, canManageWorkItemStructure, canReviewCompletion, canViewWorkItemDetails, participantManagementScope } from './permissions'
 
 describe('work item permissions', () => {
   it('allows a manager to edit every work item', () => {
@@ -75,6 +75,39 @@ describe('work item permissions', () => {
     const employee = { id: 'project-admin', role: 'employee' as const, department_id: null, is_department_admin: false }
     expect(canReviewCompletion({ profile: employee, projectCanManage: true, leadDepartmentId: null })).toBe(true)
     expect(canReviewCompletion({ profile: { ...employee, role: 'manager' }, projectCanManage: false, leadDepartmentId: null })).toBe(true)
+  })
+
+  it('allows lead department administrators to assign participants from all related departments', () => {
+    expect(participantManagementScope({
+      role: 'employee',
+      canManageProject: false,
+      departmentId: 'lead',
+      isDepartmentAdmin: true,
+      leadDepartmentId: 'lead',
+      coordinatingDepartmentIds: ['coordinator'],
+    })).toBe('all_related_departments')
+  })
+
+  it('limits coordinating department administrators to their own department', () => {
+    expect(participantManagementScope({
+      role: 'employee',
+      canManageProject: false,
+      departmentId: 'coordinator',
+      isDepartmentAdmin: true,
+      leadDepartmentId: 'lead',
+      coordinatingDepartmentIds: ['coordinator', 'other-coordinator'],
+    })).toBe('own_department')
+  })
+
+  it('does not let unrelated department administrators assign participants', () => {
+    expect(participantManagementScope({
+      role: 'employee',
+      canManageProject: false,
+      departmentId: 'other',
+      isDepartmentAdmin: true,
+      leadDepartmentId: 'lead',
+      coordinatingDepartmentIds: ['coordinator'],
+    })).toBe('none')
   })
 
   it('completes directly for project administrators and lead department administrators', () => {

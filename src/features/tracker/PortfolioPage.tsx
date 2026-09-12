@@ -3,6 +3,7 @@ import type { Project, UserProfile, WorkItem } from '../../types/domain'
 import { getProjects, getUsers, getWorkItems, saveProject, setProjectDeleted } from './trackerService'
 import { ParticipantMultiSelect } from './ParticipantMultiSelect'
 import { useConfirm } from '../../components/confirmContext'
+import { useToast } from '../../components/toastContext'
 import { useAutoRefresh } from '../../lib/useAutoRefresh'
 
 interface ProjectRow { project: Project; items: WorkItem[] }
@@ -18,6 +19,7 @@ export function PortfolioPage({ isManager, isDepartmentAdmin, onOpen }: { isMana
   const [busyProjectId, setBusyProjectId] = useState<string | null>(null)
   const [users, setUsers] = useState<UserProfile[]>([])
   const confirm = useConfirm()
+  const notify = useToast()
 
   const fetchRows = useCallback(async () => {
     const projects = await getProjects(isManager)
@@ -38,7 +40,9 @@ export function PortfolioPage({ isManager, isDepartmentAdmin, onOpen }: { isMana
   const submit = async (event: FormEvent) => {
     event.preventDefault()
     if (form.startDate && form.endDate && form.endDate < form.startDate) {
-      setError('Hạn hoàn thành phải từ ngày bắt đầu trở đi.')
+      const message = 'Hạn hoàn thành phải từ ngày bắt đầu trở đi.'
+      setError(message)
+      notify(message, 'error')
       return
     }
     try {
@@ -47,8 +51,11 @@ export function PortfolioPage({ isManager, isDepartmentAdmin, onOpen }: { isMana
       setModalOpen(false)
       setForm(emptyForm)
       setRows(await fetchRows())
+      notify(form.id ? 'Đã cập nhật thông tin dự án.' : 'Đã tạo dự án mới.')
     } catch {
-      setError('Không lưu được dự án. Kiểm tra dữ liệu và mã dự án bị trùng.')
+      const message = 'Không lưu được dự án. Kiểm tra dữ liệu và mã dự án bị trùng.'
+      setError(message)
+      notify(message, 'error')
     }
   }
 
@@ -70,8 +77,11 @@ export function PortfolioPage({ isManager, isDepartmentAdmin, onOpen }: { isMana
       setBusyProjectId(project.id)
       await setProjectDeleted(project.id, deleted)
       setRows(await fetchRows())
+      notify(deleted ? `Đã xóa dự án ${project.name}.` : `Đã khôi phục dự án ${project.name}.`)
     } catch {
-      setError(deleted ? 'Không xóa được dự án.' : 'Không khôi phục được dự án.')
+      const message = deleted ? 'Không xóa được dự án.' : 'Không khôi phục được dự án.'
+      setError(message)
+      notify(message, 'error')
     } finally {
       setBusyProjectId(null)
     }

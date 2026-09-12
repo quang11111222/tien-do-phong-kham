@@ -55,3 +55,11 @@ Ghi các quyết định ảnh hưởng đến phạm vi, dữ liệu, kiến tr
 | 2026-09-12 | Phân trang nhật ký dự án theo từng bộ lọc | Nhật ký và audit log tăng dần theo thời gian, hiển thị toàn bộ làm trang dài và khó theo dõi | Mỗi trang hiển thị 10 hoạt động; đổi bộ lọc trở về trang 1; giữ nguyên tổng số theo từng loại |
 | 2026-09-12 | Khóa cấu trúc kế hoạch sau khi nạp file đã được TGĐ phê duyệt | Dữ liệu nạp vào là kế hoạch chính thức, không phải bản nháp để từng phòng tự điều chỉnh | Chỉ Quản trị hệ thống và Quản trị dự án được thêm, sửa hoặc xóa hạng mục/công việc; quyết định ngày 2026-09-10 về quyền quản lý nhánh của Quản trị phòng/ban không còn áp dụng |
 | 2026-09-12 | Công việc con mặc định kế thừa đơn vị chủ trì của mục cha | Giảm nhập lặp và tránh bỏ trống đơn vị trong cùng một hạng mục | Áp dụng khi thêm thủ công và khi dòng Excel để trống đơn vị chủ trì; không tự kế thừa đơn vị phối hợp và không ghi đè giá trị được nhập rõ ràng |
+| 2026-09-12 | Tách phân công người tham gia khỏi quyền sửa cấu trúc kế hoạch | File Excel chính thức không có sẵn người tham gia, trong khi Quản trị phòng/ban nắm nhân sự thực hiện của đơn vị | Quản trị phòng chủ trì được chọn nhân sự của mọi đơn vị liên quan; Quản trị phòng phối hợp chỉ thay đổi nhân sự của chính đơn vị mình; backend bảo toàn phân công của các đơn vị khác |
+| 2026-09-12 | Thiết kế phân quyền tương lai không đóng cứng bốn vai trò hiện tại | Vận hành có thể phát sinh TGĐ, Thư ký, Trưởng phòng và các vai trò nghiệp vụ khác | Chỉ tài khoản quản trị gốc là vai trò hệ thống cố định; các vai trò nghiệp vụ dùng bộ quyền cấu hình được, còn Quản trị dự án được gắn theo từng dự án |
+| 2026-09-12 | Chuẩn hóa phản hồi sau thao tác bằng thông báo nổi | Nhiều nút chỉ đóng panel hoặc tải lại dữ liệu khiến người dùng không biết thao tác thành công hay thất bại | Dùng một hệ thống thông báo chung cho tạo, lưu, xóa, import/export, bằng chứng, diễn biến, xét duyệt, mật khẩu và quản lý tài khoản; thông báo tự ẩn, có thể đóng thủ công và không bật cho lỗi tự làm mới nền |
+# Hành vi panel sau thao tác (2026-09-13)
+
+- Lưu thông tin hoặc lưu phân công thành công: đóng panel và thông báo thành công.
+- Tải/xóa bằng chứng, ghi diễn biến: giữ panel và tab hiện tại để tiếp tục thao tác.
+- Khi lỗi: không chủ động đóng panel; hiển thị lỗi để người dùng kiểm tra.

@@ -3,6 +3,7 @@ import type { Milestone, Project } from '../../types/domain'
 import { getMilestones, saveMilestoneDraft } from './trackerService'
 import { ProjectHeader } from './ProjectHeader'
 import { useConfirm } from '../../components/confirmContext'
+import { useToast } from '../../components/toastContext'
 import { useAutoRefresh } from '../../lib/useAutoRefresh'
 
 export function MilestonesView({ project, isManager, onBack, onDirtyChange }: { project: Project; isManager: boolean; onBack: () => void; onDirtyChange: (dirty: boolean) => void }) {
@@ -12,6 +13,7 @@ export function MilestonesView({ project, isManager, onBack, onDirtyChange }: { 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const confirm = useConfirm()
+  const notify = useToast()
   const load = async () => { const data = await getMilestones(project.id); setSaved(data); setDraft(data) }
   useEffect(() => { let active = true; void getMilestones(project.id).then((data) => { if (active) { setSaved(data); setDraft(data) } }).catch(() => { if (active) setError('Không tải được mốc kiểm soát.') }).finally(() => { if (active) setLoading(false) }); return () => { active = false } }, [project.id])
   const dirty = useMemo(() => JSON.stringify(saved) !== JSON.stringify(draft), [saved, draft])
@@ -19,7 +21,7 @@ export function MilestonesView({ project, isManager, onBack, onDirtyChange }: { 
   useEffect(() => { onDirtyChange(dirty) }, [dirty, onDirtyChange])
   const change = (id: string, patch: Partial<Milestone>) => setDraft((current) => current.map((item) => item.id === id ? { ...item, ...patch } : item))
   const add = () => setDraft((current) => [...current, { id: `new-${crypto.randomUUID()}`, project_id: project.id, name: 'Mốc mới', due_date: today(), condition_text: null, owner_text: null, achieved: false, achieved_at: null, sort_order: current.length }])
-  const save = async () => { setSaving(true); setError(null); try { await saveMilestoneDraft(project.id, draft); await load() } catch (caught) { setError(caught instanceof Error ? caught.message : 'Không lưu được mốc kiểm soát.') } finally { setSaving(false) } }
+  const save = async () => { setSaving(true); setError(null); try { await saveMilestoneDraft(project.id, draft); await load(); notify('Đã lưu các thay đổi mốc kiểm soát.') } catch (caught) { const message = caught instanceof Error ? caught.message : 'Không lưu được mốc kiểm soát.'; setError(message); notify(message, 'error') } finally { setSaving(false) } }
   const cancel = async () => { if (!dirty || await confirm({ title: 'Bỏ thay đổi chưa lưu?', message: 'Mọi chỉnh sửa trên bảng mốc kiểm soát kể từ lần lưu gần nhất sẽ bị bỏ.', confirmLabel: 'Bỏ thay đổi', tone: 'danger' })) setDraft(saved) }
   const removeDraft = async (item: Milestone) => { if (await confirm({ title: 'Xóa mốc khỏi bản nháp?', message: `${item.name} sẽ được bỏ khỏi bảng. Thay đổi chỉ ghi vào dữ liệu sau khi bấm Lưu thay đổi.`, confirmLabel: 'Xóa khỏi bảng', tone: 'danger' })) setDraft((current) => current.filter((candidate) => candidate.id !== item.id)) }
   const done = draft.filter((item) => item.achieved).length

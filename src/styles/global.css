@@ -44,6 +44,18 @@ h1, h2, p { margin-top: 0; }
 .alert.info { background: #edf5ff; color: #24578c; }
 .alert.success { background: #e9f7f0; color: #18764a; }
 
+.toast-region { display: grid; gap: 0.65rem; max-width: min(390px, calc(100vw - 2rem)); pointer-events: none; position: fixed; right: 1.25rem; top: 1.25rem; width: 100%; z-index: 3000; }
+.app-toast { align-items: center; animation: toast-in 180ms ease-out; background: white; border: 1px solid var(--line); border-left: 4px solid #3478c7; border-radius: 10px; box-shadow: 0 14px 38px rgb(16 35 60 / 18%); color: var(--navy); display: grid; gap: 0.7rem; grid-template-columns: 26px 1fr 26px; padding: 0.8rem 0.75rem; pointer-events: auto; }
+.app-toast.success { border-left-color: #16966a; }
+.app-toast.error { border-left-color: #d63849; }
+.app-toast.info { border-left-color: #3478c7; }
+.app-toast p { font-size: 0.82rem; line-height: 1.45; margin: 0; }
+.toast-icon { align-items: center; background: #eaf2ff; border-radius: 50%; color: #245ea8; display: flex; font-size: 0.78rem; font-weight: 700; height: 24px; justify-content: center; width: 24px; }
+.app-toast.success .toast-icon { background: #e6f7f0; color: #087a51; }
+.app-toast.error .toast-icon { background: #fff0f1; color: #b01d2c; }
+.app-toast button { background: transparent; border: 0; color: #718096; font-size: 1.2rem; height: 26px; line-height: 1; padding: 0; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+
 .setup-page, .app-loading, .account-disabled { align-items: center; display: flex; justify-content: center; min-height: 100vh; padding: 2rem; }
 .account-disabled { background: #f4f7fb; text-align: center; }
 .account-disabled .setup-card { max-width: 520px; }
@@ -102,6 +114,7 @@ td { font-size: 0.82rem; }
 .status.archived { background: #f5f0e9; color: #786044; }
 
 @media (max-width: 800px) {
+  .toast-region { left: 1rem; right: 1rem; top: 1rem; width: auto; }
   .auth-page { grid-template-columns: 1fr; }
   .auth-brand { display: none; }
   .app-shell { grid-template-columns: 1fr; }

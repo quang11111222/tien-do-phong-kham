@@ -23,6 +23,8 @@ interface WorkItemDetailAccessInput extends WorkItemStructureAccessInput {
   userId: string
 }
 
+export type ParticipantManagementScope = 'all_related_departments' | 'own_department' | 'none'
+
 export function canEditWorkItem({ role, canManageProject, userId, participantIds }: WorkItemAccessInput) {
   return role === 'manager' || canManageProject === true || participantIds.includes(userId)
 }
@@ -33,6 +35,20 @@ export function canManageWorkItemStructure(input: WorkItemStructureAccessInput) 
 
 export function canAddChildWorkItem(input: WorkItemStructureAccessInput) {
   return input.role === 'manager' || input.canManageProject === true
+}
+
+export function participantManagementScope(input: {
+  role: AppRole
+  canManageProject?: boolean
+  departmentId: string | null
+  isDepartmentAdmin: boolean
+  leadDepartmentId: string | null
+  coordinatingDepartmentIds: string[]
+}): ParticipantManagementScope {
+  if (input.role === 'manager' || input.canManageProject === true) return 'all_related_departments'
+  if (!input.isDepartmentAdmin || !input.departmentId) return 'none'
+  if (input.leadDepartmentId === input.departmentId) return 'all_related_departments'
+  return input.coordinatingDepartmentIds.includes(input.departmentId) ? 'own_department' : 'none'
 }
 
 export function canViewWorkItemDetails(input: WorkItemDetailAccessInput) {

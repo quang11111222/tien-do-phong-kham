@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { App } from './app/App'
 import { AuthProvider } from './features/auth/AuthProvider'
 import { ConfirmProvider } from './components/ConfirmProvider'
+import { ToastProvider } from './components/ToastProvider'
 import './styles/global.css'
 
 document.documentElement.dataset.theme = 'light'
@@ -10,7 +11,7 @@ document.documentElement.dataset.theme = 'light'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-      <ConfirmProvider><App /></ConfirmProvider>
+      <ToastProvider><ConfirmProvider><App /></ConfirmProvider></ToastProvider>
     </AuthProvider>
   </StrictMode>,
 )

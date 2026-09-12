@@ -230,6 +230,16 @@ export async function markNotificationsSeen(workItemIds: string[], userId: strin
   if (error) throw error
 }
 
+export async function saveWorkItemParticipants(item: WorkItem, participantIds: string[]) {
+  if (!supabase) throw new Error('Chưa cấu hình Supabase.')
+  const { error } = await supabase.rpc('update_work_item_participants', {
+    target_work_item_id: item.id,
+    expected_version: item.version,
+    participant_ids: participantIds,
+  })
+  if (error) throw error
+}
+
 export async function uploadEvidence(workItemId: string, file: File, userId: string) {
   if (!supabase) throw new Error('Chưa cấu hình Supabase.')
   const safeName = file.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '_')

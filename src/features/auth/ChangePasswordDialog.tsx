@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth } from './authContext'
+import { useToast } from '../../components/toastContext'
 
 export function ChangePasswordDialog({ onClose }: { onClose: () => void }) {
   const { profile, changePassword } = useAuth()
@@ -8,16 +9,18 @@ export function ChangePasswordDialog({ onClose }: { onClose: () => void }) {
   const [confirmation, setConfirmation] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const notify = useToast()
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
     setError(null)
-    if (newPassword.length < 8) return setError('Mật khẩu mới phải có ít nhất 8 ký tự.')
-    if (newPassword !== confirmation) return setError('Hai lần nhập mật khẩu mới chưa khớp.')
+    if (newPassword.length < 8) { const message = 'Mật khẩu mới phải có ít nhất 8 ký tự.'; setError(message); notify(message, 'error'); return }
+    if (newPassword !== confirmation) { const message = 'Hai lần nhập mật khẩu mới chưa khớp.'; setError(message); notify(message, 'error'); return }
     setSaving(true)
     const nextError = await changePassword(currentPassword, newPassword)
-    if (nextError) { setError(nextError); setSaving(false); return }
+    if (nextError) { setError(nextError); notify(nextError, 'error'); setSaving(false); return }
     onClose()
+    notify('Đã đổi mật khẩu thành công.')
   }
 
   return <div className="user-dialog-layer" onMouseDown={(event) => { if (event.target === event.currentTarget && !saving) onClose() }}>

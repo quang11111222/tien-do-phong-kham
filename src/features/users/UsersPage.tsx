@@ -5,6 +5,7 @@ import type { AppRole, Department, UserProfile } from '../../types/domain'
 import { normalizeUsername, USERNAME_PATTERN } from '../../lib/username'
 import { createUser, listDepartments, listUsers, resetUserPassword, setUserActive, updateUserProfile } from './userService'
 import { useAutoRefresh } from '../../lib/useAutoRefresh'
+import { useToast } from '../../components/toastContext'
 
 const emptyForm = { fullName: '', username: '', password: '', role: 'employee' as AppRole, departmentId: '', isDepartmentAdmin: false }
 const PAGE_SIZE = 10
@@ -13,6 +14,7 @@ type UserDialog = { kind: 'edit'; user: UserProfile } | { kind: 'password'; user
 export function UsersPage() {
   const { profile } = useAuth()
   const confirm = useConfirm()
+  const notify = useToast()
   const [users, setUsers] = useState<UserProfile[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [form, setForm] = useState(emptyForm)
@@ -52,20 +54,23 @@ export function UsersPage() {
     setError(null)
     setSuccess(null)
     const fullName = form.fullName.trim()
-    if (fullName.length < 2) return setError('Họ và tên phải có ít nhất 2 ký tự.')
-    if (form.password.length < 8) return setError('Mật khẩu tạm phải có ít nhất 8 ký tự.')
+    if (fullName.length < 2) { const message = 'Họ và tên phải có ít nhất 2 ký tự.'; setError(message); notify(message, 'error'); return }
+    if (form.password.length < 8) { const message = 'Mật khẩu tạm phải có ít nhất 8 ký tự.'; setError(message); notify(message, 'error'); return }
     const username = normalizeUsername(form.username)
-    if (!USERNAME_PATTERN.test(username)) return setError('Tài khoản gồm 3–32 ký tự: chữ thường, số, dấu chấm, gạch ngang hoặc gạch dưới.')
-    if (form.role === 'employee' && !form.departmentId) return setError('Nhân viên phải được gắn với một phòng/ban.')
+    if (!USERNAME_PATTERN.test(username)) { const message = 'Tài khoản gồm 3–32 ký tự: chữ thường, số, dấu chấm, gạch ngang hoặc gạch dưới.'; setError(message); notify(message, 'error'); return }
+    if (form.role === 'employee' && !form.departmentId) { const message = 'Nhân viên phải được gắn với một phòng/ban.'; setError(message); notify(message, 'error'); return }
 
     setSubmitting(true)
     try {
       await createUser({ ...form, departmentId: form.departmentId || null, fullName, username })
       setSuccess(`Đã tạo tài khoản ${username} cho ${fullName}.`)
+      notify(`Đã tạo tài khoản ${username} cho ${fullName}.`)
       setForm(emptyForm)
       await loadData()
     } catch {
-      setError('Không tạo được tài khoản. Kiểm tra tên trùng, dữ liệu nhập hoặc quyền quản trị viên.')
+      const message = 'Không tạo được tài khoản. Kiểm tra tên trùng, dữ liệu nhập hoặc quyền quản trị viên.'
+      setError(message)
+      notify(message, 'error')
     } finally { setSubmitting(false) }
   }
 
@@ -83,8 +88,9 @@ export function UsersPage() {
     try {
       await setUserActive(user.id, nextActive)
       setSuccess(`Đã ${nextActive ? 'mở lại' : 'khóa'} tài khoản ${user.username}.`)
+      notify(`Đã ${nextActive ? 'mở lại' : 'khóa'} tài khoản ${user.username}.`)
       await loadData()
-    } catch { setError(`Không thể ${nextActive ? 'mở lại' : 'khóa'} tài khoản ${user.username}.`) }
+    } catch { const message = `Không thể ${nextActive ? 'mở lại' : 'khóa'} tài khoản ${user.username}.`; setError(message); notify(message, 'error') }
     finally { setBusyUserId(null) }
   }
 
@@ -131,12 +137,13 @@ export function UsersPage() {
       </div>
     </div>
 
-    {dialog?.kind === 'edit' && <EditUserDialog departments={departments} currentUserId={profile?.id ?? ''} user={dialog.user} onClose={() => setDialog(null)} onSaved={async (message) => { setDialog(null); setSuccess(message); await loadData() }} />}
-    {dialog?.kind === 'password' && <PasswordDialog user={dialog.user} onClose={() => setDialog(null)} onSaved={(message) => { setDialog(null); setSuccess(message) }} />}
+    {dialog?.kind === 'edit' && <EditUserDialog departments={departments} currentUserId={profile?.id ?? ''} user={dialog.user} onClose={() => setDialog(null)} onSaved={async (message) => { setDialog(null); setSuccess(message); notify(message); await loadData() }} />}
+    {dialog?.kind === 'password' && <PasswordDialog user={dialog.user} onClose={() => setDialog(null)} onSaved={(message) => { setDialog(null); setSuccess(message); notify(message) }} />}
   </section>
 }
 
 function EditUserDialog({ currentUserId, user, departments, onClose, onSaved }: { currentUserId: string; user: UserProfile; departments: Department[]; onClose: () => void; onSaved: (message: string) => Promise<void> }) {
+  const notify = useToast()
   const isRoot = user.username === 'admin'
   const isSelf = user.id === currentUserId
   const [fullName, setFullName] = useState(user.full_name)
@@ -148,14 +155,14 @@ function EditUserDialog({ currentUserId, user, departments, onClose, onSaved }: 
 
   const save = async (event: FormEvent) => {
     event.preventDefault()
-    if (isRoot) return setError('Tài khoản admin gốc không được chỉnh sửa.')
+    if (isRoot) { const message = 'Tài khoản admin gốc không được chỉnh sửa.'; setError(message); notify(message, 'error'); return }
     const nextName = fullName.trim()
-    if (nextName.length < 2) return setError('Họ và tên phải có ít nhất 2 ký tự.')
-    if (role === 'employee' && !departmentId) return setError('Nhân viên phải được gắn với một phòng/ban.')
+    if (nextName.length < 2) { const message = 'Họ và tên phải có ít nhất 2 ký tự.'; setError(message); notify(message, 'error'); return }
+    if (role === 'employee' && !departmentId) { const message = 'Nhân viên phải được gắn với một phòng/ban.'; setError(message); notify(message, 'error'); return }
     setSaving(true)
     setError(null)
     try { await updateUserProfile(user.id, nextName, role, departmentId || null, role === 'employee' && isDepartmentAdmin); await onSaved(`Đã cập nhật tài khoản ${user.username}.`) }
-    catch { setError('Không cập nhật được tài khoản. Kiểm tra quyền và dữ liệu nhập.'); setSaving(false) }
+    catch { const message = 'Không cập nhật được tài khoản. Kiểm tra quyền và dữ liệu nhập.'; setError(message); notify(message, 'error'); setSaving(false) }
   }
 
   return <div className="user-dialog-layer" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}><form className="user-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-user-title" onSubmit={save}>
@@ -170,6 +177,7 @@ function EditUserDialog({ currentUserId, user, departments, onClose, onSaved }: 
 }
 
 function PasswordDialog({ user, onClose, onSaved }: { user: UserProfile; onClose: () => void; onSaved: (message: string) => void }) {
+  const notify = useToast()
   const [password, setPassword] = useState('')
   const [confirmation, setConfirmation] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -177,13 +185,13 @@ function PasswordDialog({ user, onClose, onSaved }: { user: UserProfile; onClose
 
   const save = async (event: FormEvent) => {
     event.preventDefault()
-    if (user.username === 'admin') return setError('Tài khoản admin gốc không được đặt lại mật khẩu.')
-    if (password.length < 8) return setError('Mật khẩu mới phải có ít nhất 8 ký tự.')
-    if (password !== confirmation) return setError('Hai lần nhập mật khẩu chưa khớp.')
+    if (user.username === 'admin') { const message = 'Tài khoản admin gốc không được đặt lại mật khẩu.'; setError(message); notify(message, 'error'); return }
+    if (password.length < 8) { const message = 'Mật khẩu mới phải có ít nhất 8 ký tự.'; setError(message); notify(message, 'error'); return }
+    if (password !== confirmation) { const message = 'Hai lần nhập mật khẩu chưa khớp.'; setError(message); notify(message, 'error'); return }
     setSaving(true)
     setError(null)
     try { await resetUserPassword(user.id, password); onSaved(`Đã đặt lại mật khẩu cho tài khoản ${user.username}.`) }
-    catch { setError('Không đặt lại được mật khẩu. Vui lòng thử lại.'); setSaving(false) }
+    catch { const message = 'Không đặt lại được mật khẩu. Vui lòng thử lại.'; setError(message); notify(message, 'error'); setSaving(false) }
   }
 
   return <div className="user-dialog-layer" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}><form className="user-dialog" role="dialog" aria-modal="true" aria-labelledby="reset-password-title" onSubmit={save}>

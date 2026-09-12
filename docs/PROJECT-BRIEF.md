@@ -31,7 +31,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 
 ## 5. Desired State
 
-Ứng dụng web có đăng nhập, dữ liệu tập trung, phân quyền theo cả cấp quyền và phạm vi phòng ban/dự án, hỗ trợ import kế hoạch từ sheet đầu của Excel và quản lý tiến độ hằng ngày trên hệ thống.
+Ứng dụng web có đăng nhập, dữ liệu tập trung, phân quyền theo cả cấp quyền và phạm vi phòng ban/dự án, hỗ trợ import kế hoạch từ sheet đầu của Excel và quản lý tiến độ hằng ngày trên hệ thống. Kiến trúc phân quyền về sau phải cho phép Quản trị hệ thống tạo các vai trò nghiệp vụ như TGĐ, Thư ký, Trưởng phòng và gắn bộ quyền tương ứng; Quản trị dự án tiếp tục là vai trò theo từng dự án, không phải vai trò cố định của tài khoản.
 
 ## 6. Phạm vi MVP
 
@@ -64,7 +64,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 2. Quản trị hệ thống quản lý tài khoản: tạo người dùng với họ tên, phòng/ban và cấp quyền, đặt lại mật khẩu và bật/tắt hoạt động.
 3. Tạo, sửa, xóa mềm và khôi phục dự án; chỉ quản trị viên xem được danh sách đã xóa.
 4. Tải file Excel mẫu; import sheet đầu của file kế hoạch đã được TGĐ phê duyệt, xem trước và xác nhận.
-5. Quản trị hệ thống và Quản trị dự án quản lý hạng mục, công việc và nhiều người tham gia; các vai trò khác không được thay đổi cấu trúc kế hoạch đã chốt.
+5. Quản trị hệ thống và Quản trị dự án quản lý cấu trúc hạng mục/công việc. Quản trị phòng/ban được phân công người tham gia theo phạm vi đơn vị chủ trì hoặc phối hợp nhưng không được thay đổi cấu trúc kế hoạch đã chốt.
 6. Xem Gantt, tổng quan và công việc cần xử lý.
 7. Cập nhật diễn biến, nguyên nhân chậm và bằng chứng.
 8. Nhân viên và Quản trị phòng/ban thuộc đơn vị phối hợp gửi hoàn thành để Quản trị phòng của đơn vị chủ trì hoặc Quản trị dự án duyệt/từ chối; Quản trị phòng được giao việc do chính phòng mình chủ trì và Quản trị dự án vẫn phải tải bằng chứng, bấm nộp nhưng công việc chuyển thẳng sang Hoàn thành.
@@ -101,6 +101,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Nhân viên chỉ cập nhật công việc mình tham gia.
 - Một công việc có thể có nhiều người tham gia; tất cả người tham gia có quyền cập nhật và gửi duyệt.
 - Người tham gia được chọn bằng dropdown nhiều lựa chọn có tìm kiếm theo họ tên hoặc tài khoản và hiển thị thành thẻ; danh sách chỉ gồm tài khoản đang hoạt động thuộc đơn vị chủ trì hoặc một trong các đơn vị phối hợp của công việc, không bày toàn bộ người dùng bằng checkbox trên form.
+- Quản trị phòng/ban của đơn vị chủ trì được thêm hoặc bỏ người tham gia thuộc tất cả đơn vị chủ trì/phối hợp của công việc. Quản trị phòng/ban của một đơn vị phối hợp chỉ được thêm hoặc bỏ nhân sự thuộc chính phòng/ban mình; phân công của các đơn vị khác phải được giữ nguyên. Phân công người tham gia là thao tác độc lập, không cấp quyền sửa tên, ngày, đơn vị hoặc cấu trúc kế hoạch.
 - Khi đã gửi duyệt, tệp bằng chứng bị khóa cho đến khi quản trị viên từ chối; thông tin, phân công, diễn biến và cấu trúc công việc vẫn được cập nhật.
 - Khi quản trị viên mở một công việc đang chờ duyệt, panel ưu tiên mở phần Xét duyệt với thông tin người gửi, ghi chú, bằng chứng và nút duyệt/từ chối.
 - Chỉ quản trị viên được thay đổi công việc thành hoàn thành.
@@ -149,6 +150,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Hiệu năng: đáp ứng dữ liệu nhiều dự án ở quy mô nội bộ PTPK; bảng dài cần lọc và phân trang/ảo hóa khi cần.
 - Thiết bị/trình duyệt: ưu tiên máy tính trên Chrome/Edge; responsive để xem trên điện thoại.
 - Giao diện: luôn dùng chế độ sáng, không thay đổi theo theme của trình duyệt hoặc hệ điều hành.
+- Phản hồi thao tác: mọi hành động do người dùng chủ động thực hiện như tạo, lưu, xóa, nạp/xuất file, gửi duyệt, xét duyệt và quản lý tài khoản phải hiện thông báo thành công hoặc thất bại thống nhất; lỗi tải nền vẫn hiển thị tại màn hình để tránh thông báo lặp gây phiền.
 - Triển khai: Cloudflare Pages Free và Supabase Free trong giai đoạn MVP.
 - Sao lưu: cần export định kỳ vì Supabase Free không cung cấp automatic backup.
 
@@ -166,3 +168,4 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 2. `PTNL1`, `PTNL2` và `Z1` có tên đầy đủ cần hiển thị hay giữ nguyên mã?
 3. Chính sách dung lượng, định dạng và thời gian lưu tài liệu bằng chứng là gì?
 4. Tần suất backup/export dữ liệu trong giai đoạn MVP?
+5. Danh mục vai trò tùy chỉnh và quyền mặc định cho TGĐ, Thư ký, Trưởng phòng sẽ được đưa vào giai đoạn triển khai phân quyền động nào?

@@ -17,6 +17,7 @@ import { useConfirm } from '../../components/confirmContext'
 import { ChangePasswordDialog } from '../auth/ChangePasswordDialog'
 import { useAutoRefresh } from '../../lib/useAutoRefresh'
 import { NotificationBell } from './NotificationBell'
+import { useToast } from '../../components/toastContext'
 
 export function TrackerShell() {
   const { profile, signOut } = useAuth()
@@ -34,6 +35,7 @@ export function TrackerShell() {
   const dirtyRef = useRef(false)
   const lastHashRef = useRef(window.location.hash || routeHash('projects'))
   const confirm = useConfirm()
+  const notify = useToast()
   const isSystemAdmin = profile?.role === 'manager'
   const canManageProject = Boolean(isSystemAdmin || project?.can_manage)
   const canReview = Boolean(isSystemAdmin || profile?.is_department_admin || hasManagedProject)
@@ -174,27 +176,37 @@ export function TrackerShell() {
   }, [page, project])
   const openNotification = async (notification: PersonalNotification) => {
     if (hasUnsavedChanges && !await confirm({ title: 'Rời màn hình?', message: 'Màn hình đang có thay đổi chưa lưu. Nếu rời đi, các thay đổi này sẽ bị bỏ.', confirmLabel: 'Rời đi', tone: 'danger' })) return false
-    const projects = await getProjects()
-    const targetProject = projects.find((candidate) => candidate.id === notification.project_id)
-    if (!targetProject) {
+    try {
+      const projects = await getProjects()
+      const targetProject = projects.find((candidate) => candidate.id === notification.project_id)
+      if (!targetProject) {
+        setNotifications((items) => items.filter((item) => item.work_item_id !== notification.work_item_id))
+        return false
+      }
+      if (!profile) return false
+      await markNotificationsSeen([notification.work_item_id], profile.id)
       setNotifications((items) => items.filter((item) => item.work_item_id !== notification.work_item_id))
+      trackDirty(false)
+      setProject(targetProject)
+      setSelectedWorkItemId(notification.work_item_id)
+      setPage('gantt')
+      updateAddress('gantt', targetProject, notification.work_item_id)
+      return true
+    } catch {
+      notify('Không mở được thông báo. Vui lòng thử lại.', 'error')
       return false
     }
-    if (!profile) return false
-    await markNotificationsSeen([notification.work_item_id], profile.id)
-    setNotifications((items) => items.filter((item) => item.work_item_id !== notification.work_item_id))
-    trackDirty(false)
-    setProject(targetProject)
-    setSelectedWorkItemId(notification.work_item_id)
-    setPage('gantt')
-    updateAddress('gantt', targetProject, notification.work_item_id)
-    return true
   }
   const markAllNotificationsAsSeen = async () => {
     if (!profile) return
-    await markNotificationsSeen(notifications.map((item) => item.work_item_id), profile.id)
-    setNotifications([])
-    if (project) setUnreadActivityCount(0)
+    try {
+      await markNotificationsSeen(notifications.map((item) => item.work_item_id), profile.id)
+      setNotifications([])
+      if (project) setUnreadActivityCount(0)
+      notify('Đã đánh dấu tất cả thông báo là đã đọc.')
+    } catch {
+      notify('Không đánh dấu được thông báo. Vui lòng thử lại.', 'error')
+    }
   }
   const backToPortfolio = () => { void navigate('projects', true) }
   const projectPage = project && ['overview', 'gantt', 'milestones', 'activity'].includes(page)

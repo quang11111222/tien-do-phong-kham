@@ -80,7 +80,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 18. Người dùng thường chỉ thấy các nhánh công việc mà phòng/ban của mình là đơn vị chủ trì hoặc phối hợp; hệ thống vẫn hiển thị các mục cha cần thiết để giữ ngữ cảnh cây công việc.
 19. Gantt có bộ lọc phạm vi **Việc của tôi** và **Tất cả công việc liên quan**; số liệu trạng thái thay đổi theo phạm vi đang chọn.
 20. Header có chuông thông báo riêng theo từng tài khoản; hiển thị diễn biến, lượt gửi hoàn thành và kết quả duyệt chưa đọc trong phạm vi người dùng được phép xem. Bấm thông báo mở đúng dự án/công việc và đánh dấu đã đọc; người dùng có thể đánh dấu tất cả đã đọc.
-21. Nhật ký dự án cho phép lọc **Tất cả**, **Diễn biến**, **Gửi & xét duyệt**; Quản trị dự án và Quản trị hệ thống có thêm bộ lọc **Đã xóa** để truy vết việc xóa hạng mục/công việc trong phạm vi quản lý.
+21. Nhật ký dự án cho phép lọc **Tất cả**, **Diễn biến**, **Gửi & xét duyệt**; Quản trị dự án và Quản trị hệ thống có thêm bộ lọc **Đã xóa** để truy vết việc xóa hạng mục/công việc trong phạm vi quản lý. Mỗi bộ lọc phân trang 10 hoạt động một trang và trở về trang đầu khi đổi loại nhật ký.
 
 ### Quy tắc nhập liệu hạng mục/công việc
 

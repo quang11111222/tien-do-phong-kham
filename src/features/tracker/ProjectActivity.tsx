@@ -5,6 +5,7 @@ import { ProjectHeader } from './ProjectHeader'
 import { useAutoRefresh } from '../../lib/useAutoRefresh'
 
 type ActivityFilter = 'all' | 'progress' | 'approval' | 'deleted'
+const PAGE_SIZE = 10
 
 export function ProjectActivity({ project, profile, canViewDeleteAudit, onBack, onOpenGantt, onSeen }: { project: Project; profile: Profile; canViewDeleteAudit: boolean; onBack: () => void; onOpenGantt: (workItemId: string) => void; onSeen: () => void }) {
   const [items, setItems] = useState<Activity[]>([])
@@ -16,6 +17,7 @@ export function ProjectActivity({ project, profile, canViewDeleteAudit, onBack, 
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [filter, setFilter] = useState<ActivityFilter>('all')
+  const [page, setPage] = useState(1)
 
   const loadData = async () => {
     const [activity, tasks] = await Promise.all([getProjectActivity(project.id, canViewDeleteAudit), getWorkItems(project.id)])
@@ -44,6 +46,10 @@ export function ProjectActivity({ project, profile, canViewDeleteAudit, onBack, 
     deleted: items.filter((item) => item.kind === 'deleted').length,
   }), [items])
   const visibleItems = useMemo(() => items.filter((item) => filter === 'all' || (filter === 'approval' ? ['submitted', 'approved', 'rejected'].includes(item.kind) : item.kind === filter)), [filter, items])
+  const pageCount = Math.max(1, Math.ceil(visibleItems.length / PAGE_SIZE))
+  const currentPage = Math.min(page, pageCount)
+  const pagedItems = visibleItems.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+  const changeFilter = (nextFilter: ActivityFilter) => { setFilter(nextFilter); setPage(1) }
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
@@ -70,7 +76,7 @@ export function ProjectActivity({ project, profile, canViewDeleteAudit, onBack, 
         {error && <div className="note warn">{error}</div>}{success && <div className="note success-note">{success}</div>}
         {loading ? <div className="note">Đang tải danh sách công việc có thể cập nhật…</div> : writableItems.length ? <button className="btn pri" disabled={saving || !workItemId || !content.trim()}>{saving ? 'Đang ghi…' : 'Ghi diễn biến'}</button> : <div className="note">{profile.role === 'manager' ? 'Không có công việc đang mở để cập nhật.' : 'Bạn chưa được phân công công việc đang mở nào. Quản trị viên cần thêm bạn vào danh sách người tham gia.'}</div>}
       </form>
-      <div className="card activity-card"><div className="activity-list-heading"><div><h2>Lịch sử dự án</h2><span className="tiny muted">{items.length} hoạt động</span></div></div><div className="activity-filters" role="tablist" aria-label="Lọc lịch sử dự án"><button role="tab" aria-selected={filter === 'all'} className={filter === 'all' ? 'on' : ''} onClick={() => setFilter('all')}>Tất cả <b>{activityCounts.all}</b></button><button role="tab" aria-selected={filter === 'progress'} className={filter === 'progress' ? 'on' : ''} onClick={() => setFilter('progress')}>Diễn biến <b>{activityCounts.progress}</b></button><button role="tab" aria-selected={filter === 'approval'} className={filter === 'approval' ? 'on' : ''} onClick={() => setFilter('approval')}>Gửi &amp; xét duyệt <b>{activityCounts.approval}</b></button>{canViewDeleteAudit && <button role="tab" aria-selected={filter === 'deleted'} className={filter === 'deleted' ? 'on audit-filter' : 'audit-filter'} onClick={() => setFilter('deleted')}>Đã xóa <b>{activityCounts.deleted}</b></button>}</div>{loading ? <div className="empty">Đang tải nhật ký…</div> : visibleItems.length ? <div className="log">{visibleItems.map((item) => <div className={`li activity-${item.kind}`} key={item.id}><div className="dot" /><div><div className="m">{dateTime(item.created_at)} · {item.actor_name} · {item.kind === 'deleted' ? <strong className="activity-deleted-name">{item.work_item_wbs}. {item.work_item_name}</strong> : <button className="activity-link" onClick={() => onOpenGantt(item.work_item_id)}>{item.work_item_wbs}. {item.work_item_name}</button>}</div><p>{item.content}</p></div></div>)}</div> : <div className="empty"><h3>Không có dữ liệu thuộc loại này</h3><p>{filter === 'deleted' ? 'Các lần xóa hạng mục hoặc công việc sẽ được lưu tại đây.' : 'Chọn loại khác để xem các hoạt động đã ghi nhận.'}</p></div>}</div>
+      <div className="card activity-card"><div className="activity-list-heading"><div><h2>Lịch sử dự án</h2><span className="tiny muted">{items.length} hoạt động</span></div></div><div className="activity-filters" role="tablist" aria-label="Lọc lịch sử dự án"><button role="tab" aria-selected={filter === 'all'} className={filter === 'all' ? 'on' : ''} onClick={() => changeFilter('all')}>Tất cả <b>{activityCounts.all}</b></button><button role="tab" aria-selected={filter === 'progress'} className={filter === 'progress' ? 'on' : ''} onClick={() => changeFilter('progress')}>Diễn biến <b>{activityCounts.progress}</b></button><button role="tab" aria-selected={filter === 'approval'} className={filter === 'approval' ? 'on' : ''} onClick={() => changeFilter('approval')}>Gửi &amp; xét duyệt <b>{activityCounts.approval}</b></button>{canViewDeleteAudit && <button role="tab" aria-selected={filter === 'deleted'} className={filter === 'deleted' ? 'on audit-filter' : 'audit-filter'} onClick={() => changeFilter('deleted')}>Đã xóa <b>{activityCounts.deleted}</b></button>}</div>{loading ? <div className="empty">Đang tải nhật ký…</div> : visibleItems.length ? <><div className="log">{pagedItems.map((item) => <div className={`li activity-${item.kind}`} key={item.id}><div className="dot" /><div><div className="m">{dateTime(item.created_at)} · {item.actor_name} · {item.kind === 'deleted' ? <strong className="activity-deleted-name">{item.work_item_wbs}. {item.work_item_name}</strong> : <button className="activity-link" onClick={() => onOpenGantt(item.work_item_id)}>{item.work_item_wbs}. {item.work_item_name}</button>}</div><p>{item.content}</p></div></div>)}</div>{pageCount > 1 && <div className="activity-pagination"><span>Hiển thị {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, visibleItems.length)} trong {visibleItems.length} hoạt động</span><div><button className="btn" disabled={currentPage === 1} onClick={() => setPage(Math.max(1, currentPage - 1))}>← Trước</button><strong>Trang {currentPage}/{pageCount}</strong><button className="btn" disabled={currentPage === pageCount} onClick={() => setPage(Math.min(pageCount, currentPage + 1))}>Sau →</button></div></div>}</> : <div className="empty"><h3>Không có dữ liệu thuộc loại này</h3><p>{filter === 'deleted' ? 'Các lần xóa hạng mục hoặc công việc sẽ được lưu tại đây.' : 'Chọn loại khác để xem các hoạt động đã ghi nhận.'}</p></div>}</div>
     </div>
   </>
 }

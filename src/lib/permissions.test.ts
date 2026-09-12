@@ -19,25 +19,29 @@ describe('work item permissions', () => {
     ).toBe(false)
   })
 
-  it('allows department administrators to manage work inside their lead branch', () => {
+  it('locks plan structure for department administrators, including their lead branch', () => {
     const access = {
       role: 'employee' as const,
       departmentId: 'ptpk',
       isDepartmentAdmin: true,
       leadDepartmentIdsInPath: [null, 'ptpk'],
     }
-    expect(canManageWorkItemStructure({ ...access, parentId: 'root-item' })).toBe(true)
-    expect(canAddChildWorkItem({ ...access, parentId: 'parent-item' })).toBe(true)
+    expect(canManageWorkItemStructure({ ...access, parentId: 'root-item' })).toBe(false)
+    expect(canAddChildWorkItem({ ...access, parentId: 'parent-item' })).toBe(false)
   })
 
-  it('does not let department administrators manage a top-level category or coordinating-only branch', () => {
+  it('allows only system and project administrators to change plan structure', () => {
     const access = {
       role: 'employee' as const,
       departmentId: 'ptpk',
       isDepartmentAdmin: true,
+      parentId: 'parent-item',
+      leadDepartmentIdsInPath: ['ptpk'],
     }
-    expect(canManageWorkItemStructure({ ...access, parentId: null, leadDepartmentIdsInPath: ['ptpk'] })).toBe(false)
-    expect(canAddChildWorkItem({ ...access, parentId: 'parent-item', leadDepartmentIdsInPath: ['marketing'] })).toBe(false)
+    expect(canManageWorkItemStructure({ ...access, role: 'manager' })).toBe(true)
+    expect(canAddChildWorkItem({ ...access, role: 'manager' })).toBe(true)
+    expect(canManageWorkItemStructure({ ...access, canManageProject: true })).toBe(true)
+    expect(canAddChildWorkItem({ ...access, canManageProject: true })).toBe(true)
   })
 
   it('separates all-project progress visibility from detailed work data', () => {

@@ -27,21 +27,12 @@ export function canEditWorkItem({ role, canManageProject, userId, participantIds
   return role === 'manager' || canManageProject === true || participantIds.includes(userId)
 }
 
-function managesDepartmentBranch(input: WorkItemStructureAccessInput) {
-  return Boolean(
-    input.isDepartmentAdmin
-    && input.departmentId
-    && input.leadDepartmentIdsInPath.includes(input.departmentId),
-  )
-}
-
 export function canManageWorkItemStructure(input: WorkItemStructureAccessInput) {
-  if (input.role === 'manager' || input.canManageProject === true) return true
-  return input.parentId !== null && managesDepartmentBranch(input)
+  return input.role === 'manager' || input.canManageProject === true
 }
 
 export function canAddChildWorkItem(input: WorkItemStructureAccessInput) {
-  return input.role === 'manager' || input.canManageProject === true || managesDepartmentBranch(input)
+  return input.role === 'manager' || input.canManageProject === true
 }
 
 export function canViewWorkItemDetails(input: WorkItemDetailAccessInput) {

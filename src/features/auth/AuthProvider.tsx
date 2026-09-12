@@ -13,9 +13,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const client = supabase
     if (!client) return
+    let profileRequest = 0
+    let disposed = false
 
     const loadProfile = async (userId: string) => {
+      const request = ++profileRequest
       const { data } = await client.from('profiles').select('*, department:departments(id, code, name, active)').eq('id', userId).maybeSingle()
+      if (disposed || request !== profileRequest) return
       if (!data) { setProfile(null); return }
       setProfile({ ...data, department: Array.isArray(data.department) ? data.department[0] ?? null : data.department } as Profile)
     }
@@ -29,13 +33,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: listener } = client.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession)
       if (nextSession) {
-        void loadProfile(nextSession.user.id)
+        // Không gọi request dùng Auth ngay trong callback sự kiện Auth.
+        setTimeout(() => { if (!disposed) void loadProfile(nextSession.user.id) }, 0)
       } else {
+        profileRequest += 1
         setProfile(null)
       }
     })
 
-    return () => listener.subscription.unsubscribe()
+    return () => { disposed = true; profileRequest += 1; listener.subscription.unsubscribe() }
   }, [])
 
   const value = useMemo<AuthContextValue>(
@@ -52,7 +58,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return error ? 'Tài khoản hoặc mật khẩu không đúng.' : null
       },
       async signOut() {
-        if (supabase) await supabase.auth.signOut()
+        if (supabase) {
+          await supabase.auth.signOut({ scope: 'local' })
+          setSession(null)
+          setProfile(null)
+        }
       },
       async changePassword(currentPassword, newPassword) {
         if (!supabase || !profile) return 'Không xác định được tài khoản đang đăng nhập.'

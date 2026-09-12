@@ -121,6 +121,8 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Bằng chứng bị khóa khi công việc Chờ duyệt hoặc Hoàn thành: chỉ được xem, không được tải thay thế hoặc xóa. Không được xóa cả công việc/hạng mục nếu thao tác đó làm mất bằng chứng đã khóa. Khi yêu cầu bị từ chối và công việc trở lại Đang thực hiện, bằng chứng được phép cập nhật để gửi lại.
 - Nhật ký diễn biến cho phép quản trị viên ghi vào mọi công việc; nhân viên chỉ ghi vào công việc chi tiết mình tham gia, không phụ thuộc trạng thái công việc.
 - Cột Chủ trì trên bảng tiến độ hiển thị tên đầy đủ của đơn vị. Mọi thanh trên Gantt phải hiển thị tên hạng mục/công việc, kể cả thanh ngắn.
+- Cột Mã trên Gantt giữ số La Mã cho hạng mục cấp cao nhất và hiển thị số thứ tự phân cấp cho các cấp dưới mà không lặp lại mã hạng mục, ví dụ `III` → `1` → `1.1` → `1.1.1`.
+- Tại màn Quản lý người dùng, trường gắn Phòng/ban và cột Phòng/ban chỉ hiển thị tên đầy đủ; mã phòng/ban vẫn được giữ trong dữ liệu và ở các vị trí cần nhận diện ngắn gọn như thẻ tài khoản.
 - Thẻ màu xanh tại khu vực tài khoản hiển thị mã phòng/ban của người dùng; riêng Quản trị hệ thống hiển thị `ADMIN` thay cho chữ viết tắt họ tên.
 - Khi vào Gantt, Nhân viên mặc định xem **Việc của tôi**; Quản trị phòng/ban mặc định xem **Công việc phòng tôi**; Quản trị dự án và Quản trị hệ thống mặc định xem toàn bộ tiến độ. Quản trị phòng/ban có đủ ba phạm vi **Việc của tôi**, **Công việc phòng tôi** và **Tất cả tiến độ**. Các chế độ lọc vẫn giữ mục cha cần thiết và tính trạng thái mục cha từ các công việc đang được hiển thị.
 - Mỗi màn hình có URL riêng để mở trực tiếp và chia sẻ; URL dự án chứa mã dự án và tên màn hình, ví dụ `#/projects/PK-KHETRE/gantt`.

@@ -96,7 +96,7 @@ export function UsersPage() {
         <label>Họ và tên<input required maxLength={100} autoComplete="name" value={form.fullName} onChange={(event) => setForm({ ...form, fullName: event.target.value })} placeholder="Nguyễn Văn An" /></label>
         <label>Tài khoản<input required autoComplete="off" pattern="[a-z0-9._-]{3,32}" value={form.username} onChange={(event) => setForm({ ...form, username: event.target.value.toLowerCase() })} placeholder="nguyenvanan" /></label>
         <label>Mật khẩu tạm<input required minLength={8} type="password" autoComplete="new-password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} /></label>
-        <label>Phòng/ban<select required={form.role === 'employee'} value={form.departmentId} onChange={(event) => setForm({ ...form, departmentId: event.target.value })}><option value="">Chưa gắn phòng/ban</option>{departments.map((department) => <option key={department.id} value={department.id}>{department.code} — {department.name}</option>)}</select></label>
+        <label>Phòng/ban<select required={form.role === 'employee'} value={form.departmentId} onChange={(event) => setForm({ ...form, departmentId: event.target.value })}><option value="">Chưa gắn phòng/ban</option>{departments.map((department) => <option key={department.id} value={department.id}>{department.name}</option>)}</select></label>
         <label>Cấp quyền<select value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value as AppRole, isDepartmentAdmin: event.target.value === 'manager' ? false : form.isDepartmentAdmin })}><option value="employee">Theo phòng/ban</option><option value="manager">Quản trị hệ thống</option></select></label>
         {form.role === 'employee' && <label className="user-check"><input type="checkbox" checked={form.isDepartmentAdmin} onChange={(event) => setForm({ ...form, isDepartmentAdmin: event.target.checked })} /> Quản trị phòng/ban</label>}
         <button className="primary-button" disabled={submitting} type="submit">{submitting ? 'Đang tạo…' : 'Tạo tài khoản'}</button>
@@ -117,7 +117,7 @@ export function UsersPage() {
             const busy = busyUserId === user.id
             return <tr key={user.id}>
               <td><strong>{user.full_name}</strong><small className="user-account">@{user.username}{isRoot && <span className="root-badge">Gốc</span>}{isSelf && <span className="self-badge">Bạn</span>}</small></td>
-              <td>{user.department ? `${user.department.code} — ${user.department.name}` : '—'}</td>
+              <td>{user.department?.name || '—'}</td>
               <td>{user.role === 'manager' ? 'Quản trị hệ thống' : user.is_department_admin ? 'Quản trị phòng/ban' : 'Nhân viên'}</td>
               <td><span className={`status ${user.active ? 'active' : 'archived'}`}>{user.active ? 'Đang hoạt động' : 'Đã khóa'}</span></td>
               <td><div className="user-actions">
@@ -161,7 +161,7 @@ function EditUserDialog({ currentUserId, user, departments, onClose, onSaved }: 
   return <div className="user-dialog-layer" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}><form className="user-dialog" role="dialog" aria-modal="true" aria-labelledby="edit-user-title" onSubmit={save}>
     <div className="user-dialog-heading"><div><p className="eyebrow">CHỈNH SỬA TÀI KHOẢN</p><h2 id="edit-user-title">@{user.username}</h2></div><button type="button" className="user-dialog-close" aria-label="Đóng" onClick={onClose}>×</button></div>
     <label>Họ và tên<input required maxLength={100} value={fullName} onChange={(event) => setFullName(event.target.value)} autoFocus /></label>
-    <label>Phòng/ban<select value={departmentId} disabled={isRoot} onChange={(event) => setDepartmentId(event.target.value)}><option value="">Chưa gắn phòng/ban</option>{departments.map((department) => <option key={department.id} value={department.id}>{department.code} — {department.name}</option>)}</select></label>
+    <label>Phòng/ban<select value={departmentId} disabled={isRoot} onChange={(event) => setDepartmentId(event.target.value)}><option value="">Chưa gắn phòng/ban</option>{departments.map((department) => <option key={department.id} value={department.id}>{department.name}</option>)}</select></label>
     <label>Cấp quyền<select value={role} disabled={isRoot || isSelf} onChange={(event) => { const next = event.target.value as AppRole; setRole(next); if (next === 'manager') setIsDepartmentAdmin(false) }}><option value="employee">Theo phòng/ban</option><option value="manager">Quản trị hệ thống</option></select><small>{isRoot ? 'Tài khoản admin gốc luôn giữ quyền Quản trị hệ thống.' : isSelf ? 'Không thể tự thay đổi cấp quyền của tài khoản đang đăng nhập.' : 'Quyền quản trị dự án được gắn riêng tại từng dự án.'}</small></label>
     {role === 'employee' && <label className="user-check"><input type="checkbox" checked={isDepartmentAdmin} disabled={isRoot || isSelf} onChange={(event) => setIsDepartmentAdmin(event.target.checked)} /> Quản trị phòng/ban</label>}
     {error && <div className="alert error">{error}</div>}

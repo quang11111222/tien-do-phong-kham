@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useAuth } from '../auth/authContext'
 import { UsersPage } from '../users/UsersPage'
-import type { Project } from '../../types/domain'
+import type { PersonalNotification, Project } from '../../types/domain'
 import { PortfolioPage } from './PortfolioPage'
 import { GanttView } from './GanttView'
 import { MilestonesView } from './MilestonesView'
 import { ApprovalsView } from './ApprovalsView'
 import { ProjectOverview } from './ProjectOverview'
 import { ProjectActivity } from './ProjectActivity'
-import { getProjects, getUnreadWorkItemCount } from './trackerService'
+import { getPersonalNotifications, getProjects, getUnreadWorkItemCount, markNotificationsSeen } from './trackerService'
 import { tthLogoDataUrl } from '../../assets/tthLogo'
 import { parseRouteHash, routeHash, type Page } from '../../lib/routes'
 import '../../styles/prototype.css'
@@ -16,6 +16,7 @@ import '../../styles/tracker.css'
 import { useConfirm } from '../../components/confirmContext'
 import { ChangePasswordDialog } from '../auth/ChangePasswordDialog'
 import { useAutoRefresh } from '../../lib/useAutoRefresh'
+import { NotificationBell } from './NotificationBell'
 
 export function TrackerShell() {
   const { profile, signOut } = useAuth()
@@ -28,6 +29,8 @@ export function TrackerShell() {
   const [unreadActivityCount, setUnreadActivityCount] = useState(0)
   const [showChangePassword, setShowChangePassword] = useState(false)
   const [hasManagedProject, setHasManagedProject] = useState(false)
+  const [notifications, setNotifications] = useState<PersonalNotification[]>([])
+  const [notificationsLoading, setNotificationsLoading] = useState(true)
   const dirtyRef = useRef(false)
   const lastHashRef = useRef(window.location.hash || routeHash('projects'))
   const confirm = useConfirm()
@@ -51,6 +54,11 @@ export function TrackerShell() {
     if (!project) { setUnreadActivityCount(0); return }
     setUnreadActivityCount(await getUnreadWorkItemCount(project.id))
   }, [project])
+  const refreshNotifications = useCallback(async () => {
+    if (!profile) return
+    setNotificationsLoading(true)
+    try { setNotifications(await getPersonalNotifications(profile.id)) } finally { setNotificationsLoading(false) }
+  }, [profile])
 
   useEffect(() => {
     let active = true
@@ -59,6 +67,11 @@ export function TrackerShell() {
     return () => { active = false }
   }, [page, project])
   useAutoRefresh(() => refreshUnreadActivity().catch(() => undefined), { enabled: Boolean(project) && page !== 'gantt' && page !== 'activity' && !hasUnsavedChanges })
+  useEffect(() => {
+    const timer = window.setTimeout(() => void refreshNotifications().catch(() => setNotificationsLoading(false)), 0)
+    return () => window.clearTimeout(timer)
+  }, [page, refreshNotifications])
+  useAutoRefresh(() => refreshNotifications().catch(() => undefined), { enabled: !hasUnsavedChanges })
 
   const applyRoute = useCallback(async (hash: string) => {
     if (!profile) return
@@ -159,6 +172,30 @@ export function TrackerShell() {
     window.history.replaceState(null, '', hash)
     lastHashRef.current = hash
   }, [page, project])
+  const openNotification = async (notification: PersonalNotification) => {
+    if (hasUnsavedChanges && !await confirm({ title: 'Rời màn hình?', message: 'Màn hình đang có thay đổi chưa lưu. Nếu rời đi, các thay đổi này sẽ bị bỏ.', confirmLabel: 'Rời đi', tone: 'danger' })) return false
+    const projects = await getProjects()
+    const targetProject = projects.find((candidate) => candidate.id === notification.project_id)
+    if (!targetProject) {
+      setNotifications((items) => items.filter((item) => item.work_item_id !== notification.work_item_id))
+      return false
+    }
+    if (!profile) return false
+    await markNotificationsSeen([notification.work_item_id], profile.id)
+    setNotifications((items) => items.filter((item) => item.work_item_id !== notification.work_item_id))
+    trackDirty(false)
+    setProject(targetProject)
+    setSelectedWorkItemId(notification.work_item_id)
+    setPage('gantt')
+    updateAddress('gantt', targetProject, notification.work_item_id)
+    return true
+  }
+  const markAllNotificationsAsSeen = async () => {
+    if (!profile) return
+    await markNotificationsSeen(notifications.map((item) => item.work_item_id), profile.id)
+    setNotifications([])
+    if (project) setUnreadActivityCount(0)
+  }
   const backToPortfolio = () => { void navigate('projects', true) }
   const projectPage = project && ['overview', 'gantt', 'milestones', 'activity'].includes(page)
 
@@ -173,8 +210,8 @@ export function TrackerShell() {
       </div>{(canReview || isSystemAdmin) && <><div className="navlabel nav-section">Quản trị</div><div className="sub root-sub">{canReview && <button className={page === 'approvals' ? 'on' : ''} onClick={() => navigate('approvals')}>Chờ duyệt</button>}{isSystemAdmin && <button className={page === 'users' ? 'on' : ''} onClick={() => navigate('users')}>Quản lý người dùng</button>}</div></>}</nav></div>
       <div className="clock"><b>{clock.toLocaleTimeString('vi-VN')}</b><span>{clock.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span></div>
     </aside>
-      <div className="main"><header className="top"><span className="top-spacer" />{projectPage && <div className="chip">{project.code}</div>}<div className="whoami"><div><b>{profile.full_name}</b><span>{isSystemAdmin ? 'Quản trị hệ thống' : canManageProject ? 'Quản trị dự án' : profile.is_department_admin ? 'Quản trị phòng/ban' : 'Nhân viên'}</span></div><div className="av account-department-tag">{isSystemAdmin ? 'ADMIN' : profile.department?.code || '—'}</div>{profile.username !== 'admin' && <button className="logout-mini" onClick={() => setShowChangePassword(true)}>Đổi mật khẩu</button>}<button className="logout-mini" onClick={() => void signOut()}>Đăng xuất</button></div></header>
-      <main className="view">{page === 'projects' && <PortfolioPage isManager={isSystemAdmin} isDepartmentAdmin={profile.is_department_admin} onOpen={openProject} />}{page === 'overview' && project && <ProjectOverview project={project} onBack={backToPortfolio} onOpenWork={(workItemId) => void openWorkItem(workItemId)} />}{page === 'gantt' && project && <GanttView project={project} profile={profile} initialWorkItemId={selectedWorkItemId} onSelectedWorkItemChange={updateSelectedWorkItem} onBack={backToPortfolio} onDirtyChange={trackDirty} onUnreadCountChange={setUnreadActivityCount} />}{page === 'milestones' && project && <MilestonesView project={project} isManager={canManageProject} onBack={backToPortfolio} onDirtyChange={trackDirty} />}{page === 'activity' && project && <ProjectActivity project={project} profile={profile} onBack={backToPortfolio} onOpenGantt={(workItemId) => void openWorkItem(workItemId)} onSeen={clearUnreadActivity} />}{page === 'approvals' && canReview && <ApprovalsView isManager />}{page === 'users' && isSystemAdmin && <div className="users-host"><UsersPage /></div>}</main>
+      <div className="main"><header className="top"><span className="top-spacer" />{projectPage && <div className="chip">{project.code}</div>}<NotificationBell items={notifications} loading={notificationsLoading} onOpen={openNotification} onMarkAllSeen={markAllNotificationsAsSeen} /><div className="whoami"><div><b>{profile.full_name}</b><span>{isSystemAdmin ? 'Quản trị hệ thống' : canManageProject ? 'Quản trị dự án' : profile.is_department_admin ? 'Quản trị phòng/ban' : 'Nhân viên'}</span></div><div className="av account-department-tag">{isSystemAdmin ? 'ADMIN' : profile.department?.code || '—'}</div>{profile.username !== 'admin' && <button className="logout-mini" onClick={() => setShowChangePassword(true)}>Đổi mật khẩu</button>}<button className="logout-mini" onClick={() => void signOut()}>Đăng xuất</button></div></header>
+      <main className="view">{page === 'projects' && <PortfolioPage isManager={isSystemAdmin} isDepartmentAdmin={profile.is_department_admin} onOpen={openProject} />}{page === 'overview' && project && <ProjectOverview project={project} onBack={backToPortfolio} onOpenWork={(workItemId) => void openWorkItem(workItemId)} />}{page === 'gantt' && project && <GanttView project={project} profile={profile} initialWorkItemId={selectedWorkItemId} onSelectedWorkItemChange={updateSelectedWorkItem} onBack={backToPortfolio} onDirtyChange={trackDirty} onUnreadCountChange={setUnreadActivityCount} />}{page === 'milestones' && project && <MilestonesView project={project} isManager={canManageProject} onBack={backToPortfolio} onDirtyChange={trackDirty} />}{page === 'activity' && project && <ProjectActivity project={project} profile={profile} canViewDeleteAudit={canManageProject} onBack={backToPortfolio} onOpenGantt={(workItemId) => void openWorkItem(workItemId)} onSeen={clearUnreadActivity} />}{page === 'approvals' && canReview && <ApprovalsView isManager />}{page === 'users' && isSystemAdmin && <div className="users-host"><UsersPage /></div>}</main>
     </div>{showChangePassword && profile.username !== 'admin' && <ChangePasswordDialog onClose={() => setShowChangePassword(false)} />}
   </div>
 }

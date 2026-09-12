@@ -79,6 +79,8 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 17. Quản trị hệ thống chỉ định Quản trị dự án theo từng dự án và Quản trị phòng/ban theo từng đơn vị; quyền hiệu lực của một tài khoản là tổng hợp các phạm vi được giao.
 18. Người dùng thường chỉ thấy các nhánh công việc mà phòng/ban của mình là đơn vị chủ trì hoặc phối hợp; hệ thống vẫn hiển thị các mục cha cần thiết để giữ ngữ cảnh cây công việc.
 19. Gantt có bộ lọc phạm vi **Việc của tôi** và **Tất cả công việc liên quan**; số liệu trạng thái thay đổi theo phạm vi đang chọn.
+20. Header có chuông thông báo riêng theo từng tài khoản; hiển thị diễn biến, lượt gửi hoàn thành và kết quả duyệt chưa đọc trong phạm vi người dùng được phép xem. Bấm thông báo mở đúng dự án/công việc và đánh dấu đã đọc; người dùng có thể đánh dấu tất cả đã đọc.
+21. Nhật ký dự án cho phép lọc **Tất cả**, **Diễn biến**, **Gửi & xét duyệt**; Quản trị dự án và Quản trị hệ thống có thêm bộ lọc **Đã xóa** để truy vết việc xóa hạng mục/công việc trong phạm vi quản lý.
 
 ### Quy tắc nhập liệu hạng mục/công việc
 
@@ -119,6 +121,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Màu trạng thái giữ nhất quán giữa mọi cấp. Trên Gantt, trạng thái tổng hợp của hạng mục/công việc cha dùng nhãn viền vuông; trạng thái trực tiếp của công việc cuối nhánh dùng nhãn nền màu bo tròn và có chú thích ngay trên bảng.
 - Biểu đồ Tổng quan chỉ đếm công việc cuối nhánh, chia thành năm nhóm loại trừ lẫn nhau: Hoàn thành, Đang thực hiện, Chờ duyệt, Chưa thực hiện và Quá hạn; công việc quá hạn không được đếm lặp vào trạng thái gốc.
 - Bằng chứng bị khóa khi công việc Chờ duyệt hoặc Hoàn thành: chỉ được xem, không được tải thay thế hoặc xóa. Không được xóa cả công việc/hạng mục nếu thao tác đó làm mất bằng chứng đã khóa. Khi yêu cầu bị từ chối và công việc trở lại Đang thực hiện, bằng chứng được phép cập nhật để gửi lại.
+- Khi hạng mục hoặc công việc bị xóa, audit log vẫn giữ mã WBS, tên đầu mục, loại đầu mục, dự án, người xóa và thời gian xóa. Nhân viên và Quản trị phòng/ban không được đọc log xóa; Quản trị dự án chỉ đọc trong dự án được giao, Quản trị hệ thống đọc toàn bộ.
 - Nhật ký diễn biến cho phép quản trị viên ghi vào mọi công việc; nhân viên chỉ ghi vào công việc chi tiết mình tham gia, không phụ thuộc trạng thái công việc.
 - Cột Chủ trì trên bảng tiến độ hiển thị tên đầy đủ của đơn vị. Mọi thanh trên Gantt phải hiển thị tên hạng mục/công việc, kể cả thanh ngắn.
 - Cột Mã trên Gantt giữ số La Mã cho hạng mục cấp cao nhất và hiển thị số thứ tự phân cấp cho các cấp dưới mà không lặp lại mã hạng mục, ví dụ `III` → `1` → `1.1` → `1.1.1`.
@@ -128,6 +131,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Mỗi màn hình có URL riêng để mở trực tiếp và chia sẻ; URL dự án chứa mã dự án và tên màn hình, ví dụ `#/projects/PK-KHETRE/gantt`.
 - URL công việc có dạng `#/projects/{mã-dự-án}/gantt/work/{id-công-việc}`. Hệ thống tự mở các cấp cha đang thu gọn và mở panel của đúng công việc; nếu công việc không còn tồn tại phải báo rõ và trở về URL Gantt.
 - Dữ liệu đang xem được tự làm mới sau tối đa khoảng 15 giây (30 giây với danh mục lớn), đồng thời làm mới khi cửa sổ/tab được mở lại. Không tự làm mới lúc người dùng đang sửa bản nháp để tránh mất dữ liệu nhập.
+- Trạng thái đã đọc của chuông được lưu theo cặp tài khoản–công việc. Một tài khoản đọc thông báo không làm mất thông báo chưa đọc của tài khoản khác; chuông không báo lại hành động do chính tài khoản đó thực hiện và dữ liệu hiển thị vẫn tuân theo quyền xem chi tiết công việc tại database.
 - Di chuột hoặc dùng bàn phím focus vào hình thoi mốc kiểm soát trên Gantt phải hiển thị tên mốc, ngày phải đạt, đơn vị chủ trì, điều kiện kiểm soát và trạng thái.
 - Xóa dự án là xóa mềm: người dùng thường không còn xem được dự án và dữ liệu con; quản trị viên có thể xem danh sách đã xóa và khôi phục. MVP không xóa vĩnh viễn dự án từ giao diện.
 

@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/supabase'
-import type { Attachment, CompletionRequest, Department, Milestone, ProgressUpdate, Project, ProjectActivity, UserProfile, WorkItem, WorkItemStatus } from '../../types/domain'
+import type { Attachment, CompletionRequest, Department, Milestone, PersonalNotification, ProgressUpdate, Project, ProjectActivity, UserProfile, WorkItem, WorkItemStatus } from '../../types/domain'
 import type { ImportedWorkItem } from './excelService'
 
 export async function getProjects(includeDeleted = false): Promise<Project[]> {
@@ -193,6 +193,43 @@ export async function markProjectActivitySeen(projectId: string, userId: string)
   if (upsertError) throw upsertError
 }
 
+export async function getPersonalNotifications(userId: string): Promise<PersonalNotification[]> {
+  if (!supabase) return []
+  const [{ data: progress, error: progressError }, { data: requests, error: requestError }, { data: reads, error: readError }] = await Promise.all([
+    supabase.from('progress_updates').select('id, work_item_id, content, created_by, created_at, author:profiles!progress_updates_created_by_fkey(full_name, username), work_item:work_items!inner(id, wbs, name, project_id, project:projects!inner(id, code, name))'),
+    supabase.from('completion_requests').select('id, work_item_id, note, status, submitted_by, submitted_at, reviewed_by, reviewed_at, review_note, submitter:profiles!completion_requests_submitted_by_fkey(full_name, username), reviewer:profiles!completion_requests_reviewed_by_fkey(full_name, username), work_item:work_items!inner(id, wbs, name, project_id, project:projects!inner(id, code, name))'),
+    supabase.from('work_item_activity_reads').select('work_item_id, last_seen_at').eq('user_id', userId),
+  ])
+  if (progressError) throw progressError
+  if (requestError) throw requestError
+  if (readError) throw readError
+  const pick = <T,>(value: T | T[] | null): T | null => Array.isArray(value) ? value[0] ?? null : value
+  const seenAt = new Map((reads ?? []).map((row) => [row.work_item_id, row.last_seen_at]))
+  const entries: PersonalNotification[] = []
+  const append = (entry: PersonalNotification) => { if (!seenAt.get(entry.work_item_id) || entry.created_at > seenAt.get(entry.work_item_id)!) entries.push(entry) }
+
+  ;(progress ?? []).forEach((row) => {
+    const work = pick(row.work_item); const project = work ? pick(work.project) : null; const actor = pick(row.author)
+    if (!work || !project || row.created_by === userId) return
+    append({ id: `progress-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work.wbs, work_item_name: work.name, project_id: work.project_id, project_code: project.code, project_name: project.name, content: row.content, actor_name: actor?.full_name || actor?.username || '—', created_at: row.created_at, kind: 'progress' })
+  })
+  ;(requests ?? []).forEach((row) => {
+    const work = pick(row.work_item); const project = work ? pick(work.project) : null; const submitter = pick(row.submitter); const reviewer = pick(row.reviewer)
+    if (!work || !project) return
+    if (row.submitted_by !== userId) append({ id: `submitted-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work.wbs, work_item_name: work.name, project_id: work.project_id, project_code: project.code, project_name: project.name, content: row.note ? `Gửi hoàn thành: ${row.note}` : 'Gửi công việc hoàn thành để duyệt.', actor_name: submitter?.full_name || submitter?.username || '—', created_at: row.submitted_at, kind: 'submitted' })
+    if (row.status !== 'pending' && row.reviewed_at && row.reviewed_by !== userId) append({ id: `reviewed-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work.wbs, work_item_name: work.name, project_id: work.project_id, project_code: project.code, project_name: project.name, content: row.review_note || (row.status === 'approved' ? 'Đã duyệt hoàn thành.' : 'Đã từ chối yêu cầu hoàn thành.'), actor_name: reviewer?.full_name || reviewer?.username || '—', created_at: row.reviewed_at, kind: row.status as 'approved' | 'rejected' })
+  })
+  return entries.sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 50)
+}
+
+export async function markNotificationsSeen(workItemIds: string[], userId: string) {
+  if (!supabase || !workItemIds.length) return
+  const lastSeenAt = new Date().toISOString()
+  const uniqueIds = [...new Set(workItemIds)]
+  const { error } = await supabase.from('work_item_activity_reads').upsert(uniqueIds.map((workItemId) => ({ work_item_id: workItemId, user_id: userId, last_seen_at: lastSeenAt })), { onConflict: 'work_item_id,user_id' })
+  if (error) throw error
+}
+
 export async function uploadEvidence(workItemId: string, file: File, userId: string) {
   if (!supabase) throw new Error('Chưa cấu hình Supabase.')
   const safeName = file.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9._-]/g, '_')
@@ -257,20 +294,29 @@ export async function getPendingRequests(): Promise<CompletionRequest[]> {
 
 export async function reviewRequest(id: string, decision: 'approved' | 'rejected', note: string) { if (!supabase) return; const { error } = await supabase.rpc('review_completion_request', { target_request_id: id, decision, manager_note: note.trim() || null }); if (error) throw error }
 
-export async function getProjectActivity(projectId: string): Promise<ProjectActivity[]> {
+export async function getProjectActivity(projectId: string, includeDeleteAudit = false): Promise<ProjectActivity[]> {
   if (!supabase) return []
-  const [{ data: progress, error: progressError }, { data: requests, error: requestError }] = await Promise.all([
+  const [{ data: progress, error: progressError }, { data: requests, error: requestError }, auditResult] = await Promise.all([
     supabase.from('progress_updates').select('id, work_item_id, content, created_at, author:profiles!progress_updates_created_by_fkey(full_name, username), work_item:work_items!inner(wbs, name, project_id)').eq('work_item.project_id', projectId),
     supabase.from('completion_requests').select('id, work_item_id, note, status, submitted_at, reviewed_at, review_note, submitter:profiles!completion_requests_submitted_by_fkey(full_name, username), reviewer:profiles!completion_requests_reviewed_by_fkey(full_name, username), work_item:work_items!inner(wbs, name, project_id)').eq('work_item.project_id', projectId),
+    includeDeleteAudit
+      ? supabase.from('audit_logs').select('id, entity_id, before_data, created_at, actor:profiles!audit_logs_actor_id_fkey(full_name, username)').eq('entity_type', 'work_items').eq('action', 'delete').eq('before_data->>project_id', projectId)
+      : Promise.resolve({ data: [], error: null }),
   ])
   if (progressError) throw progressError
   if (requestError) throw requestError
+  if (auditResult.error) throw auditResult.error
   const pick = <T,>(value: T | T[] | null): T | null => Array.isArray(value) ? value[0] ?? null : value
   const entries: ProjectActivity[] = (progress ?? []).map((row) => { const work = pick(row.work_item); const actor = pick(row.author); return { id: `progress-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work?.wbs ?? '', work_item_name: work?.name ?? '', content: row.content, actor_name: actor?.full_name || actor?.username || '—', created_at: row.created_at, kind: 'progress' } })
   ;(requests ?? []).forEach((row) => {
     const work = pick(row.work_item); const submitter = pick(row.submitter); const reviewer = pick(row.reviewer)
     entries.push({ id: `submitted-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work?.wbs ?? '', work_item_name: work?.name ?? '', content: row.note ? `Gửi hoàn thành: ${row.note}` : 'Gửi công việc hoàn thành để duyệt.', actor_name: submitter?.full_name || submitter?.username || '—', created_at: row.submitted_at, kind: 'submitted' })
     if (row.status !== 'pending' && row.reviewed_at) entries.push({ id: `reviewed-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work?.wbs ?? '', work_item_name: work?.name ?? '', content: row.review_note || (row.status === 'approved' ? 'Đã duyệt hoàn thành.' : 'Đã từ chối yêu cầu hoàn thành.'), actor_name: reviewer?.full_name || reviewer?.username || '—', created_at: row.reviewed_at, kind: row.status as 'approved' | 'rejected' })
+  })
+  ;(auditResult.data ?? []).forEach((row) => {
+    const before = row.before_data as { wbs?: string; name?: string; parent_id?: string | null } | null
+    const actor = pick(row.actor)
+    entries.push({ id: `deleted-${row.id}`, work_item_id: row.entity_id, work_item_wbs: before?.wbs ?? '—', work_item_name: before?.name ?? 'Đầu mục đã xóa', content: before?.parent_id ? 'Đã xóa công việc.' : 'Đã xóa hạng mục.', actor_name: actor?.full_name || actor?.username || '—', created_at: row.created_at, kind: 'deleted' })
   })
   return entries.sort((a, b) => b.created_at.localeCompare(a.created_at))
 }

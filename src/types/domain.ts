@@ -120,5 +120,12 @@ export interface ProjectActivity {
   content: string
   actor_name: string
   created_at: string
-  kind: 'progress' | 'submitted' | 'approved' | 'rejected'
+  kind: 'progress' | 'submitted' | 'approved' | 'rejected' | 'deleted'
+}
+
+export interface PersonalNotification extends Omit<ProjectActivity, 'kind'> {
+  project_id: string
+  project_code: string
+  project_name: string
+  kind: Exclude<ProjectActivity['kind'], 'deleted'>
 }

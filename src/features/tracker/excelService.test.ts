@@ -29,4 +29,17 @@ describe('parseFirstSheet', () => {
 
     expect(items[1].responsibility).toBe('PTPK / KT')
   })
+
+  it('kế thừa đơn vị chủ trì của hạng mục khi công việc con để trống', async () => {
+    const items = await parseFirstSheet(workbookFile([
+      ['STT', 'Hạng mục công việc', 'Đơn vị chủ trì', 'Đơn vị phối hợp', 'Bắt đầu', 'Kết thúc'],
+      ['I', 'CHUẨN BỊ', 'PTPK', 'KT', '', ''],
+      [1, 'Khảo sát mặt bằng', '', 'THIETKE', '01/10/2026', '03/10/2026'],
+      [2, 'Rà soát kỹ thuật', 'CN-NVY', '', '04/10/2026', '05/10/2026'],
+    ]))
+
+    expect(items[0].responsibility).toBe('PTPK / KT')
+    expect(items[1].responsibility).toBe('PTPK / THIETKE')
+    expect(items[2].responsibility).toBe('CN-NVY')
+  })
 })

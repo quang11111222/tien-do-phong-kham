@@ -22,11 +22,11 @@ export async function downloadImportTemplate() {
     ['Chỉ nhập dữ liệu tiến độ tại sheet này. Có thể thay nội dung mẫu bên dưới bằng dữ liệu thực tế.'],
     [],
     ['STT', 'Hạng mục công việc', 'Đơn vị chủ trì', 'Đơn vị phối hợp', 'Bắt đầu', 'Kết thúc'],
-    ['I', 'CHUẨN BỊ - THIẾT KẾ', '', '', '', ''],
-    [1, 'Rà soát hiện trạng và nhu cầu', 'THIETKE', '', '01/10/2026', '03/10/2026'],
-    [2, 'Hoàn thiện phương án thiết kế', 'THIETKE', 'PTPK', '04/10/2026', '08/10/2026'],
-    ['II', 'TRIỂN KHAI', '', '', '', ''],
-    [1, 'Chuẩn bị mặt bằng', 'KT', 'BQLDA', '09/10/2026', '12/10/2026'],
+    ['I', 'CHUẨN BỊ - THIẾT KẾ', 'THIETKE', '', '', ''],
+    [1, 'Rà soát hiện trạng và nhu cầu', '', '', '01/10/2026', '03/10/2026'],
+    [2, 'Hoàn thiện phương án thiết kế', '', 'PTPK', '04/10/2026', '08/10/2026'],
+    ['II', 'TRIỂN KHAI', 'KT', '', '', ''],
+    [1, 'Chuẩn bị mặt bằng', '', 'BQLDA', '09/10/2026', '12/10/2026'],
   ]
   const guideRows: string[][] = [
     ['HƯỚNG DẪN DÙNG FILE MẪU'],
@@ -36,8 +36,9 @@ export async function downloadImportTemplate() {
     ['4. Mỗi công việc cần có tên, ngày bắt đầu và ngày kết thúc.'],
     ['5. Ngày dùng định dạng DD/MM/YYYY hoặc YYYY-MM-DD.'],
     ['6. Đơn vị chủ trì và đơn vị phối hợp là hai cột riêng; dùng mã hoặc tên phòng/ban.'],
-    ['7. Nếu có nhiều đơn vị phối hợp, có thể ngăn cách bằng dấu phẩy hoặc dấu /.'],
-    ['8. Hãy thay các dòng minh họa bằng dữ liệu thực tế trước khi nạp.'],
+    ['7. Công việc để trống Đơn vị chủ trì sẽ tự lấy Đơn vị chủ trì của hạng mục gần nhất phía trên.'],
+    ['8. Nếu có nhiều đơn vị phối hợp, có thể ngăn cách bằng dấu phẩy hoặc dấu /.'],
+    ['9. Hãy thay các dòng minh họa bằng dữ liệu thực tế trước khi nạp.'],
   ]
   const planSheet = utils.aoa_to_sheet(planRows)
   planSheet['!cols'] = [{ wch: 10 }, { wch: 55 }, { wch: 22 }, { wch: 32 }, { wch: 15 }, { wch: 15 }]
@@ -79,6 +80,7 @@ export async function parseFirstSheet(file: File): Promise<ImportedWorkItem[]> {
   let group = 0
   let child = 0
   let parentId: string | null = null
+  let parentLead = ''
   rows.slice(headerIndex + 1).forEach((row, offset) => {
     const name = String(row[columns.name!] ?? '').replace(/\s+/g, ' ').trim()
     if (!name) return
@@ -88,15 +90,16 @@ export async function parseFirstSheet(file: File): Promise<ImportedWorkItem[]> {
     const legacyResponsibility = String(columns.responsibility === undefined ? '' : row[columns.responsibility] ?? '').replace(/\s+/g, ' ').trim()
     const lead = String(columns.lead === undefined ? '' : row[columns.lead] ?? '').replace(/\s+/g, ' ').trim()
     const coordinating = String(columns.coordinating === undefined ? '' : row[columns.coordinating] ?? '').replace(/\s+/g, ' ').trim()
-    const responsibility = legacyResponsibility || [lead, coordinating].filter(Boolean).join(' / ')
+    const responsibility = legacyResponsibility || [lead || parentLead, coordinating].filter(Boolean).join(' / ')
     const isGroup = /^[IVXLCDM]+$/i.test(stt) || (!stt && !start && !end)
     if (isGroup) {
       group += 1; child = 0; parentId = `group-${group}`
-      result.push({ client_id: parentId, parent_client_id: null, wbs: roman(group), name, responsibility: '', start_date: '', end_date: '', sort_order: result.length, source_row: headerIndex + offset + 2, error: null })
+      parentLead = lead || firstResponsibilityUnit(legacyResponsibility)
+      result.push({ client_id: parentId, parent_client_id: null, wbs: roman(group), name, responsibility: legacyResponsibility || [lead, coordinating].filter(Boolean).join(' / '), start_date: '', end_date: '', sort_order: result.length, source_row: headerIndex + offset + 2, error: null })
       return
     }
     if (!parentId) {
-      group += 1; parentId = `group-${group}`
+      group += 1; parentId = `group-${group}`; parentLead = ''
       result.push({ client_id: parentId, parent_client_id: null, wbs: roman(group), name: 'CHƯA PHÂN NHÓM', responsibility: '', start_date: '', end_date: '', sort_order: result.length, source_row: headerIndex + offset + 2, error: null })
     }
     child += 1
@@ -144,4 +147,5 @@ function dayDiff(start: string, end: string) { return Math.round((new Date(`${en
 function formatDate(value: string) { return new Intl.DateTimeFormat('vi-VN').format(new Date(`${value}T00:00:00`)) }
 function iso(value: Date) { return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}` }
 function today() { return new Date().toISOString().slice(0, 10) }
+function firstResponsibilityUnit(value: string) { return value.split(/[/,]/)[0]?.trim() ?? '' }
 function roman(value: number) { const pairs: [number, string][] = [[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']]; let rest = value; let result = ''; for (const [amount, symbol] of pairs) while (rest >= amount) { result += symbol; rest -= amount } return result }

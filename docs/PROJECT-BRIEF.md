@@ -116,6 +116,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Quy trình duyệt chỉ có một cấp. Một người đủ quyền duyệt hoặc từ chối là yêu cầu kết thúc ngay, không chuyển tiếp sang cấp thứ hai; hệ thống lưu người xử lý, thời điểm và phạm vi quyền đã sử dụng.
 - Khi công việc có diễn biến hoặc vòng duyệt mới mà người dùng chưa xem, Gantt hiển thị nhãn Mới tại dòng công việc, dấu sáng trên thanh tiến độ, dải thông báo và số lượng tại menu Nhật ký diễn biến. Trạng thái đã xem được lưu riêng theo từng tài khoản và thông báo tự cập nhật khi người dùng đang mở hệ thống.
 - File Excel mẫu có sẵn hạng mục, công việc, cột đơn vị và ngày minh họa; có sheet hướng dẫn nhưng hệ thống vẫn chỉ nhập dữ liệu từ sheet đầu tiên.
+- Khi tạo công việc con hoặc nạp một dòng công việc không ghi đơn vị chủ trì, hệ thống tự lấy đơn vị chủ trì của hạng mục cha gần nhất. Đơn vị phối hợp không tự kế thừa; Quản trị hệ thống hoặc Quản trị dự án vẫn có thể đổi đơn vị chủ trì trước khi lưu.
 - Thao tác tải lên hoặc xóa bằng chứng phải giữ người dùng ở tab Bằng chứng; tải lại dữ liệu không được tự đưa panel về tab Thông tin.
 - Công việc ở trạng thái Chờ duyệt hoặc Hoàn thành vẫn được sửa thông tin, phân công, ghi diễn biến và thêm công việc con. Trạng thái hiển thị của mục cha tự tổng hợp lại từ các công việc cuối nhánh.
 - Màu trạng thái giữ nhất quán giữa mọi cấp. Trên Gantt, trạng thái tổng hợp của hạng mục/công việc cha dùng nhãn viền vuông; trạng thái trực tiếp của công việc cuối nhánh dùng nhãn nền màu bo tròn và có chú thích ngay trên bảng.

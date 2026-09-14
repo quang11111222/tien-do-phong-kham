@@ -1,53 +1,9 @@
-# AGENTS.md
+# Ngữ cảnh chung giữa Claude và Codex
 
-## Ngữ cảnh chung giữa Codex và Claude
-
-- Mỗi khi được yêu cầu commit, Codex bắt buộc thực hiện mục **Quy tắc commit** trong `docs/AI-CONTEXT.md`: kiểm tra cả file untracked, commit đầy đủ code/tài liệu/skills liên quan đã rà soát, không stage máy móc hoặc đưa secret vào Git; liệt kê phần chưa commit và lý do. Kiểm tra lại danh sách file đã stage trước commit và trạng thái còn lại sau commit. Quy tắc này không tự cấp quyền commit/push/deploy khi người dùng chưa yêu cầu.
 - Bắt đầu mỗi nhiệm vụ bằng việc đọc `docs/AI-CONTEXT.md` và `docs/HANDOFF.md`, rồi làm theo quy trình trong đó.
 - `docs/AI-CONTEXT.md` là quy tắc phối hợp chung; `docs/PROJECT-BRIEF.md` là nghiệp vụ; `docs/DECISIONS.md` là quyết định; `docs/HANDOFF.md` là trạng thái bàn giao, không phải bằng chứng kiểm thử.
 - Trước khi kết thúc hoặc chuyển công cụ, cập nhật `docs/HANDOFF.md` với việc đã làm, file thay đổi, kiểm tra thực tế, phần chưa kiểm tra, trạng thái deploy và bước tiếp theo. Không ghi mật khẩu/token/dữ liệu cá nhân vào các file này.
 - Giữ nội dung chung ở `docs`, không sao chép thành hai phiên bản riêng trong `AGENTS.md` và `CLAUDE.md`. Giữ nguyên hướng dẫn GitNexus và các hướng dẫn riêng của từng công cụ.
-
-## Mục tiêu dự án
-
-Xây dựng ứng dụng **Tiến độ dự án PTPK** theo hướng đơn giản, dễ sử dụng và dễ bảo trì. Dự án đang ở giai đoạn làm rõ yêu cầu; không tự giả định ý nghĩa nghiệp vụ của PTPK hoặc chọn kiến trúc lớn khi chưa có đủ dữ liệu.
-
-## Cách làm việc
-
-- Trao đổi với người dùng chủ yếu bằng tiếng Việt; giữ nguyên thuật ngữ kỹ thuật tiếng Anh khi rõ nghĩa hơn.
-- Trước khi thay đổi, đọc `README.md`, `docs/PROJECT-BRIEF.md`, `docs/DECISIONS.md` và kiểm tra trạng thái repository.
-- Phân biệt rõ Business Problem, User Need, Business Rule và Technical Solution.
-- Chỉ hỏi lại khi thiếu quyết định có thể làm thay đổi đáng kể phạm vi, dữ liệu hoặc kiến trúc.
-- Với quyết định nhỏ, chọn phương án đơn giản, phổ biến và có thể đảo ngược; nêu rõ giả định.
-- Không thêm dependency, service trả phí hoặc hạ tầng mới nếu chưa chứng minh được sự cần thiết.
-- Không ghi secret, token, mật khẩu hoặc dữ liệu nhạy cảm vào source code và tài liệu Git.
-- Không xóa dữ liệu, thay đổi cấu hình máy hoặc publish ra ngoài khi chưa được yêu cầu rõ ràng.
-
-## Khi phân tích nghiệp vụ
-
-- Làm rõ stakeholder, current state, desired state, phạm vi, business rule, ngoại lệ và edge case.
-- Khi phù hợp, chuyển yêu cầu thành User Story và Acceptance Criteria kiểm thử được.
-- Cập nhật kết quả đã chốt vào `docs/PROJECT-BRIEF.md`; ghi quyết định quan trọng vào `docs/DECISIONS.md`.
-
-## Khi viết code
-
-- Tuân theo cấu trúc và convention đã có; ưu tiên thay đổi nhỏ, dễ review.
-- Không thay đổi hành vi hiện có ngoài phạm vi yêu cầu.
-- Xử lý trạng thái loading, empty, error và quyền truy cập khi có liên quan.
-- Có validation ở ranh giới nhập liệu và thông báo lỗi dễ hiểu.
-- Sau khi chỉnh sửa, chạy formatter, lint, type-check, test và build tương ứng với stack đang dùng.
-- Nếu ứng dụng có giao diện, chạy ứng dụng và kiểm tra luồng chính trên trình duyệt trước khi kết luận hoàn thành.
-
-## Definition of Done
-
-Một hạng mục chỉ hoàn thành khi:
-
-1. Đáp ứng Acceptance Criteria đã thống nhất.
-2. Không làm hỏng hành vi liên quan.
-3. Các kiểm tra tự động liên quan đều đạt.
-4. Luồng giao diện chính đã được xác minh nếu có UI.
-5. Tài liệu hoặc quyết định liên quan đã được cập nhật.
-6. Tóm tắt rõ file đã đổi, cách kiểm tra và rủi ro còn lại.
 
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
@@ -93,3 +49,15 @@ This project is indexed by GitNexus as **tien-do-phong-kham** (1158 symbols, 253
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+# Project-Specific Skills
+
+| Task | Read this skill file |
+| --- | --- |
+| Add new features / follow domain patterns | `.claude/skills/project-patterns/SKILL.md` |
+| Work with tracker service APIs | `.claude/skills/tracker-service/SKILL.md` |
+| Implement access control / permissions | `.claude/skills/permissions/SKILL.md` |
+| Database queries / schema / migrations | `.claude/skills/database-schema/SKILL.md` |
+| Build UI components / forms / views | `.claude/skills/ui-components/SKILL.md` |
+| Write tests / debug test failures | `.claude/skills/testing/SKILL.md` |
+| Work with AI assistant effectively | `.claude/skills/vibe-coding/SKILL.md` |

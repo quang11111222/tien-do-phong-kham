@@ -4,7 +4,7 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 
 ## Trạng thái hiện tại
 
-- Đã thực hiện trong phiên này: Codex xây cấu hình thông báo toàn hệ thống (bật/tắt loại, nhóm nhận, số ngày nhắc hạn), màn quản trị và tách chuông Cập nhật mới/Cần chú ý. Chưa commit/push/deploy frontend; migration `202609140002` đã áp dụng trên Supabase và đã kiểm thử database. Giữ nguyên artifact và thay đổi local có sẵn.
+- Đã thực hiện trong phiên này: Codex xây cấu hình thông báo toàn hệ thống (bật/tắt loại, nhóm nhận, số ngày nhắc hạn), màn quản trị và tách chuông Cập nhật mới/Cần chú ý. Frontend đã commit/push/deploy thành công; migration `202609140002` đã áp dụng trên Supabase và đã kiểm thử database. Giữ nguyên artifact và thay đổi local có sẵn.
 
 - Cập nhật: 2026-09-14 (Asia/Saigon).
 - Công cụ thực hiện gần nhất: Codex.
@@ -14,6 +14,14 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 - File chưa theo dõi: `outputs/`; vẫn còn nguyên. Khi được phép dọn, giữ Excel demo 21 phòng/ban và ba báo cáo QA/đo tải trước khi xóa phần tạm còn lại. Chưa tạo `local-artifacts/`.
 
 ## Lịch sử bàn giao (mới nhất ở trên)
+
+### 2026-09-14 - Codex - Deploy và kiểm thử production cấu hình thông báo
+
+- Commit frontend: `7a89547` (`feat: add configurable notification policies`), đã push `main`. GitHub Actions [34822281953](https://github.com/quang11111222/tien-do-phong-kham/actions/runs/34822281953) completed/success; production dùng URL có `?qa=7a89547` để tránh cache cũ.
+- Production bằng tài khoản Quản trị hệ thống: mở trực tiếp `#/notification-settings`, tải đủ bảy loại policy và mặc định sắp hạn 3 ngày/quá hạn 1 ngày; tắt Sắp đến hạn → Lưu hiện toast thành công → bật lại → Lưu khôi phục thành công. Không để lại thay đổi cấu hình ngoài mặc định.
+- Production chuông hiển thị đúng hai tab **Cập nhật mới (20)** và **Cần chú ý (0)** tại thời điểm kiểm tra; không để nhắc hạn rỗng chiếm danh sách cập nhật.
+- Production bằng tài khoản nhân viên: truy cập thẳng URL cấu hình bị đưa về `#/projects`, menu không hiện Cấu hình thông báo, thẻ tài khoản vẫn là mã phòng `CN-NVY`, chuông chỉ hiện phạm vi cá nhân. Không ghi dữ liệu dự án trong lần test production.
+- Kiểm tra sau deploy: local `lint`, `test` (50 tests/9 files), `type-check`, `build` đều đạt; build chỉ cảnh báo chunk lớn. Migration/database đã kiểm thử trước đó; production web đã xác minh riêng sau workflow. `detect-changes` cuối trước commit nhận diện 15 file/20 flow và cảnh báo critical do route/chuông dùng chung; đây là blast-radius dự kiến của việc thêm route và feed, không phải test thất bại.
 
 ### 2026-09-14 - Codex - Cấu hình thông báo động (chưa deploy frontend)
 

@@ -4,20 +4,32 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 
 ## Trạng thái hiện tại
 
-- Đang thực hiện deploy/kiểm thử theo yêu cầu 2026-09-14: Codex rà soát/stage tính năng đề xuất, triển khai frontend + migration `202609140003`, kiểm thử web trên demo `PK-DEMO-QA-21`. Chưa xác nhận deploy trong mục này; kết quả sẽ được ghi sau khi hoàn tất.
+- Đã deploy và kiểm thử 2026-09-14: frontend `4f64606` trên `main`, migration `202609140003` đã áp dụng/đăng ký; GitHub Actions `34853947598` completed/success. Web production đã chạy luồng nhân viên gửi/rút/gửi lại, quản trị hệ thống từ chối/duyệt và chuông kết quả. Kiểm thử SQL sau deploy xác minh quyền quản trị phòng/dự án và bật/tắt policy; xem lịch sử mới nhất dưới đây.
 
-- Đã triển khai code 2026-09-14: nhánh `codex/work-item-proposals`, đề xuất bổ sung công việc con cho nhân viên/Quản trị phòng; chỉ Quản trị dự án/hệ thống duyệt. Lint/type-check/build và 57 tests đạt; SQL nghiệp vụ/RLS đã chạy thành công trong transaction rollback. Chưa commit, chưa áp dụng migration `202609140003` lâu dài, chưa deploy. `.gitignore` và `outputs/` là thay đổi có sẵn, không thuộc tính năng này.
+- Đề xuất bổ sung công việc con cho nhân viên/Quản trị phòng đã đưa vào production; chỉ Quản trị dự án/hệ thống duyệt. Lint/type-check/build và 57 tests đạt. `.gitignore` và `outputs/` là thay đổi có sẵn, không thuộc tính năng này và không commit.
 
 - Production trước tính năng đề xuất: cấu hình thông báo toàn hệ thống và chuông Cập nhật mới/Cần chú ý đã deploy; migration `202609140002` đã áp dụng. Giữ nguyên artifact và thay đổi local có sẵn.
 
 - Cập nhật: 2026-09-14 (Asia/Saigon).
 - Công cụ thực hiện gần nhất: Codex.
-- Trạng thái hiện tại: tính năng đề xuất chỉ ở local. Cần deploy frontend cùng migration mới và kiểm thử xuyên suốt trên web sau triển khai; không coi SQL rollback và kiểm tra panel local là bằng chứng production.
+- Trạng thái hiện tại: tính năng đề xuất đã deploy; luồng chính production đạt. UI riêng bằng phiên quản trị phòng/quản trị dự án chưa đăng nhập kiểm tra trong lượt deploy này; quyền hai vai trò đã kiểm thử trực tiếp SQL trên schema deployed trong transaction rollback.
 - Dọn artifact local: đã kiểm tra, chưa xóa/di chuyển. Lệnh filesystem bị exec policy chặn trước khi chạy; không thử đường khác để vượt chặn. Source ứng dụng, database và web đã deploy không thay đổi.
-- Nhánh: `codex/work-item-proposals`; base HEAD `b3574b1`. Chưa tạo commit cho tính năng đề xuất. Kiểm tra HEAD/diff khi tiếp nhận.
+- Nhánh: `main`; commit tính năng `4f64606`, đã push. Commit tài liệu bàn giao sau deploy bổ sung tiếp; kiểm tra HEAD/diff khi tiếp nhận.
 - File chưa theo dõi: `outputs/`; vẫn còn nguyên. Khi được phép dọn, giữ Excel demo 21 phòng/ban và ba báo cáo QA/đo tải trước khi xóa phần tạm còn lại. Chưa tạo `local-artifacts/`.
 
 ## Lịch sử bàn giao (mới nhất ở trên)
+
+### 2026-09-14 - Codex - Deploy và kiểm thử đề xuất công việc con
+
+- Frontend commit `4f6460606a71599308eb7f5c7844a6b39ca1639f`; workflow [34853947598](https://github.com/quang11111222/tien-do-phong-kham/actions/runs/34853947598) completed/success. URL kiểm thử: `https://quang11111222.github.io/tien-do-phong-kham/?qa=4f64606#/projects/PK-DEMO-QA-21/gantt`.
+- Database: áp dụng qua SQL Editor bản SQL gọn tương đương đã kiểm thử trước đó, gồm kiểm tra nhân sự trước duyệt; đăng ký migration `202609140003`. Query xác nhận schema tồn tại và đủ 10 policy. Không triển khai fixture test lâu dài.
+- Production UI bằng nhân viên: mục cha giới hạn nhánh được xem chi tiết; chủ trì kế thừa CN-NVY; chọn phối hợp PTPK thì danh sách nhân sự chỉ CN-NVY/PTPK. Gửi thành công đóng panel; pending chưa tạo work/tăng tiến độ. Rút qua popup, sửa và gửi lại giữ dữ liệu/ngày/phân công. Không có nút duyệt trên tài khoản nhân viên.
+- Production UI bằng Quản trị hệ thống: từ chối thiếu lý do hiện toast lỗi và giữ pending; từ chối có lý do trả đề xuất về cho nhân viên. Nhân viên nhận chuông có lý do, sửa/gửi lại; duyệt qua popup tạo một mục `I.1.1`, nhãn Phát sinh, ngày 16–18/9/2026, chủ trì kế thừa và phối hợp PTPK. Mục cha chuyển trạng thái tổng hợp/ngày theo con; việc cuối nhánh thay thế mục cha nên tổng số việc cá nhân không tăng máy móc. Chuông nhân viên có cả kết quả duyệt và thông báo được giao việc mới.
+- SQL trực tiếp sau deploy, BEGIN/ROLLBACK, đạt hai bộ: `live approval checks passed`; `department/project/scope/policy checks passed and rolled back`. Xác minh duyệt không tạo trùng; quản trị phòng không duyệt nhưng đề xuất tại nhánh mình được; nhân viên khác phòng bị chặn; quản trị dự án duyệt tạo con đúng lead; pending không tạo work; thông báo yêu cầu duyệt không gửi quản trị phòng; tắt proposal_submitted/proposal_approved làm loại tương ứng biến mất; kết quả đến đúng người đề xuất. Fixture và thay đổi policy rollback hoàn toàn.
+- Phân biệt bằng chứng: UI production dùng nhân viên + quản trị hệ thống; quản trị phòng/dự án được kiểm tra nghiệp vụ backend với auth claims, không ghi là đã test UI hai vai trò đó. Chưa kiểm tra tải/concurrency hoặc sửa HDSD Google Docs trong lượt này.
+- Giữ lại một đề xuất demo `QA LIVE - Bổ sung thủ tục thực tế`, đã duyệt, cùng công việc con và lịch sử gửi/rút/từ chối/gửi lại/duyệt trong `PK-DEMO-QA-21`; không ghi/xóa dữ liệu Khe Tre/Sơn Tây.
+- Tự động trước commit: lint/type-check/build và 57 tests/10 files đạt. GitNexus reindex; detect-changes sau stage bao phủ 14 files/84 symbols/11 flows, HIGH ở notifications/settings dùng chung (đã kiểm tra hồi quy); không dùng zero từ untracked để kết luận an toàn. Build còn cảnh báo chunk >500kB.
+- Không stage `.gitignore` hoặc `outputs/`; không xóa artifact. Bước tiếp: cập nhật HDSD luồng đề xuất và bổ sung UI regression riêng quản trị phòng/quản trị dự án khi có phiên đăng nhập phù hợp.
 
 ### 2026-09-14 - Codex - Code đề xuất công việc con, chưa deploy
 

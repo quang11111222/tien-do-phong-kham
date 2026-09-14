@@ -6,19 +6,24 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 
 - Cập nhật: 2026-09-14 (Asia/Saigon).
 - Công cụ thực hiện gần nhất: Codex.
-- Trạng thái: đang triển khai theo yêu cầu người dùng. Migration `202609140001` đã áp dụng thành công qua Supabase SQL Editor; đang commit/push frontend và chờ kiểm thử web trực tiếp.
-- Phạm vi: GanttView, NotificationBell, trackerService, kiểu thông báo, migration bảo toàn thời điểm phân công, test và tài liệu liên quan. Không sửa đồng thời tracker/migrations trong công cụ khác khi phiên deploy này còn chạy.
-- Nhánh/HEAD khi bắt đầu: `main` / `a1aa2dd`; cần kiểm tra lại Git trước khi tiếp tục.
+- Trạng thái: frontend `3460ea8` đã deploy thành công, migration `202609140001` đã áp dụng; kiểm thử web và database cho hai thay đổi đã đạt. Kết quả sau test được lưu trong bàn giao này và commit tài liệu riêng; kiểm tra Git khi tiếp nhận.
+- Phạm vi đã xong: bộ lọc chủ trì đầy đủ, thông báo giao việc cá nhân và chống tạo lại thời điểm giao khi lưu; không thay đổi quyền/luồng duyệt ngoài phạm vi này.
+- Nhánh: `main`; commit tính năng đã triển khai `3460ea8`. Kiểm tra HEAD thực tế khi tiếp nhận vì commit bàn giao được tạo sau đó.
 - File chưa theo dõi: `outputs/` (test artifacts và scripts QA, không commit vì là output tạm thời).
 
 ## Lịch sử bàn giao (mới nhất ở trên)
 
-### 2026-09-14 - Codex - Triển khai bộ lọc và thông báo giao việc (đang thực hiện)
+### 2026-09-14 - Codex - Triển khai bộ lọc và thông báo giao việc
 
 - Người dùng yêu cầu deploy và cập nhật bàn giao cho Claude; đã bổ sung quy tắc bàn giao mỗi lần deploy trong `AI-CONTEXT.md`.
 - Supabase project đúng cấu hình frontend; SQL Editor báo Success khi áp dụng migration chống lặp và ghi phiên bản `202609140001` vào `supabase_migrations.schema_migrations` trong cùng transaction.
 - Chạy lại lint/type-check/test/build đều đạt (32 tests). Fetch origin: HEAD và origin/main không lệch trước khi commit.
-- Chưa kết luận đã triển khai frontend hoặc đã kiểm thử trên web; kết quả sẽ được ghi sau workflow/test.
+- Frontend commit `3460ea8`, push lên main; workflow [34818265948](https://github.com/quang11111222/tien-do-phong-kham/actions/runs/34818265948) completed/success. Web production mở bằng URL có `?qa=3460ea8` để tránh cache cũ.
+- Test trực tiếp production tại `PK-DEMO-QA-21`: tài khoản Quản trị dự án giao người tham gia cho “QA CN-NVY - Công việc nội bộ”, Lưu đóng panel và hiện thông báo thành công. Người nhận đăng nhập thấy Việc của tôi tăng từ 0 lên 1, nhận “Được giao công việc”, bấm mở đúng panel. Đọc xong badge giảm và card giữ class `notification-assigned seen`; form cấu trúc kế hoạch của nhân viên vẫn bị khóa.
+- Bộ lọc trên production hiện đủ 21 phòng/ban. Nhân viên chọn KT khi đang xem Việc của tôi: báo rõ không có việc do Phòng Kỹ thuật chủ trì trong phạm vi được xem, không lộ dòng ngoài quyền.
+- Kiểm thử database bằng DO assertions trong transaction ROLLBACK, chỉ công việc demo trên: gọi cả `update_work_item_participants` và `update_work_item_details` với danh sách không đổi; toàn bộ bản ghi phân công (gồm assigned_at/assigned_by) không đổi. Giả lập auth nhân viên gọi RPC phân công bị từ chối đúng thông báo quyền; SQL Editor báo Success. Các thay đổi version trong test đã rollback.
+- Dữ liệu demo giữ lại: thêm một phân công vào công việc demo hiện có và trạng thái đã đọc của người nhận. Không tạo tài khoản hoặc công việc mới; không ghi dữ liệu Khe Tre/Sơn Tây.
+- Không coi đây là nghiệm thu lại toàn bộ hệ thống: chưa chạy lại tất cả vai trò/phòng phối hợp hoặc đo tải trong nhiệm vụ deploy này. Không có lỗi được phát hiện trong các bước đã test.
 
 ### 2026-09-14 - Codex - Bộ lọc chủ trì và thông báo giao việc (local)
 

@@ -53,6 +53,8 @@ Trong **Settings → Pages**, nguồn triển khai phải được đặt là **
 
 ## Tài liệu
 
+- [Ngữ cảnh chung Codex và Claude](docs/AI-CONTEXT.md)
+- [Sổ bàn giao giữa hai công cụ](docs/HANDOFF.md)
 - [Project Brief](docs/PROJECT-BRIEF.md)
 - [Decision Log](docs/DECISIONS.md)
 - [Kiến trúc V2](docs/ARCHITECTURE.md)

@@ -58,6 +58,13 @@ Ghi các quyết định ảnh hưởng đến phạm vi, dữ liệu, kiến tr
 | 2026-09-12 | Tách phân công người tham gia khỏi quyền sửa cấu trúc kế hoạch | File Excel chính thức không có sẵn người tham gia, trong khi Quản trị phòng/ban nắm nhân sự thực hiện của đơn vị | Quản trị phòng chủ trì được chọn nhân sự của mọi đơn vị liên quan; Quản trị phòng phối hợp chỉ thay đổi nhân sự của chính đơn vị mình; backend bảo toàn phân công của các đơn vị khác |
 | 2026-09-12 | Thiết kế phân quyền tương lai không đóng cứng bốn vai trò hiện tại | Vận hành có thể phát sinh TGĐ, Thư ký, Trưởng phòng và các vai trò nghiệp vụ khác | Chỉ tài khoản quản trị gốc là vai trò hệ thống cố định; các vai trò nghiệp vụ dùng bộ quyền cấu hình được, còn Quản trị dự án được gắn theo từng dự án |
 | 2026-09-12 | Chuẩn hóa phản hồi sau thao tác bằng thông báo nổi | Nhiều nút chỉ đóng panel hoặc tải lại dữ liệu khiến người dùng không biết thao tác thành công hay thất bại | Dùng một hệ thống thông báo chung cho tạo, lưu, xóa, import/export, bằng chứng, diễn biến, xét duyệt, mật khẩu và quản lý tài khoản; thông báo tự ẩn, có thể đóng thủ công và không bật cho lỗi tự làm mới nền |
+
+## Phối hợp Codex và Claude (2026-09-14)
+
+- Giữ `AGENTS.md` và `CLAUDE.md` làm điểm vào riêng; cả hai bắt buộc đọc `docs/AI-CONTEXT.md` và `docs/HANDOFF.md` khi bắt đầu nhiệm vụ, cập nhật bàn giao trước khi kết thúc/chuyển công cụ.
+- Không sao chép nghiệp vụ vào hai file hướng dẫn: Brief lưu yêu cầu và quy tắc, Decisions lưu quyết định, Handoff chỉ lưu tiến độ và dẫn bằng chứng. Phải xác minh lại Git, diff, test/deploy khi tiếp nhận.
+- Ưu tiên làm luân phiên trên một checkout; nếu đồng thời phải tách nhánh/worktree và phạm vi file. Tài liệu chung không tự đồng bộ lịch sử chat, không khóa kỹ thuật và không đồng bộ MCP/quyền truy cập.
+
 # Hành vi panel sau thao tác (2026-09-13)
 
 - Lưu thông tin hoặc lưu phân công thành công: đóng panel và thông báo thành công.

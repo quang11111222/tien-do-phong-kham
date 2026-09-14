@@ -1,5 +1,12 @@
 # AGENTS.md
 
+## Ngữ cảnh chung giữa Codex và Claude
+
+- Bắt đầu mỗi nhiệm vụ bằng việc đọc `docs/AI-CONTEXT.md` và `docs/HANDOFF.md`, rồi làm theo quy trình trong đó.
+- `docs/AI-CONTEXT.md` là quy tắc phối hợp chung; `docs/PROJECT-BRIEF.md` là nghiệp vụ; `docs/DECISIONS.md` là quyết định; `docs/HANDOFF.md` là trạng thái bàn giao, không phải bằng chứng kiểm thử.
+- Trước khi kết thúc hoặc chuyển công cụ, cập nhật `docs/HANDOFF.md` với việc đã làm, file thay đổi, kiểm tra thực tế, phần chưa kiểm tra, trạng thái deploy và bước tiếp theo. Không ghi mật khẩu/token/dữ liệu cá nhân vào các file này.
+- Giữ nội dung chung ở `docs`, không sao chép thành hai phiên bản riêng trong `AGENTS.md` và `CLAUDE.md`. Giữ nguyên hướng dẫn GitNexus và các hướng dẫn riêng của từng công cụ.
+
 ## Mục tiêu dự án
 
 Xây dựng ứng dụng **Tiến độ dự án PTPK** theo hướng đơn giản, dễ sử dụng và dễ bảo trì. Dự án đang ở giai đoạn làm rõ yêu cầu; không tự giả định ý nghĩa nghiệp vụ của PTPK hoặc chọn kiến trúc lớn khi chưa có đủ dữ liệu.

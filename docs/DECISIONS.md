@@ -61,6 +61,8 @@ Ghi các quyết định ảnh hưởng đến phạm vi, dữ liệu, kiến tr
 
 ## Phối hợp Codex và Claude (2026-09-14)
 
+- Góp ý được chọn ngày 2026-09-14: bộ lọc chủ trì dùng danh mục phòng/ban đầy đủ; thông báo giao việc dựa vào phân công cá nhân, không dựa đơn thuần vào đơn vị. Bảo toàn `assigned_at`/`assigned_by` của người giữ nguyên để tránh báo lại khi lưu thông tin/phân công. Không thay đổi quyền quản lý kế hoạch hoặc luồng duyệt.
+
 - Giữ `AGENTS.md` và `CLAUDE.md` làm điểm vào riêng; cả hai bắt buộc đọc `docs/AI-CONTEXT.md` và `docs/HANDOFF.md` khi bắt đầu nhiệm vụ, cập nhật bàn giao trước khi kết thúc/chuyển công cụ.
 - Không sao chép nghiệp vụ vào hai file hướng dẫn: Brief lưu yêu cầu và quy tắc, Decisions lưu quyết định, Handoff chỉ lưu tiến độ và dẫn bằng chứng. Phải xác minh lại Git, diff, test/deploy khi tiếp nhận.
 - Ưu tiên làm luân phiên trên một checkout; nếu đồng thời phải tách nhánh/worktree và phạm vi file. Tài liệu chung không tự đồng bộ lịch sử chat, không khóa kỹ thuật và không đồng bộ MCP/quyền truy cập.

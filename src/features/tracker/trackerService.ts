@@ -195,14 +195,16 @@ export async function markProjectActivitySeen(projectId: string, userId: string)
 
 export async function getPersonalNotifications(userId: string): Promise<PersonalNotification[]> {
   if (!supabase) return []
-  const [{ data: progress, error: progressError }, { data: requests, error: requestError }, { data: reads, error: readError }] = await Promise.all([
+  const [{ data: progress, error: progressError }, { data: requests, error: requestError }, { data: reads, error: readError }, { data: assignments, error: assignmentError }] = await Promise.all([
     supabase.from('progress_updates').select('id, work_item_id, content, created_by, created_at, author:profiles!progress_updates_created_by_fkey(full_name, username), work_item:work_items!inner(id, wbs, name, project_id, project:projects!inner(id, code, name))'),
     supabase.from('completion_requests').select('id, work_item_id, note, status, submitted_by, submitted_at, reviewed_by, reviewed_at, review_note, submitter:profiles!completion_requests_submitted_by_fkey(full_name, username), reviewer:profiles!completion_requests_reviewed_by_fkey(full_name, username), work_item:work_items!inner(id, wbs, name, project_id, project:projects!inner(id, code, name))'),
     supabase.from('work_item_activity_reads').select('work_item_id, last_seen_at').eq('user_id', userId),
+    supabase.from('work_item_participants').select('work_item_id, assigned_at, assigned_by, assigner:profiles!work_item_participants_assigned_by_fkey(full_name, username), work_item:work_items!inner(id, wbs, name, project_id, project:projects!inner(id, code, name))').eq('user_id', userId),
   ])
   if (progressError) throw progressError
   if (requestError) throw requestError
   if (readError) throw readError
+  if (assignmentError) throw assignmentError
   const pick = <T,>(value: T | T[] | null): T | null => Array.isArray(value) ? value[0] ?? null : value
   const seenAt = new Map((reads ?? []).map((row) => [row.work_item_id, row.last_seen_at]))
   const entries: PersonalNotification[] = []
@@ -211,6 +213,11 @@ export async function getPersonalNotifications(userId: string): Promise<Personal
     entries.push({ ...entry, isUnread })
   }
 
+  ;(assignments ?? []).forEach((row) => {
+    const work = pick(row.work_item); const project = work ? pick(work.project) : null; const actor = pick(row.assigner)
+    if (!work || !project || row.assigned_by === userId) return
+    append({ id: `assigned-${row.work_item_id}-${row.assigned_at}`, work_item_id: row.work_item_id, work_item_wbs: work.wbs, work_item_name: work.name, project_id: work.project_id, project_code: project.code, project_name: project.name, content: 'Bạn được phân công tham gia công việc này.', actor_name: actor?.full_name || actor?.username || 'Quản trị viên', created_at: row.assigned_at, kind: 'assigned' })
+  })
   ;(progress ?? []).forEach((row) => {
     const work = pick(row.work_item); const project = work ? pick(work.project) : null; const actor = pick(row.author)
     if (!work || !project || row.created_by === userId) return

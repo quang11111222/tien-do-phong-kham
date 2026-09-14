@@ -139,6 +139,11 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 
 ## 9. Dữ liệu và tích hợp
 
+### Bổ sung đã chốt ngày 2026-09-14
+
+- Bộ lọc đơn vị chủ trì trên Gantt liệt kê toàn bộ danh mục phòng/ban đang hoạt động, không phụ thuộc các dòng trong phạm vi hiện tại. Không mở rộng quyền xem dữ liệu; khi không có kết quả phải thông báo rõ trong phạm vi được xem.
+- Khi được chọn đích danh tham gia công việc, tài khoản nhận thông báo “Được giao công việc” trên chuông và bấm mở đúng công việc. Cùng phòng/ban nhưng không được chọn không nhận thông báo giao việc. Giữ nguyên phân công khi lưu không tạo lại thông báo; gỡ rồi giao lại là một lượt giao mới. Thông báo tuân theo quyền đọc dữ liệu, trạng thái đã đọc riêng của tài khoản và giới hạn 20 mục hiện tại. Người tự giao cho mình không nhận thông báo về hành động của chính mình, thống nhất với chuông hiện có.
+
 - Dữ liệu đầu vào: Excel tiến độ theo mẫu Khe Tre và dữ liệu cập nhật trên web.
 - Dữ liệu đầu ra: danh sách dự án, Gantt, công việc trễ/chờ duyệt, mốc kiểm soát và Excel export.
 - Tích hợp MVP: Supabase Auth, PostgreSQL và Storage.

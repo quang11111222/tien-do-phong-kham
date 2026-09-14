@@ -38,6 +38,7 @@ Yêu cầu mới nhất của người dùng xác định phạm vi nhiệm vụ
 - Yêu cầu/nghiệp vụ mới đã chốt: cập nhật Brief. Quyết định quan trọng hoặc thay thế quyết định cũ: ghi Decisions. Không chỉ để chúng trong chat hoặc bàn giao.
 - Thay đổi code: chạy lint/type-check/test/build liên quan và kiểm tra UI khi có giao diện. Thay đổi tài liệu thuần túy: kiểm tra nội dung, đường dẫn và diff; không cần chạy test sản phẩm chỉ để sửa Markdown.
 - Ghi trạng thái commit/push/deploy riêng. Không tự commit/push/deploy chỉ để cập nhật ngữ cảnh; thực hiện theo yêu cầu người dùng và hướng dẫn dự án. Không stage hàng loạt file có sẵn hoặc output chứa dữ liệu nhạy cảm.
+- Mỗi lần được yêu cầu deploy, cập nhật `docs/HANDOFF.md` và đồng bộ qua Git: ghi commit/phiên bản triển khai, trạng thái migration database, kết quả workflow, kiểm thử web trực tiếp và việc còn thiếu. Không ghi “đã deploy/đã test” khi mới push hoặc build; sau triển khai phải cập nhật kết quả thực tế để công cụ tiếp theo tiếp nhận được.
 - Thêm một mục vào lịch sử bàn giao ngắn, mới nhất ở trên; giữ các việc chưa giải quyết. Chi tiết dài đặt ở tài liệu/biên bản kiểm tra phù hợp và dẫn đường dẫn.
 
 ## 5. Quy tắc commit

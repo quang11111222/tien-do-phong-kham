@@ -12,7 +12,7 @@ function relativeTime(value: string) {
   return days < 7 ? `${days} ngày trước` : new Date(value).toLocaleDateString('vi-VN')
 }
 
-const kindLabel = { progress: 'Diễn biến mới', submitted: 'Gửi hoàn thành', approved: 'Đã duyệt', rejected: 'Đã từ chối' }
+const kindLabel = { assigned: 'Được giao công việc', progress: 'Diễn biến mới', submitted: 'Gửi hoàn thành', approved: 'Đã duyệt', rejected: 'Đã từ chối' }
 
 interface NotificationBellProps {
   items: PersonalNotification[]

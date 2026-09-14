@@ -2,7 +2,7 @@ import { supabase } from '../../lib/supabase'
 import type { PersonalNotification } from '../../types/domain'
 import { getPersonalNotifications } from './trackerService'
 
-export const notificationKinds = ['assigned', 'progress', 'submitted', 'approved', 'rejected', 'due_soon', 'overdue'] as const
+export const notificationKinds = ['assigned', 'progress', 'submitted', 'approved', 'rejected', 'due_soon', 'overdue', 'proposal_submitted', 'proposal_approved', 'proposal_rejected'] as const
 export type NotificationKind = typeof notificationKinds[number]
 export const recipientLabels = {
   participants: 'Người được giao công việc',
@@ -14,6 +14,12 @@ export type RecipientGroup = keyof typeof recipientLabels
 export const notificationLabels: Record<NotificationKind, string> = {
   assigned: 'Được giao công việc', progress: 'Diễn biến mới', submitted: 'Gửi hoàn thành',
   approved: 'Đã duyệt', rejected: 'Đã từ chối', due_soon: 'Sắp đến hạn', overdue: 'Quá hạn',
+  proposal_submitted: 'Đề xuất bổ sung chờ duyệt', proposal_approved: 'Đề xuất bổ sung được duyệt', proposal_rejected: 'Đề xuất bổ sung bị từ chối',
+}
+export function notificationRecipientGroups(kind: NotificationKind): RecipientGroup[] {
+  if (kind === 'assigned' || kind === 'proposal_approved' || kind === 'proposal_rejected') return ['participants']
+  if (kind === 'proposal_submitted') return ['project_managers', 'system_managers']
+  return Object.keys(recipientLabels) as RecipientGroup[]
 }
 export interface NotificationPolicy {
   kind: NotificationKind
@@ -24,12 +30,13 @@ export interface NotificationPolicy {
 }
 
 export function validateNotificationPolicies(policies: NotificationPolicy[]) {
-  if (policies.length !== notificationKinds.length || new Set(policies.map((p) => p.kind)).size !== notificationKinds.length) throw new Error('Cần đủ bảy loại thông báo, không được trùng loại.')
+  if (policies.length !== notificationKinds.length || new Set(policies.map((p) => p.kind)).size !== notificationKinds.length) throw new Error('Cần đủ mười loại thông báo, không được trùng loại.')
   for (const policy of policies) {
     if (!notificationKinds.includes(policy.kind) || typeof policy.enabled !== 'boolean' || !Number.isInteger(policy.version) || policy.version < 1) throw new Error('Cấu hình thông báo không hợp lệ.')
     if (!Array.isArray(policy.recipients) || policy.recipients.some((group) => !Object.hasOwn(recipientLabels, group)) || new Set(policy.recipients).size !== policy.recipients.length) throw new Error('Nhóm nhận thông báo không hợp lệ.')
     if (policy.enabled && !policy.recipients.length) throw new Error(`${notificationLabels[policy.kind]}: hãy chọn ít nhất một nhóm nhận.`)
     if (policy.kind === 'assigned' && policy.recipients.some((group) => group !== 'participants')) throw new Error('Thông báo giao việc chỉ gửi cho người được giao.')
+    if (policy.recipients.some((group) => !notificationRecipientGroups(policy.kind).includes(group))) throw new Error('Nhóm nhận không phù hợp với loại đề xuất bổ sung.')
     if (policy.kind === 'due_soon' || policy.kind === 'overdue') {
       if (!Number.isInteger(policy.days) || policy.days! < 1 || policy.days! > 30) throw new Error('Số ngày nhắc hạn phải từ 1 đến 30.')
     } else if (policy.days !== null) throw new Error('Chỉ thông báo nhắc hạn có số ngày.')
@@ -68,9 +75,10 @@ export function assembleNotificationFeed(updates: PersonalNotification[], scope:
 export async function getConfiguredNotificationFeed(userId: string): Promise<PersonalNotification[]> {
   if (!supabase) return []
   // Scope and calendar reminders are computed using auth.uid() on the server, never the supplied userId.
-  const [{ data, error }, updates] = await Promise.all([
-    supabase.rpc('get_notification_scope'), getPersonalNotifications(userId, Infinity),
+  const [{ data, error }, updates, proposalResult] = await Promise.all([
+    supabase.rpc('get_notification_scope'), getPersonalNotifications(userId, Infinity), supabase.rpc('get_proposal_notifications'),
   ])
-  if (error) throw new Error('Không tải được thông báo. Vui lòng thử lại.')
-  return assembleNotificationFeed(updates, data as NotificationScope)
+  if (error || proposalResult.error) throw new Error('Không tải được thông báo. Vui lòng thử lại.')
+  const feed = assembleNotificationFeed(updates, data as NotificationScope)
+  return [...[...feed.filter((item) => item.category !== 'attention'), ...(proposalResult.data as PersonalNotification[] ?? [])].sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 20), ...feed.filter((item) => item.category === 'attention')]
 }

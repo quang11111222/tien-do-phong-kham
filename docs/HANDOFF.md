@@ -4,16 +4,31 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 
 ## Trạng thái hiện tại
 
-- Đã thực hiện trong phiên này: Codex xây cấu hình thông báo toàn hệ thống (bật/tắt loại, nhóm nhận, số ngày nhắc hạn), màn quản trị và tách chuông Cập nhật mới/Cần chú ý. Frontend đã commit/push/deploy thành công; migration `202609140002` đã áp dụng trên Supabase và đã kiểm thử database. Giữ nguyên artifact và thay đổi local có sẵn.
+- Đang thực hiện deploy/kiểm thử theo yêu cầu 2026-09-14: Codex rà soát/stage tính năng đề xuất, triển khai frontend + migration `202609140003`, kiểm thử web trên demo `PK-DEMO-QA-21`. Chưa xác nhận deploy trong mục này; kết quả sẽ được ghi sau khi hoàn tất.
+
+- Đã triển khai code 2026-09-14: nhánh `codex/work-item-proposals`, đề xuất bổ sung công việc con cho nhân viên/Quản trị phòng; chỉ Quản trị dự án/hệ thống duyệt. Lint/type-check/build và 57 tests đạt; SQL nghiệp vụ/RLS đã chạy thành công trong transaction rollback. Chưa commit, chưa áp dụng migration `202609140003` lâu dài, chưa deploy. `.gitignore` và `outputs/` là thay đổi có sẵn, không thuộc tính năng này.
+
+- Production trước tính năng đề xuất: cấu hình thông báo toàn hệ thống và chuông Cập nhật mới/Cần chú ý đã deploy; migration `202609140002` đã áp dụng. Giữ nguyên artifact và thay đổi local có sẵn.
 
 - Cập nhật: 2026-09-14 (Asia/Saigon).
 - Công cụ thực hiện gần nhất: Codex.
-- Trạng thái: frontend `3460ea8` đã deploy thành công, migration `202609140001` đã áp dụng; kiểm thử web và database cho hai thay đổi đã đạt. Kết quả sau test được lưu trong bàn giao này và commit tài liệu riêng; kiểm tra Git khi tiếp nhận.
+- Trạng thái hiện tại: tính năng đề xuất chỉ ở local. Cần deploy frontend cùng migration mới và kiểm thử xuyên suốt trên web sau triển khai; không coi SQL rollback và kiểm tra panel local là bằng chứng production.
 - Dọn artifact local: đã kiểm tra, chưa xóa/di chuyển. Lệnh filesystem bị exec policy chặn trước khi chạy; không thử đường khác để vượt chặn. Source ứng dụng, database và web đã deploy không thay đổi.
-- Nhánh: `main`; commit tính năng đã triển khai `3460ea8`. Kiểm tra HEAD thực tế khi tiếp nhận vì commit bàn giao được tạo sau đó.
+- Nhánh: `codex/work-item-proposals`; base HEAD `b3574b1`. Chưa tạo commit cho tính năng đề xuất. Kiểm tra HEAD/diff khi tiếp nhận.
 - File chưa theo dõi: `outputs/`; vẫn còn nguyên. Khi được phép dọn, giữ Excel demo 21 phòng/ban và ba báo cáo QA/đo tải trước khi xóa phần tạm còn lại. Chưa tạo `local-artifacts/`.
 
 ## Lịch sử bàn giao (mới nhất ở trên)
+
+### 2026-09-14 - Codex - Code đề xuất công việc con, chưa deploy
+
+- File mới: `WorkProposals.tsx`, `workProposalService.ts`, test service, migration `202609140003_work_item_proposals.sql`, `supabase/tests/work_item_proposals.sql`. Tích hợp tại Gantt, loại notification/domain/CSS/settings, Brief và Decisions.
+- Panel đề xuất: chọn mục cha trong phạm vi xem chi tiết, kế thừa chủ trì, lý do/ngày bắt buộc, chọn phối hợp/nhân sự đủ điều kiện. Hủy/X/Escape hỏi bỏ nếu có thay đổi. Thành công đóng panel; lỗi giữ nháp. Danh sách riêng có phân trang 10, lịch sử, rút, sửa-gửi lại, duyệt/từ chối.
+- Backend: chỉ RPC được ghi đề xuất; RLS cho người gửi hoặc quản trị dự án/hệ thống. Duyệt transaction/version lock tạo một mục Phát sinh. Chặn sai nhóm nhân sự, phòng đã ngừng hoạt động/chủ trì thay đổi và phiên bản cũ. Từ chối phải có lý do. Quyền sửa kế hoạch và duyệt hoàn thành không đổi.
+- SQL Editor Supabase: chạy migration dạng gọn tương đương + test trong BEGIN/ROLLBACK, kết quả `proposal transaction tests passed and rolled back`. Đạt: khác phòng bị chặn, pending không tạo work, nhân viên/quản trị phòng không duyệt, quản trị phòng được đề xuất, quản trị dự án duyệt, duplicate review bị chặn, rút-gửi lại-từ chối-gửi lại giữ lịch sử, cấu hình 10 loại lưu được, tắt thông báo chờ duyệt ngừng feed, thông báo kết quả đúng người, RLS không lộ đề xuất khác và direct update bị cấm. Chỉ fixture trong demo `PK-DEMO-QA-21`; không ghi Khe Tre/Sơn Tây, toàn bộ rollback.
+- Local browser `127.0.0.1:5174`: dùng phiên Quản trị dự án có sẵn, mở panel, chọn mục con CN-NVY kế thừa chủ trì đúng; nhập tên, hủy popup giữ nội dung, X/Đóng và bỏ đóng panel không ghi. Quan sát screenshot và sửa spacing/ô chọn bị padding `.empty` chung. Chưa xác minh submit thành công/duyệt xuyên suốt bằng UI do schema production chưa được áp dụng.
+- Tự động: `npm run lint`, `npm run type-check`, `npm run test` (57/10 files), `npm run build` đạt. Build vẫn cảnh báo JS chunk >500kB, không thêm dependency. GitNexus impact Gantt/WorkProposals LOW, feed/settings HIGH (đã báo rủi ro shared notifications). SQL function impact UNKNOWN do không có symbol trong graph; xác minh caller RPC bằng text search + kiểm thử SQL, không coi UNKNOWN là all-clear.
+- Deploy/commit: chưa được yêu cầu trong lượt code này nên chưa commit/push/deploy. Quan trọng: migration tăng policy từ 7 lên 10; không áp dụng lâu dài riêng lẻ trước frontend mới vì frontend production cũ chỉ chấp nhận 7. Bước tiếp: triển khai đồng bộ, test UI đầy đủ bằng nhân viên/quản trị phòng/quản trị dự án/hệ thống ở demo, cập nhật HDSD khi bản mới được đưa vào dùng.
+- Kiểm tra cuối: SQL read-only xác nhận `proposal_schema_not_applied=true`, `current_policy_count=7`, `test_leftovers=0`. GitNexus reindex thành công (1330 nodes/2949 edges; warning không lưu được parse cache), detect-changes báo HIGH ở các flow chuông/settings dùng chung. CLI diff chỉ liệt kê tracked changes; không coi đây là xác nhận toàn bộ file mới untracked đã được graph-diff bao phủ. Build cuối đạt sau chỉnh màu CSS; server local Vite giữ tại port 5174.
 
 ### 2026-09-14 - Codex - Deploy và kiểm thử production cấu hình thông báo
 

@@ -65,6 +65,7 @@ export interface WorkItem {
   participant_ids: string[]
   attachment: Attachment | null
   has_unseen_activity: boolean
+  is_supplemental?: boolean
 }
 
 export interface Attachment {
@@ -127,7 +128,7 @@ export interface PersonalNotification extends Omit<ProjectActivity, 'kind'> {
   project_id: string
   project_code: string
   project_name: string
-  kind: Exclude<ProjectActivity['kind'], 'deleted'> | 'assigned' | 'due_soon' | 'overdue'
+  kind: Exclude<ProjectActivity['kind'], 'deleted'> | 'assigned' | 'due_soon' | 'overdue' | 'proposal_submitted' | 'proposal_approved' | 'proposal_rejected'
   category?: 'update' | 'attention'
   isUnread?: boolean
 }

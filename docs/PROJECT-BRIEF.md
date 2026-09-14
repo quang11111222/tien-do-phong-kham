@@ -178,7 +178,16 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Nhân viên và Quản trị phòng/ban thuộc đơn vị phối hợp không thể hoàn thành công việc nếu chưa được một người đủ quyền duyệt; Quản trị phòng của đơn vị chủ trì và Quản trị dự án được tự xác nhận sau khi nộp đủ bằng chứng trong đúng phạm vi.
 - Lịch sử cập nhật, gửi duyệt và bằng chứng truy vết được theo người dùng/thời gian.
 
-## 12. Open Questions
+## 12. Bổ sung công việc phát sinh (chốt 2026-09-14)
+
+- Nhân viên và Quản trị phòng/ban được gửi đề xuất công việc con trong nhánh có quyền xem chi tiết; không thay đổi quyền sửa kế hoạch đã duyệt.
+- Đề xuất gồm hạng mục cha, tên, lý do, ngày thực hiện, đơn vị phối hợp và người tham gia. Chủ trì kế thừa từ mục cha/nhánh cha; người tham gia chỉ thuộc chủ trì hoặc phối hợp.
+- Chỉ Quản trị hệ thống hoặc Quản trị dự án tại dự án đó được duyệt/từ chối bổ sung, không duyệt hai cấp. Từ chối bắt buộc lý do.
+- Chưa duyệt: không tạo công việc chính thức, không tính tiến độ. Đã duyệt: tạo đúng một công việc con, đánh dấu Phát sinh và tính lại trạng thái tổng hợp theo công việc cuối nhánh; không thay đổi bằng chứng đã khóa của cha.
+- Người gửi được rút đề xuất đang chờ; đề xuất đã rút/từ chối có thể sửa và gửi lại. Lưu lịch sử mỗi lượt xử lý; kiểm tra phiên bản để tránh xử lý trùng.
+- Chuông có ba loại cấu hình riêng: đề xuất chờ duyệt cho Quản trị dự án/hệ thống, kết quả duyệt/từ chối cho người gửi. Không trộn với gửi/duyệt hoàn thành công việc.
+
+## 13. Open Questions
 
 1. Ai chịu trách nhiệm vận hành tài khoản quản trị viên đầu tiên và cấp/khóa tài khoản về sau?
 2. `PTNL1`, `PTNL2` và `Z1` có tên đầy đủ cần hiển thị hay giữ nguyên mã?

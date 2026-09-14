@@ -8,7 +8,7 @@ import { getPersonalNotifications } from './trackerService'
 import { assembleNotificationFeed, getConfiguredNotificationFeed, notificationKinds, saveNotificationPolicies, validateNotificationPolicies, type NotificationPolicy } from './notificationSettingsService'
 import { parseRouteHash, routeHash } from '../../lib/routes'
 
-const policies = (): NotificationPolicy[] => notificationKinds.map((kind) => ({ kind, enabled: true, recipients: ['participants'], days: kind === 'due_soon' ? 3 : kind === 'overdue' ? 1 : null, version: 1 }))
+const policies = (): NotificationPolicy[] => notificationKinds.map((kind) => ({ kind, enabled: true, recipients: kind === 'proposal_submitted' ? ['project_managers'] : ['participants'], days: kind === 'due_soon' ? 3 : kind === 'overdue' ? 1 : null, version: 1 }))
 const entry = (id: string, workId = 'work', kind: PersonalNotification['kind'] = 'assigned'): PersonalNotification => ({ id, work_item_id: workId, kind, work_item_name: 'Demo', work_item_wbs: '1', project_id: 'project', project_code: 'DEMO', project_name: 'Demo project', actor_name: 'Demo', content: 'Demo', created_at: `2026-09-14T08:00:${id.padStart(2, '0')}Z`, isUnread: true })
 
 describe('notification configuration and feed', () => {
@@ -26,7 +26,7 @@ describe('notification configuration and feed', () => {
     expect(() => validateNotificationPolicies(rows)).not.toThrow()
   })
   it('rejects missing/duplicated kinds and invalid groups', () => {
-    expect(() => validateNotificationPolicies(policies().slice(1))).toThrow('bảy')
+    expect(() => validateNotificationPolicies(policies().slice(1))).toThrow('mười')
     const rows = policies(); rows[1].kind = 'assigned'
     expect(() => validateNotificationPolicies(rows)).toThrow('trùng')
     const bad = policies(); bad[1].recipients = ['unexpected' as never]
@@ -62,11 +62,29 @@ describe('notification configuration and feed', () => {
     expect(feed).toHaveLength(1); expect(feed[0].isUnread).toBe(false)
   })
   it('uses a server RPC without a caller-selected identity and requests updates before the limit', async () => {
-    mock.rpc.mockResolvedValue({ data: { allowed: { assigned: ['work'] }, attention: [] }, error: null })
+    mock.rpc.mockResolvedValueOnce({ data: { allowed: { assigned: ['work'] }, attention: [] }, error: null }).mockResolvedValueOnce({ data: [], error: null })
     vi.mocked(getPersonalNotifications).mockResolvedValue([entry('01')])
     expect(await getConfiguredNotificationFeed('current-user')).toHaveLength(1)
     expect(mock.rpc).toHaveBeenCalledWith('get_notification_scope')
     expect(getPersonalNotifications).toHaveBeenCalledWith('current-user', Infinity)
+  })
+  it('merges authorized proposal events with updates, retaining separate reminders', async () => {
+    mock.rpc.mockResolvedValueOnce({ data: { allowed: { assigned: ['work'] }, attention: [entry('deadline', 'work', 'overdue')] }, error: null })
+      .mockResolvedValueOnce({ data: [entry('30', 'parent', 'proposal_submitted')], error: null })
+    vi.mocked(getPersonalNotifications).mockResolvedValue(Array.from({ length: 25 }, (_, index) => entry(String(index).padStart(2, '0'))))
+    const feed = await getConfiguredNotificationFeed('current-user')
+    expect(feed.filter((item) => item.category !== 'attention')).toHaveLength(20)
+    expect(feed[0].kind).toBe('proposal_submitted')
+    expect(feed.at(-1)).toMatchObject({ category: 'attention', kind: 'overdue', isUnread: false })
+    expect(mock.rpc).toHaveBeenCalledWith('get_proposal_notifications')
+  })
+  it('limits proposal reviewers to project/system managers and replies to the proposer group', () => {
+    const rows = policies()
+    rows.find((row) => row.kind === 'proposal_submitted')!.recipients = ['lead_department_admins']
+    expect(() => validateNotificationPolicies(rows)).toThrow('Nhóm nhận không phù hợp')
+    rows.find((row) => row.kind === 'proposal_submitted')!.recipients = ['project_managers']
+    rows.find((row) => row.kind === 'proposal_approved')!.recipients = ['system_managers']
+    expect(() => validateNotificationPolicies(rows)).toThrow('Nhóm nhận không phù hợp')
   })
   it('does not quietly fall back to unconfigured notifications on a backend failure', async () => {
     mock.rpc.mockResolvedValue({ data: null, error: { message: 'missing migration' } })
@@ -77,7 +95,7 @@ describe('notification configuration and feed', () => {
     mock.rpc.mockResolvedValue({ error: null })
     const rows = policies(); await saveNotificationPolicies(rows)
     expect(mock.rpc).toHaveBeenCalledWith('save_notification_policies', { policies: rows })
-    await expect(saveNotificationPolicies([])).rejects.toThrow('bảy')
+    await expect(saveNotificationPolicies([])).rejects.toThrow('mười')
     expect(mock.rpc).toHaveBeenCalledTimes(1)
   })
   it('surfaces backend permission and concurrent-save errors', async () => {

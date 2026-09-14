@@ -264,3 +264,18 @@
 .notification-overdue b { color: #b91c1c; }
 .notification-due_soon b { color: #a16207; }
 @media (max-width: 600px) { .notification-settings { padding: 12px; } .notification-policy-heading, .notification-settings-footer { flex-wrap: wrap; } }
+.proposal-toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
+.proposal-list { padding: 16px; }
+.proposal-row { display: flex; gap: 16px; justify-content: space-between; padding: 16px 0; border-top: 1px solid var(--line); }
+.proposal-row > div:first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.proposal-actions { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 8px; max-width: 350px; }
+.proposal-status { display: inline-block; margin-left: 8px; color: var(--brand); font-size: 12px; }
+.proposal-backdrop { position: fixed; inset: 0; background: #102c4a44; z-index: 90; }
+.proposal-drawer { z-index: 91; }
+.proposal-drawer #dwrap { height: 100%; display: flex; flex-direction: column; }
+.proposal-drawer .dbody { flex: 1; overflow-y: auto; }
+.proposal-drawer fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.proposal-drawer .f > span { display: block; font-size: 11px; font-weight: 500; margin-bottom: 3px; color: var(--ink-3); }
+.proposal-drawer .department-chip-list.empty { padding: 0; text-align: left; }
+.proposal-drawer .dfoot { display: flex; gap: 8px; padding: 16px; flex-shrink: 0; border-top: 1px solid var(--line); }
+@media(max-width: 700px) { .proposal-row { flex-direction: column; } .proposal-actions { max-width: none; } }

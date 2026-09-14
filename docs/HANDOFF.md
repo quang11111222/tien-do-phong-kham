@@ -64,6 +64,16 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 - Chưa áp dụng SQL migration; môi trường hiện không có Supabase SQL connector/CLI, psql hoặc Docker. Chưa kiểm thử giao việc mới → người nhận mở chuông → đọc → lưu lại không báo trùng trên database thật; không coi unit test là bằng chứng quyền backend.
 - Trước deploy: áp dụng migration (transaction sẽ dừng nếu function khác cấu trúc dự kiến), kiểm thử luồng trên dự án demo gồm quản trị dự án, quản trị chủ trì và phối hợp, rồi deploy theo yêu cầu người dùng. Không test ghi tại Khe Tre/Sơn Tây.
 
+### 2026-09-14 - Codex - Kiểm thử nghiệp vụ cấu hình thông báo trên production
+
+- Tạo một fixture có tên `QA-NOTIFY-LIVE-20260914` trong dự án demo `PK-DEMO-QA-21` (không đụng Khe Tre/Sơn Tây): công việc đang mở, hạn hiện tại +2 ngày, giao cho nhân viên `005902`, có một diễn biến do nhân viên tạo. Giữ lại fixture để trình diễn/kiểm thử tiếp.
+- Bằng tài khoản nhân viên, chuông trả đúng cả hai loại: `Được giao công việc QA-NOTIFY-LIVE-20260914` trong Cập nhật mới và `Sắp đến hạn ... Còn 2 ngày đến hạn` trong Cần chú ý.
+- Tắt `Được giao công việc` ở tài khoản quản trị hệ thống, lưu, đăng nhập lại nhân viên: card giao việc biến mất, các card loại khác vẫn còn. Bật lại và khôi phục mặc định.
+- Tắt `Sắp đến hạn`, đăng nhập lại nhân viên: Cần chú ý chuyển về 0 và hiển thị trạng thái không có việc cần nhắc. Bật lại và khôi phục mặc định 3 ngày.
+- Với `Diễn biến mới`, tài khoản quản trị hệ thống ban đầu nhận đúng card diễn biến QA do nhân viên tạo; tắt policy thì card fixture bị lọc khỏi chuông; bật lại thì card quay trở lại. Đây là kiểm tra kết quả nghiệp vụ sau lọc, không chỉ kiểm tra toast.
+- Đã khôi phục cấu hình production về mặc định: bảy loại bật, due_soon 3 ngày, overdue 1 ngày; nút Lưu cấu hình disabled sau khi không còn bản nháp. Không có thay đổi code trong lần kiểm thử này.
+- Chưa kiểm tra toàn bộ ma trận role/phòng phối hợp trong lần này; cần giữ fixture để test thêm người nhận theo nhóm nếu thay đổi policy recipient.
+
 ### 2026-09-14 - Claude - Thêm quy tắc commit và project skills
 
 - Thêm quy tắc commit vào `docs/AI-CONTEXT.md` (section 5) và tham chiếu trong `AGENTS.md`.

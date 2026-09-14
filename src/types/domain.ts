@@ -127,6 +127,7 @@ export interface PersonalNotification extends Omit<ProjectActivity, 'kind'> {
   project_id: string
   project_code: string
   project_name: string
-  kind: Exclude<ProjectActivity['kind'], 'deleted'> | 'assigned'
+  kind: Exclude<ProjectActivity['kind'], 'deleted'> | 'assigned' | 'due_soon' | 'overdue'
+  category?: 'update' | 'attention'
   isUnread?: boolean
 }

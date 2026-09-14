@@ -61,6 +61,8 @@ Ghi các quyết định ảnh hưởng đến phạm vi, dữ liệu, kiến tr
 
 ## Phối hợp Codex và Claude (2026-09-14)
 
+- 2026-09-14: Cấu hình chuông tập trung tại database, chỉ Quản trị hệ thống được đổi bằng RPC có kiểm tra phiên bản/transaction. Backend tính nhóm nhận theo `auth.uid()` và quyền xem chi tiết, frontend không tự suy diễn role. Dùng bảng chỉ định Quản trị dự án trực tiếp thay vì `can_manage_project()` cho nhóm nhận, tránh nhắc toàn bộ deadline cho Quản trị hệ thống ngoài ý muốn. Chuông tách cập nhật (20 sự kiện sau lọc) khỏi nhắc hạn trực tiếp theo lịch Việt Nam (mặc định 3 ngày/1 ngày, cấu hình 1–30); không thêm scheduler/service/đa kênh.
+
 - Góp ý được chọn ngày 2026-09-14: bộ lọc chủ trì dùng danh mục phòng/ban đầy đủ; thông báo giao việc dựa vào phân công cá nhân, không dựa đơn thuần vào đơn vị. Bảo toàn `assigned_at`/`assigned_by` của người giữ nguyên để tránh báo lại khi lưu thông tin/phân công. Không thay đổi quyền quản lý kế hoạch hoặc luồng duyệt.
 
 - Giữ `AGENTS.md` và `CLAUDE.md` làm điểm vào riêng; cả hai bắt buộc đọc `docs/AI-CONTEXT.md` và `docs/HANDOFF.md` khi bắt đầu nhiệm vụ, cập nhật bàn giao trước khi kết thúc/chuyển công cụ.

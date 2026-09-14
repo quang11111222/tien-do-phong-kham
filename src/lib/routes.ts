@@ -1,4 +1,4 @@
-export type Page = 'projects' | 'overview' | 'gantt' | 'milestones' | 'activity' | 'approvals' | 'users'
+export type Page = 'projects' | 'overview' | 'gantt' | 'milestones' | 'activity' | 'approvals' | 'users' | 'notification-settings'
 
 export interface AppRoute {
   page: Page
@@ -13,13 +13,13 @@ export function routeHash(page: Page, projectKey: string | null = null, workItem
     const base = `#/projects/${encodeURIComponent(projectKey)}/${page}`
     return page === 'gantt' && workItemId ? `${base}/work/${encodeURIComponent(workItemId)}` : base
   }
-  if (page === 'approvals' || page === 'users') return `#/${page}`
+  if (page === 'approvals' || page === 'users' || page === 'notification-settings') return `#/${page}`
   return '#/projects'
 }
 
 export function parseRouteHash(hash: string): AppRoute {
   const parts = hash.replace(/^#\/?/, '').split('/').filter(Boolean).map((part) => decodeURIComponent(part))
-  if (parts[0] === 'approvals' || parts[0] === 'users') return { page: parts[0], projectKey: null, workItemId: null }
+  if (parts[0] === 'approvals' || parts[0] === 'users' || parts[0] === 'notification-settings') return { page: parts[0], projectKey: null, workItemId: null }
   if (parts[0] === 'projects' && parts[1] && projectPages.has(parts[2] as Page)) {
     const page = parts[2] as Page
     return { page, projectKey: parts[1], workItemId: page === 'gantt' && parts[3] === 'work' && parts[4] ? parts[4] : null }

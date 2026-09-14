@@ -193,7 +193,7 @@ export async function markProjectActivitySeen(projectId: string, userId: string)
   if (upsertError) throw upsertError
 }
 
-export async function getPersonalNotifications(userId: string): Promise<PersonalNotification[]> {
+export async function getPersonalNotifications(userId: string, limit = 20): Promise<PersonalNotification[]> {
   if (!supabase) return []
   const [{ data: progress, error: progressError }, { data: requests, error: requestError }, { data: reads, error: readError }, { data: assignments, error: assignmentError }] = await Promise.all([
     supabase.from('progress_updates').select('id, work_item_id, content, created_by, created_at, author:profiles!progress_updates_created_by_fkey(full_name, username), work_item:work_items!inner(id, wbs, name, project_id, project:projects!inner(id, code, name))'),
@@ -229,7 +229,7 @@ export async function getPersonalNotifications(userId: string): Promise<Personal
     if (row.submitted_by !== userId) append({ id: `submitted-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work.wbs, work_item_name: work.name, project_id: work.project_id, project_code: project.code, project_name: project.name, content: row.note ? `Gửi hoàn thành: ${row.note}` : 'Gửi công việc hoàn thành để duyệt.', actor_name: submitter?.full_name || submitter?.username || '—', created_at: row.submitted_at, kind: 'submitted' })
     if (row.status !== 'pending' && row.reviewed_at && row.reviewed_by !== userId) append({ id: `reviewed-${row.id}`, work_item_id: row.work_item_id, work_item_wbs: work.wbs, work_item_name: work.name, project_id: work.project_id, project_code: project.code, project_name: project.name, content: row.review_note || (row.status === 'approved' ? 'Đã duyệt hoàn thành.' : 'Đã từ chối yêu cầu hoàn thành.'), actor_name: reviewer?.full_name || reviewer?.username || '—', created_at: row.reviewed_at, kind: row.status as 'approved' | 'rejected' })
   })
-  return entries.sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, 20)
+  return entries.sort((a, b) => b.created_at.localeCompare(a.created_at)).slice(0, limit)
 }
 
 export async function markNotificationsSeen(workItemIds: string[], userId: string) {

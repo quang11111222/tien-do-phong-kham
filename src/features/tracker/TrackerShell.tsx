@@ -8,7 +8,9 @@ import { MilestonesView } from './MilestonesView'
 import { ApprovalsView } from './ApprovalsView'
 import { ProjectOverview } from './ProjectOverview'
 import { ProjectActivity } from './ProjectActivity'
-import { getPersonalNotifications, getProjects, getUnreadWorkItemCount, markNotificationsSeen } from './trackerService'
+import { getProjects, getUnreadWorkItemCount, markNotificationsSeen } from './trackerService'
+import { getConfiguredNotificationFeed } from './notificationSettingsService'
+import { NotificationSettingsPage } from './NotificationSettingsPage'
 import { tthLogoDataUrl } from '../../assets/tthLogo'
 import { parseRouteHash, routeHash, type Page } from '../../lib/routes'
 import '../../styles/prototype.css'
@@ -32,6 +34,7 @@ export function TrackerShell() {
   const [hasManagedProject, setHasManagedProject] = useState(false)
   const [notifications, setNotifications] = useState<PersonalNotification[]>([])
   const [notificationsLoading, setNotificationsLoading] = useState(true)
+  const [notificationsError, setNotificationsError] = useState('')
   const dirtyRef = useRef(false)
   const lastHashRef = useRef(window.location.hash || routeHash('projects'))
   const confirm = useConfirm()
@@ -59,7 +62,9 @@ export function TrackerShell() {
   const refreshNotifications = useCallback(async () => {
     if (!profile) return
     setNotificationsLoading(true)
-    try { setNotifications(await getPersonalNotifications(profile.id)) } finally { setNotificationsLoading(false) }
+    try { setNotifications(await getConfiguredNotificationFeed(profile.id)); setNotificationsError('') }
+    catch { setNotifications([]); setNotificationsError('Không tải được thông báo. Vui lòng thử lại.'); }
+    finally { setNotificationsLoading(false) }
   }, [profile])
 
   useEffect(() => {
@@ -78,7 +83,7 @@ export function TrackerShell() {
   const applyRoute = useCallback(async (hash: string) => {
     if (!profile) return
     const route = parseRouteHash(hash)
-    if ((route.page === 'users' && !isSystemAdmin) || (route.page === 'approvals' && !canReview)) {
+    if ((['users', 'notification-settings'].includes(route.page) && !isSystemAdmin) || (route.page === 'approvals' && !canReview)) {
       const fallback = routeHash('projects')
       window.history.replaceState(null, '', fallback)
       lastHashRef.current = fallback
@@ -200,7 +205,7 @@ export function TrackerShell() {
   const markAllNotificationsAsSeen = async () => {
     if (!profile) return
     try {
-      await markNotificationsSeen(notifications.map((item) => item.work_item_id), profile.id)
+      await markNotificationsSeen(notifications.filter((item) => item.category !== 'attention').map((item) => item.work_item_id), profile.id)
       setNotifications((items) => items.map((item) => ({ ...item, isUnread: false })))
       if (project) setUnreadActivityCount(0)
       notify('Đã đánh dấu tất cả thông báo là đã đọc.')
@@ -219,11 +224,11 @@ export function TrackerShell() {
       <div className="navwrap"><div className="navlabel">Quản lý khảo sát mặt bằng</div><nav className="nav"><div className="sub root-sub">
         <button className={page === 'projects' ? 'on' : ''} onClick={backToPortfolio}>Danh mục dự án</button>
         {project && <><div className="cap">{project.name}</div><button className={page === 'overview' ? 'on' : ''} onClick={() => navigate('overview')}>Tổng quan dự án</button><button className={page === 'gantt' ? 'on' : ''} onClick={() => navigate('gantt')}>Tiến độ &amp; Gantt</button><button className={page === 'milestones' ? 'on' : ''} onClick={() => navigate('milestones')}>Mốc kiểm soát</button><button className={page === 'activity' ? 'on' : ''} onClick={() => navigate('activity')}><span>Nhật ký diễn biến</span>{unreadActivityCount > 0 && <span className="nav-activity-badge" title={`${unreadActivityCount} công việc có diễn biến mới`} aria-label={`${unreadActivityCount} công việc có diễn biến mới`}><i className="nav-activity-pulse" aria-hidden="true" /><b>{unreadActivityCount > 99 ? '99+' : unreadActivityCount}</b></span>}</button></>}
-      </div>{(canReview || isSystemAdmin) && <><div className="navlabel nav-section">Quản trị</div><div className="sub root-sub">{canReview && <button className={page === 'approvals' ? 'on' : ''} onClick={() => navigate('approvals')}>Chờ duyệt</button>}{isSystemAdmin && <button className={page === 'users' ? 'on' : ''} onClick={() => navigate('users')}>Quản lý người dùng</button>}</div></>}</nav></div>
+      </div>{(canReview || isSystemAdmin) && <><div className="navlabel nav-section">Quản trị</div><div className="sub root-sub">{canReview && <button className={page === 'approvals' ? 'on' : ''} onClick={() => navigate('approvals')}>Chờ duyệt</button>}{isSystemAdmin && <><button className={page === 'users' ? 'on' : ''} onClick={() => navigate('users')}>Quản lý người dùng</button><button className={page === 'notification-settings' ? 'on' : ''} onClick={() => navigate('notification-settings')}>Cấu hình thông báo</button></>}</div></>}</nav></div>
       <div className="clock"><b>{clock.toLocaleTimeString('vi-VN')}</b><span>{clock.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span></div>
     </aside>
-      <div className="main"><header className="top"><span className="top-spacer" />{projectPage && <div className="chip">{project.code}</div>}<NotificationBell items={notifications} loading={notificationsLoading} onOpen={openNotification} onMarkAllSeen={markAllNotificationsAsSeen} /><div className="whoami"><div><b>{profile.full_name}</b><span>{isSystemAdmin ? 'Quản trị hệ thống' : canManageProject ? 'Quản trị dự án' : profile.is_department_admin ? 'Quản trị phòng/ban' : 'Nhân viên'}</span></div><div className="av account-department-tag">{isSystemAdmin ? 'ADMIN' : profile.department?.code || '—'}</div>{profile.username !== 'admin' && <button className="logout-mini" onClick={() => setShowChangePassword(true)}>Đổi mật khẩu</button>}<button className="logout-mini" onClick={() => void signOut()}>Đăng xuất</button></div></header>
-      <main className="view">{page === 'projects' && <PortfolioPage isManager={isSystemAdmin} isDepartmentAdmin={profile.is_department_admin} onOpen={openProject} />}{page === 'overview' && project && <ProjectOverview project={project} onBack={backToPortfolio} onOpenWork={(workItemId) => void openWorkItem(workItemId)} />}{page === 'gantt' && project && <GanttView project={project} profile={profile} initialWorkItemId={selectedWorkItemId} onSelectedWorkItemChange={updateSelectedWorkItem} onBack={backToPortfolio} onDirtyChange={trackDirty} onUnreadCountChange={setUnreadActivityCount} />}{page === 'milestones' && project && <MilestonesView project={project} isManager={canManageProject} onBack={backToPortfolio} onDirtyChange={trackDirty} />}{page === 'activity' && project && <ProjectActivity project={project} profile={profile} canViewDeleteAudit={canManageProject} onBack={backToPortfolio} onOpenGantt={(workItemId) => void openWorkItem(workItemId)} onSeen={clearUnreadActivity} />}{page === 'approvals' && canReview && <ApprovalsView isManager />}{page === 'users' && isSystemAdmin && <div className="users-host"><UsersPage /></div>}</main>
+      <div className="main"><header className="top"><span className="top-spacer" />{projectPage && <div className="chip">{project.code}</div>}<NotificationBell items={notifications} loading={notificationsLoading} error={notificationsError} onRetry={() => void refreshNotifications()} onOpen={openNotification} onMarkAllSeen={markAllNotificationsAsSeen} /><div className="whoami"><div><b>{profile.full_name}</b><span>{isSystemAdmin ? 'Quản trị hệ thống' : canManageProject ? 'Quản trị dự án' : profile.is_department_admin ? 'Quản trị phòng/ban' : 'Nhân viên'}</span></div><div className="av account-department-tag">{isSystemAdmin ? 'ADMIN' : profile.department?.code || '—'}</div>{profile.username !== 'admin' && <button className="logout-mini" onClick={() => setShowChangePassword(true)}>Đổi mật khẩu</button>}<button className="logout-mini" onClick={() => void signOut()}>Đăng xuất</button></div></header>
+      <main className="view">{page === 'projects' && <PortfolioPage isManager={isSystemAdmin} isDepartmentAdmin={profile.is_department_admin} onOpen={openProject} />}{page === 'overview' && project && <ProjectOverview project={project} onBack={backToPortfolio} onOpenWork={(workItemId) => void openWorkItem(workItemId)} />}{page === 'gantt' && project && <GanttView project={project} profile={profile} initialWorkItemId={selectedWorkItemId} onSelectedWorkItemChange={updateSelectedWorkItem} onBack={backToPortfolio} onDirtyChange={trackDirty} onUnreadCountChange={setUnreadActivityCount} />}{page === 'milestones' && project && <MilestonesView project={project} isManager={canManageProject} onBack={backToPortfolio} onDirtyChange={trackDirty} />}{page === 'activity' && project && <ProjectActivity project={project} profile={profile} canViewDeleteAudit={canManageProject} onBack={backToPortfolio} onOpenGantt={(workItemId) => void openWorkItem(workItemId)} onSeen={clearUnreadActivity} />}{page === 'approvals' && canReview && <ApprovalsView isManager />}{page === 'users' && isSystemAdmin && <div className="users-host"><UsersPage /></div>}{page === 'notification-settings' && isSystemAdmin && <NotificationSettingsPage onDirtyChange={trackDirty} onSaved={() => void refreshNotifications()} />}</main>
     </div>{showChangePassword && profile.username !== 'admin' && <ChangePasswordDialog onClose={() => setShowChangePassword(false)} />}
   </div>
 }

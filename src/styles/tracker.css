@@ -240,3 +240,27 @@
   .overview-donut { align-self: center; }
   .overview-chart-legend { width: 100%; }
 }
+/* Notification configuration: always uses the application's light palette. */
+.notification-settings { max-width: 1080px; margin: 0 auto; padding: 24px; }
+.notification-settings h1 { font-size: 24px; margin: 8px 0; }
+.notification-settings p { color: #64748b; line-height: 1.6; }
+.notification-settings-fields { border: 0; padding: 0; margin: 20px 0; display: grid; gap: 12px; }
+.notification-policy { background: white; border: 1px solid #dbe5f0; border-radius: 12px; padding: 18px; }
+.notification-policy-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.notification-policy h2 { font-size: 16px; margin: 0; }
+.notification-policy label { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.notification-recipients { display: flex; flex-wrap: wrap; gap: 14px 24px; margin-top: 18px; }
+.notification-days { margin-top: 16px; flex-wrap: wrap; }
+.notification-days input { width: 70px; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; }
+.notification-settings-footer { display: flex; gap: 12px; align-items: center; justify-content: flex-end; padding: 16px; background: white; border: 1px solid #dbe5f0; border-radius: 10px; position: sticky; bottom: 0; }
+.notification-settings-footer span { margin-right: auto; color: #64748b; }
+.notification-settings button, .notification-tabs button, .notification-pagination button { padding: 8px 12px; border: 1px solid #dbe5f0; border-radius: 6px; background: white; color: #004b9a; cursor: pointer; }
+.notification-settings button.primary { background: #004b9a; color: white; }
+.notification-settings button:disabled { opacity: .5; cursor: default; }
+.notification-settings-error { padding: 12px; border: 1px solid #fecaca; background: #fff1f2; color: #b91c1c; border-radius: 8px; }
+.notification-tabs, .notification-pagination { display: flex; gap: 8px; padding: 10px; justify-content: center; align-items: center; }
+.notification-tabs .on { background: #e7f1ff; border-color: #004b9a; }
+.notification-attention-dot { position: absolute; width: 8px; height: 8px; bottom: 3px; right: 3px; background: #f59e0b; border: 1px solid white; border-radius: 50%; }
+.notification-overdue b { color: #b91c1c; }
+.notification-due_soon b { color: #a16207; }
+@media (max-width: 600px) { .notification-settings { padding: 12px; } .notification-policy-heading, .notification-settings-footer { flex-wrap: wrap; } }

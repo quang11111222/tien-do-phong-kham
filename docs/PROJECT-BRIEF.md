@@ -79,7 +79,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 17. Quản trị hệ thống chỉ định Quản trị dự án theo từng dự án và Quản trị phòng/ban theo từng đơn vị; quyền hiệu lực của một tài khoản là tổng hợp các phạm vi được giao.
 18. Người dùng thường chỉ thấy các nhánh công việc mà phòng/ban của mình là đơn vị chủ trì hoặc phối hợp; hệ thống vẫn hiển thị các mục cha cần thiết để giữ ngữ cảnh cây công việc.
 19. Gantt có bộ lọc phạm vi **Việc của tôi** và **Tất cả công việc liên quan**; số liệu trạng thái thay đổi theo phạm vi đang chọn.
-20. Header có chuông thông báo riêng theo từng tài khoản; hiển thị diễn biến, lượt gửi hoàn thành và kết quả duyệt chưa đọc trong phạm vi người dùng được phép xem. Bấm thông báo mở đúng dự án/công việc và đánh dấu đã đọc; người dùng có thể đánh dấu tất cả đã đọc.
+20. Header có chuông thông báo riêng theo từng tài khoản; tách **Cập nhật mới** (giao việc, diễn biến, gửi hoàn thành, duyệt/từ chối) và **Cần chú ý** (sắp đến hạn/quá hạn). Cập nhật mới giữ 20 sự kiện gần nhất sau khi lọc loại/phạm vi; mỗi phần phân trang 10 dòng. Bấm thông báo mở đúng dự án/công việc; đánh dấu đã đọc chỉ áp dụng cho cập nhật, không xóa lời nhắc còn cần xử lý.
 21. Nhật ký dự án cho phép lọc **Tất cả**, **Diễn biến**, **Gửi & xét duyệt**; Quản trị dự án và Quản trị hệ thống có thêm bộ lọc **Đã xóa** để truy vết việc xóa hạng mục/công việc trong phạm vi quản lý. Mỗi bộ lọc phân trang 10 hoạt động một trang và trở về trang đầu khi đổi loại nhật ký.
 
 ### Quy tắc nhập liệu hạng mục/công việc
@@ -138,6 +138,17 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Xóa dự án là xóa mềm: người dùng thường không còn xem được dự án và dữ liệu con; quản trị viên có thể xem danh sách đã xóa và khôi phục. MVP không xóa vĩnh viễn dự án từ giao diện.
 
 ## 9. Dữ liệu và tích hợp
+
+### Cấu hình thông báo (chốt 2026-09-14)
+
+- Chỉ Quản trị hệ thống truy cập `#/notification-settings` và lưu cấu hình chung; nhân viên, Quản trị phòng/ban và Quản trị dự án không được đổi cấu hình, kể cả gọi trực tiếp database.
+- Bảy loại cấu hình: giao việc, diễn biến, gửi hoàn thành, đã duyệt, từ chối, sắp đến hạn và quá hạn. Mỗi loại bật/tắt độc lập; nhóm nhận là người tham gia, Quản trị phòng chủ trì, Quản trị được giao dự án và Quản trị hệ thống. Riêng giao việc chỉ gửi đúng người được giao; không báo hành động do chính người nhận thực hiện.
+- Mặc định diễn biến/kết quả duyệt gửi cho người tham gia và các nhóm quản trị liên quan; gửi hoàn thành chỉ gửi các nhóm quản trị. Không gửi chỉ vì nhân viên thuộc đơn vị chủ trì/phối hợp nhưng chưa được phân công. Nhóm nhận luôn bị giới hạn thêm bởi quyền xem chi tiết hiện tại, không cấp thêm quyền dữ liệu.
+- Nhắc hạn mặc định: trước 3 ngày và từ ngày quá hạn thứ 1; cả hai cấu hình từ 1–30 ngày. Sắp đến hạn bao gồm ngày kết thúc. Quá hạn vẫn được xác định ngay ngày sau kết thúc trên Gantt; số ngày cấu hình chỉ đổi thời điểm bắt đầu nhắc.
+- Tính ngày theo lịch Việt Nam. Chỉ nhắc công việc cuối nhánh có ngày kết thúc, không ở trạng thái Chờ duyệt/Hoàn thành và không thuộc dự án đã xóa.
+- Phạm vi nhắc hạn mặc định: người được phân công; Quản trị phòng cho việc đơn vị mình chủ trì; Quản trị dự án tại dự án được chỉ định rõ. Quản trị phòng phối hợp không tự nhận nhắc nếu chưa được giao việc. Quản trị hệ thống không tự nhận mọi deadline từ quyền xem toàn hệ thống; chỉ nhận qua phân công hoặc phạm vi quản trị dự án được gắn cụ thể, trừ khi bật thêm nhóm Quản trị hệ thống trong cấu hình nhắc hạn.
+- Nhiều vai trò được hợp nhất, một lời nhắc hiện tại mỗi công việc. Thay đổi ngày kết thúc, trạng thái, phân công/quyền hoặc cấu hình sẽ làm lời nhắc cập nhật/mất đi ở lần làm mới tiếp theo. Không tạo bản ghi mới hằng ngày, không gửi email/Zalo; chuông làm mới khi người dùng mở phần mềm.
+- Lưu toàn bộ cấu hình trong một transaction, kiểm tra phiên bản để không ghi đè thay đổi đồng thời. Lưu thành công có thông báo; lỗi giữ bản nháp; Bỏ thay đổi/Tải lại và cảnh báo rời trang bảo vệ dữ liệu nhập. Cấu hình áp dụng vào dữ liệu chuông hiện tại, không chỉ sự kiện phát sinh sau khi lưu.
 
 ### Bổ sung đã chốt ngày 2026-09-14
 

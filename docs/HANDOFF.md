@@ -6,27 +6,27 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 
 - Cập nhật: 2026-09-14 (Asia/Saigon).
 - Công cụ thực hiện gần nhất: Claude.
-- Trạng thái: đã commit và push cả hai thay đổi (Claude + Codex).
-- Nhánh/HEAD: `main` / `101b784`. Đã push lên `origin/main`.
-- Thay đổi chưa được Git theo dõi: `.claude/skills/` (7 project skills: project-patterns, tracker-service, permissions, database-schema, ui-components, testing, vibe-coding), `CLAUDE.md` (đã có section mới), `outputs/`.
+- Trạng thái: đã commit đầy đủ code, tài liệu và skills.
+- Nhánh/HEAD: `main` / `fde7518`. Đã push lên `origin/main`.
+- File chưa theo dõi: `outputs/` (test artifacts và scripts QA, không commit vì là output tạm thời).
 
 ## Lịch sử bàn giao (mới nhất ở trên)
+
+### 2026-09-14 - Claude - Thêm quy tắc commit và project skills
+
+- Thêm quy tắc commit vào `docs/AI-CONTEXT.md` (section 5) và tham chiếu trong `AGENTS.md`.
+- Commit 13 project skills (6 GitNexus + 7 project-specific): database-schema, permissions, project-patterns, tracker-service, testing, ui-components, vibe-coding, gitnexus-cli/debugging/exploring/guide/impact-analysis/refactoring.
+- Commit `CLAUDE.md` với bảng project-specific skills.
+- Commit `fde7518` đã push lên GitHub.
+- `outputs/` không commit vì chứa test artifacts (QA logs, test scripts, demo data) không cần track trong Git.
 
 ### 2026-09-14 - Claude - Commit thay đổi thông báo + tài liệu phối hợp
 
 - Sửa hệ thống thông báo: giới hạn 20 thông báo mới nhất, giữ thông báo đã đọc (style mờ) thay vì xóa, badge chỉ đếm chưa đọc. Commit `90b3f14`.
-- Tạo 7 project skills trong `.claude/skills/`: project-patterns, tracker-service, permissions, database-schema, ui-components, testing, vibe-coding. Chưa commit (untracked).
+- Tạo 7 project skills trong `.claude/skills/`: project-patterns, tracker-service, permissions, database-schema, ui-components, testing, vibe-coding.
 - Commit thay đổi tài liệu phối hợp của Codex: `AGENTS.md`, `README.md`, `docs/DECISIONS.md`. Commit `101b784`.
 - Push cả hai commit lên `origin/main`.
 - Kiểm tra: type-check pass, chưa test UI trên trình duyệt.
-
-### 2026-09-14 - Codex - Thiết lập ngữ cảnh chung
-
-- Thêm quy trình chung trong `docs/AI-CONTEXT.md`, sổ bàn giao này và đường dẫn đọc/cập nhật trong cả hai file hướng dẫn.
-- Giữ nội dung GitNexus và skill sẵn có của hai công cụ, không đồng bộ lịch sử chat/MCP.
-- Không thay đổi code, cấu hình runtime, database, tài khoản hoặc dữ liệu test. Không commit/push/deploy.
-
-## Lịch sử bàn giao (mới nhất ở trên)
 
 ### 2026-09-14 - Codex - Thiết lập ngữ cảnh chung
 

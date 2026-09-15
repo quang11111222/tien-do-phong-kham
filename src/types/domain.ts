@@ -108,7 +108,7 @@ export interface CompletionRequest {
   status: 'pending' | 'approved' | 'rejected'
   submitted_by: string
   submitted_at: string
-  work_item?: Pick<WorkItem, 'id' | 'project_id' | 'wbs' | 'name'> | null
+  work_item?: Pick<WorkItem, 'id' | 'project_id' | 'wbs' | 'name' | 'lead_department_id'> | null
   submitter?: Pick<Profile, 'username' | 'full_name'> | null
   project?: Pick<Project, 'id' | 'code' | 'name'> | null
 }

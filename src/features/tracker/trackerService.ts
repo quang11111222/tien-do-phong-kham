@@ -307,7 +307,7 @@ export async function removeMilestone(id: string) { if (!supabase) return; const
 
 export async function getPendingRequests(): Promise<CompletionRequest[]> {
   if (!supabase) return []
-  const { data, error } = await supabase.from('completion_requests').select('id, work_item_id, attempt_no, note, status, submitted_by, submitted_at, work_item:work_items(id, project_id, wbs, name, project:projects(id, code, name)), submitter:profiles!completion_requests_submitted_by_fkey(username, full_name)').eq('status', 'pending').order('submitted_at')
+  const { data, error } = await supabase.from('completion_requests').select('id, work_item_id, attempt_no, note, status, submitted_by, submitted_at, work_item:work_items(id, project_id, wbs, name, lead_department_id, project:projects(id, code, name)), submitter:profiles!completion_requests_submitted_by_fkey(username, full_name)').eq('status', 'pending').order('submitted_at')
   if (error) throw error
   return (data ?? []).map((row) => { const work = Array.isArray(row.work_item) ? row.work_item[0] : row.work_item; const project = work && 'project' in work ? (Array.isArray(work.project) ? work.project[0] : work.project) : null; return { ...row, work_item: work, project, submitter: Array.isArray(row.submitter) ? row.submitter[0] : row.submitter } as unknown as CompletionRequest })
 }

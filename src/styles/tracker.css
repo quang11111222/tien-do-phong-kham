@@ -41,6 +41,14 @@
 .approval-row { grid-template-columns: 110px 1fr minmax(360px, auto); }
 .approval-box { display: flex; gap: 6px; }
 .approval-box input { border: 1px solid var(--line); border-radius: 7px; min-width: 220px; padding: 5px 7px; }
+.approval-tabs { display: flex; gap: 8px; margin: 14px 0; }
+.approval-tabs button { align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; color: var(--ink-2); cursor: pointer; display: flex; font-size: 11px; font-weight: 700; gap: 8px; padding: 9px 12px; }
+.approval-tabs button b { background: var(--surface-2); border-radius: 99px; font-size: 9px; min-width: 20px; padding: 2px 5px; }
+.approval-tabs button.on { background: var(--brand-soft); border-color: #a9c9ee; color: var(--brand); }
+.approval-queue-card { padding: 4px 16px; }
+.approval-pagination { align-items: center; border-top: 1px solid var(--line); color: var(--ink-3); display: flex; font-size: 10.5px; justify-content: space-between; padding: 10px 0; }
+.approval-pagination > div { align-items: center; display: flex; gap: 8px; }
+.approval-pagination strong { color: var(--ink-2); min-width: 62px; text-align: center; }
 .dtabs .approval-tab { color: var(--st-pending); }
 .approval-panel { display: grid; gap: 12px; }
 .approval-request { background: var(--surface); border: 1px solid var(--line); border-radius: 9px; display: grid; gap: 6px 10px; grid-template-columns: 90px 1fr; padding: 10px; }

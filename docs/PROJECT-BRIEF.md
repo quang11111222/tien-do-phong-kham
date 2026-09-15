@@ -81,6 +81,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 19. Gantt có bộ lọc phạm vi **Việc của tôi** và **Tất cả công việc liên quan**; số liệu trạng thái thay đổi theo phạm vi đang chọn.
 20. Header có chuông thông báo riêng theo từng tài khoản; tách **Cập nhật mới** (giao việc, diễn biến, gửi hoàn thành, duyệt/từ chối) và **Cần chú ý** (sắp đến hạn/quá hạn). Cập nhật mới giữ 20 sự kiện gần nhất sau khi lọc loại/phạm vi; mỗi phần phân trang 10 dòng. Bấm thông báo mở đúng dự án/công việc; đánh dấu đã đọc chỉ áp dụng cho cập nhật, không xóa lời nhắc còn cần xử lý.
 21. Nhật ký dự án cho phép lọc **Tất cả**, **Diễn biến**, **Gửi & xét duyệt**; Quản trị dự án và Quản trị hệ thống có thêm bộ lọc **Đã xóa** để truy vết việc xóa hạng mục/công việc trong phạm vi quản lý. Mỗi bộ lọc phân trang 10 hoạt động một trang và trở về trang đầu khi đổi loại nhật ký.
+22. Màn **Xét duyệt** tách hai hàng đợi **Duyệt hoàn thành** và **Duyệt việc phát sinh**, mỗi tab có số lượng và phân trang riêng. Mỗi tài khoản chỉ thấy nút xử lý trên yêu cầu thuộc đúng phạm vi duyệt; người gửi không được tự duyệt yêu cầu hoàn thành của mình.
 
 ### Quy tắc nhập liệu hạng mục/công việc
 

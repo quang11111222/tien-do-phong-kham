@@ -61,6 +61,8 @@ Ghi các quyết định ảnh hưởng đến phạm vi, dữ liệu, kiến tr
 
 ## Phối hợp Codex và Claude (2026-09-14)
 
+- 2026-09-15: Màn quản trị đổi tên từ **Chờ duyệt** thành **Xét duyệt** và tách hai tab **Duyệt hoàn thành** / **Duyệt việc phát sinh**. Giao diện lọc từng yêu cầu theo chính phạm vi backend: quản trị hệ thống, quản trị dự án đúng dự án, hoặc quản trị phòng của đơn vị chủ trì đối với hoàn thành; việc phát sinh chỉ quản trị hệ thống/quản trị dự án. Loại yêu cầu do chính tài khoản gửi khỏi hàng duyệt hoàn thành, kể cả tài khoản đó có quyền quản trị tại một dự án khác.
+
 - Bổ sung kế hoạch bằng đề xuất riêng (`work_item_proposals`), chỉ tạo `work_items` khi Quản trị dự án/hệ thống duyệt. Nhân viên/Quản trị phòng được đề xuất trong phạm vi xem chi tiết; quyền quản lý kế hoạch chính thức vẫn giữ nguyên. Duyệt bổ sung không phải duyệt hoàn thành; giữ bằng chứng cha đã nộp, đánh dấu mục mới Phát sinh, dùng trạng thái tổng hợp hiện có. Version lock và transaction chống duyệt trùng; đề xuất rút/từ chối được gửi lại và lưu sự kiện. Frontend và migration `202609140003` phải triển khai đồng bộ vì bộ cấu hình thông báo tăng từ 7 lên 10 loại.
 
 - 2026-09-14: Cấu hình chuông tập trung tại database, chỉ Quản trị hệ thống được đổi bằng RPC có kiểm tra phiên bản/transaction. Backend tính nhóm nhận theo `auth.uid()` và quyền xem chi tiết, frontend không tự suy diễn role. Dùng bảng chỉ định Quản trị dự án trực tiếp thay vì `can_manage_project()` cho nhóm nhận, tránh nhắc toàn bộ deadline cho Quản trị hệ thống ngoài ý muốn. Chuông tách cập nhật (20 sự kiện sau lọc) khỏi nhắc hạn trực tiếp theo lịch Việt Nam (mặc định 3 ngày/1 ngày, cấu hình 1–30); không thêm scheduler/service/đa kênh.

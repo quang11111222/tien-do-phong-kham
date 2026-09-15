@@ -4,7 +4,7 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 
 ## Trạng thái hiện tại
 
-- Bản sửa màn **Xét duyệt** ngày 2026-09-15 đã hoàn tất local: tách hai tab hoàn thành/phát sinh; lọc từng yêu cầu theo đúng quyền; không cho người gửi tự xử lý yêu cầu của mình. Lint, type-check, build và 60 tests đạt; đã kiểm tra UI local đủ nhân viên thuần, tài khoản có quyền dự án động, quản trị phòng và quản trị hệ thống. HDSD Google Docs đã cập nhật đúng menu/hai tab; chờ commit, deploy và kiểm thử lại production.
+- Bản sửa màn **Xét duyệt** ngày 2026-09-15 đã deploy thành công tại commit `0aa0cf4`; workflow `34914764892` completed/success. Production đã kiểm tra đủ nhân viên thuần, tài khoản có quyền dự án động, quản trị phòng và quản trị hệ thống; không thay đổi trạng thái yêu cầu. HDSD Google Docs đã cập nhật đúng menu/hai tab.
 
 - Đã deploy và kiểm thử 2026-09-14: frontend `4f64606` trên `main`, migration `202609140003` đã áp dụng/đăng ký; GitHub Actions `34853947598` completed/success. Web production đã chạy luồng nhân viên gửi/rút/gửi lại, quản trị hệ thống từ chối/duyệt và chuông kết quả. Kiểm thử SQL sau deploy xác minh quyền quản trị phòng/dự án và bật/tắt policy; xem lịch sử mới nhất dưới đây.
 
@@ -28,7 +28,9 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 - Sửa tải quyền bất đồng bộ để truy cập thẳng URL không đưa nhầm Quản trị dự án về danh mục. Khi vào màn Xét duyệt, tài khoản có quyền dự án động hiển thị đúng nhãn Quản trị dự án thay vì Nhân viên.
 - Kiểm tra local: nhân viên thuần không có menu và bị chuyển khỏi URL; tài khoản có quyền dự án động không còn thấy yêu cầu Khe Tre do chính mình gửi; Quản trị phòng không thấy đề xuất của chính mình; Quản trị hệ thống thấy cả hai hàng đợi và popup xác nhận. Không duyệt/từ chối, không thay đổi dữ liệu Khe Tre/Sơn Tây.
 - Tự động: lint, type-check, build đạt; 60 tests/11 files đạt. Build còn cảnh báo chunk JavaScript lớn hơn 500 kB. HDSD Google Docs id `1RccJEesgU5K6d2oPu0I1ZrfDt2O-OXVYa-3MIBddEX8`, tab `t.0`, đã cập nhật mục lục, hướng dẫn nhanh, menu và mục xét duyệt; readback xác nhận đúng document/tab và giữ nguyên style đoạn hiện có.
-- Commit/push/deploy: chưa thực hiện tại thời điểm ghi mục này; phải cập nhật lại sau khi workflow và kiểm thử production hoàn tất. Không stage `.gitignore` hoặc `outputs/` vì là thay đổi/artifact có sẵn ngoài phạm vi.
+- Commit frontend `0aa0cf4e17b9a0af154ec1e2192b65535d4cb2e8`, đã push `main`; workflow [34914764892](https://github.com/quang11111222/tien-do-phong-kham/actions/runs/34914764892) completed/success. URL kiểm thử production: `https://quang11111222.github.io/tien-do-phong-kham/?qa=0aa0cf4#/approvals`.
+- Production UI: Nhân viên thuần không có menu và URL trực tiếp chuyển về danh mục; Quản trị phòng thấy hai tab nhưng chỉ hàng đợi đúng phòng; tài khoản `005902` được nhận diện là Quản trị dự án trên màn này và không còn thấy yêu cầu Khe Tre do chính mình gửi; Quản trị hệ thống thấy 2 yêu cầu hoàn thành và 1 đề xuất phát sinh. Kiểm tra từ chối thiếu lý do có toast, cả hai thao tác duyệt có popup và đã hủy nên không đổi dữ liệu. Console không có lỗi.
+- Không stage `.gitignore` hoặc `outputs/` vì là thay đổi/artifact có sẵn ngoài phạm vi. Không có migration database trong bản sửa này.
 
 ### 2026-09-14 - Codex - Deploy và kiểm thử đề xuất công việc con
 

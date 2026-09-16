@@ -4,7 +4,8 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 
 ## Trạng thái hiện tại
 
-- 2026-09-16 đã triển khai local phần theo dõi kế hoạch/thực tế: thêm `actual_completed_at` trên công việc, `late_reason` trên lượt nộp, Gantt dùng ngày được duyệt để tính độ dài thực tế, và RPC bắt lý do khi nộp sau hạn. Migration `supabase/migrations/202609160001_plan_actual_completion.sql` chưa áp dụng remote vì máy không có Supabase CLI/SQL connector; chưa push/deploy frontend để tránh gọi RPC mới khi schema production chưa có.
+- 2026-09-16 đã áp dụng migration `202609160001_plan_actual_completion.sql` trên Supabase production qua SQL Editor. Xác minh read-only: `actual_completed_at=1`, `late_reason=1`, RPC submit 3 tham số tồn tại `1`, dữ liệu `late_reason` hiện có `0` dòng. Frontend commit `f8e7990` đã sẵn sàng push/deploy; chưa chạy ca UI mới.
+- 2026-09-16 đã kiểm tra browser: production bằng phiên Quản trị hệ thống mở được `#/users` và hiển thị 15 tài khoản QA/demo; local bằng phiên nhân viên mở được `PK-DEMO-QA-21#/gantt`. Chưa chạy submit/review mới và không tạo/sửa dữ liệu vì migration chưa áp dụng remote; các ca đúng hạn, trước hạn, quá hạn có lý do, duyệt và từ chối còn chờ sau bước migration.
 
 - 2026-09-16 bản sửa nhãn ngày hôm nay đã deploy production từ commit `0f4ea7d`. GitHub Actions workflow `35049086018` (`build-and-deploy`) completed/success; production URL `https://quang11111222.github.io/tien-do-phong-kham/?qa=0f4ea7d#/projects/PK-KHETRE/gantt` mở được bản ứng dụng mới và đang yêu cầu đăng nhập. Chưa xác minh trực tiếp nhãn Gantt sau đăng nhập trong lượt này. Workflow có cảnh báo nền tảng: một số action đang target Node.js 20 và bị ép chạy Node.js 24.
 
@@ -38,7 +39,7 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 - Backend migration thêm `work_items.actual_completed_at` và `completion_requests.late_reason`. Lượt nộp chỉ chuyển ngày kết thúc thực tế khi được duyệt; lượt từ chối xóa mốc thực tế và tiếp tục ở trạng thái đang thực hiện/quá hạn. Nộp sau hạn không có lý do bị database từ chối.
 - Frontend/service đã đọc mốc thực tế, gửi lý do trễ qua RPC và kéo thanh Gantt của việc đã duyệt đến ngày nộp được duyệt; ghi chú nộp hiện tại được dùng làm lý do trễ nếu quá hạn.
 - Kiểm tra local: lint, type-check, 60/60 tests, build đều đạt; build còn cảnh báo chunk JavaScript khoảng 603 kB. `get_errors` không báo lỗi ở các file thay đổi.
-- Chưa áp dụng migration remote, chưa kiểm thử SQL thật và chưa deploy frontend. Cần chạy migration trước khi push bản frontend vì RPC production hiện chưa có tham số `late_reason`/cột `actual_completed_at`.
+- Migration đã áp dụng production và truy vấn schema/RPC đạt. Chưa deploy frontend `f8e7990` và chưa chạy các ca UI đúng hạn/trước hạn/quá hạn/duyệt/từ chối.
 
 ### 2026-09-16 - Chốt cách đo kế hoạch và thực tế
 

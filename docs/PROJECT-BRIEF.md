@@ -38,7 +38,7 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 ### Trong phạm vi
 
 - Đăng nhập bằng tên tài khoản và mật khẩu do quản trị viên tạo; không có màn hình hoặc API tự đăng ký công khai.
-- Danh mục 21 phòng ban/đơn vị.
+- Danh mục 24 phòng ban/đơn vị; ba đơn vị bổ sung là Thư ký (`THUKY`), Ban Tổng giám đốc (`BTGD`) và Ban giám đốc (`BGD`).
 - Danh mục phòng/ban là dữ liệu cấu hình cố định trong giai đoạn này, chưa làm màn hình quản lý riêng.
 - Mỗi tài khoản được gắn một phòng/ban; một tài khoản có thể đồng thời là Quản trị phòng và Quản trị dự án tại phạm vi được giao.
 - Danh mục dự án, hạng mục và công việc.

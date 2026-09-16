@@ -4,6 +4,8 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 
 ## Trạng thái hiện tại
 
+- 2026-09-16 đã sửa lỗi nhãn ngày hôm nay trên Gantt bị mất ký tự đầu khi đường đỏ nằm sát mép trái: `TodayLine` neo nhãn về bên trái trong vùng 18px đầu thay vì căn giữa vượt ra ngoài vùng timeline. Đã sửa `GanttView.tsx` và `prototype.css`; không đổi nghiệp vụ, database hoặc dữ liệu. GitNexus impact `TodayLine`: LOW, hai caller trực tiếp trong Gantt. Lint, type-check, 60 tests và build đạt; build vẫn có cảnh báo chunk JavaScript lớn hơn 500 kB. Chưa kiểm tra browser trực tiếp và chưa commit/push/deploy.
+
 - 2026-09-16 Codex đã điều chỉnh UX chuông theo yêu cầu mới: bỏ phân trang thông báo, giữ khung cuộn gọn và hiển thị liên tục tối đa 20 cập nhật; hai tab Cập nhật mới/Cần chú ý vẫn giữ. Phạm vi gồm `NotificationBell`, CSS và tài liệu nghiệp vụ/decision/bàn giao; không đổi quyền, database hoặc dữ liệu. Lint, type-check, test và build đạt; browser fixture xác nhận cuộn tới mục 20 không bị cắt. Chưa commit/push/deploy.
 
 - 2026-09-16 Codex đã sửa lỗi bố cục popup chuông thông báo: panel dùng flex dọc, danh sách co giãn và cuộn trong phần còn lại nên hàng cuối không bị cắt. Không đổi giới hạn 20 cập nhật, nghiệp vụ, database hoặc dữ liệu. Lint, type-check, 60 tests và build đạt; fixture local dùng CSS thật xác nhận cuộn tới cuối hiển thị đủ mục thứ 20. Chưa kiểm tra production; chưa commit/push/deploy.
@@ -26,6 +28,13 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 - File chưa theo dõi: `outputs/`; vẫn còn nguyên. Khi được phép dọn, giữ Excel demo 21 phòng/ban và ba báo cáo QA/đo tải trước khi xóa phần tạm còn lại. Chưa tạo `local-artifacts/`.
 
 ## Lịch sử bàn giao (mới nhất ở trên)
+
+### 2026-09-16 - Codex - Sửa nhãn ngày hôm nay sát mép trái Gantt
+
+- Nguyên nhân: `.nowlab` luôn dùng `translateX(-50%)`, nên khi ngày hôm nay gần đầu timeline, một phần nhãn nằm ngoài vùng `.time` và bị cắt ký tự đầu. `TodayLine` thêm class `edge` khi vị trí dưới 18px; CSS bỏ phép dịch ngang trong trường hợp này để nhãn bắt đầu từ mép timeline.
+- GitNexus impact trước sửa: `TodayLine` LOW; caller trực tiếp là `GanttView` và `TimelineHeader`, một process App/Tracker bị ảnh hưởng. FTS cảnh báo DLL OpenSSL trên Windows như các lần trước.
+- Kiểm tra: `npm.cmd run lint`, `npm.cmd run type-check`, `npm.cmd run test` (60/60), `npm.cmd run build` đều đạt. Build còn cảnh báo chunk `index` khoảng 603 kB đã có. Chưa kiểm tra browser trực tiếp; chưa commit, push hoặc deploy.
+- Không đổi nghiệp vụ, quyền, database hoặc dữ liệu demo. Các thay đổi `.gitignore`, `outputs/` và nội dung bàn giao có sẵn được giữ nguyên.
 
 ### 2026-09-16 - Codex - Chuông cuộn liên tục tối đa 20 thông báo
 
@@ -169,6 +178,7 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 - Đối chiếu database thống kê 9Router sau lần gọi thành công: provider đúng connection `XPIKI Codex API`, model upstream `gpt-5.6-sol`, endpoint `/v1/responses`, trạng thái `ok`; không sử dụng tuyến OpenAI/ChatGPT cho lượt sinh nội dung này.
 - Sửa provider `XPIKI Codex` trong 9Router từ adapter Chat Completions sang Responses API. Adapter Chat làm sai tên tool (`unsupported call: functions`), khiến VS Code tưởng không có filesystem/GitNexus/Google Drive; sau khi đổi, cùng model đã gọi shell thành công.
 - GitNexus đã có global skills và MCP trong cấu hình Codex; refresh index đạt `1.365 nodes`, `3.073 edges`, `57 clusters`, `92 flows`. Plugin Google Drive đã installed/enabled và kiểm thử đọc trực tiếp tiêu đề tài liệu HDSD thành công qua `codex_apps/google_drive.fetch`.
+- Sau một phiên VS Code dài và nhiều lượt gọi công cụ, XPIKI bắt đầu trả HTTP `402 insufficient_quota`; cấu hình 9Router/Responses vẫn đúng nhưng key không còn hạn mức. 9Router ghi nhận 132 request thành công trước lỗi, khoảng 17,57 triệu input token; chi phí trong thống kê 9Router chỉ là số ước tính, không thay thế số dư chính thức của XPIKI. Chưa thay key hoặc thực hiện giao dịch nạp tiền.
 - Các request `/settings/user`, `/wham/usage` của giao diện VS Code vẫn có thể gọi lớp tài khoản ChatGPT để hiển thị UI, nhưng không phải request sinh nội dung. Hội thoại Codex đã mở trước khi đổi cấu hình vẫn giữ model cũ; cần tạo hội thoại mới để dùng tuyến XPIKI.
 - Không thay đổi source ứng dụng, database hay dữ liệu dự án; không commit/push/deploy.
 

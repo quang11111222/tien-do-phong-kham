@@ -16,6 +16,9 @@ export interface ProposalDraft {
   parentId: string; name: string; reason: string; startDate: string; endDate: string
   coordinatingDepartmentIds: string[]; participantIds: string[]
 }
+export function canUseEmbeddedProposalTab(role: 'manager' | 'employee', projectCanManage: boolean) {
+  return role === 'employee' && !projectCanManage
+}
 export function inheritedProposalLead(parentId: string, items: WorkItem[]) {
   const visited = new Set<string>()
   let item = items.find((row) => row.id === parentId)

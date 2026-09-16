@@ -188,6 +188,9 @@ Phòng Phát triển phòng khám (PTPK) đang theo dõi tiến độ dự án b
 - Chưa duyệt: không tạo công việc chính thức, không tính tiến độ. Đã duyệt: tạo đúng một công việc con, đánh dấu Phát sinh và tính lại trạng thái tổng hợp theo công việc cuối nhánh; không thay đổi bằng chứng đã khóa của cha.
 - Người gửi được rút đề xuất đang chờ; đề xuất đã rút/từ chối có thể sửa và gửi lại. Lưu lịch sử mỗi lượt xử lý; kiểm tra phiên bản để tránh xử lý trùng.
 - Chuông có ba loại cấu hình riêng: đề xuất chờ duyệt cho Quản trị dự án/hệ thống, kết quả duyệt/từ chối cho người gửi. Không trộn với gửi/duyệt hoàn thành công việc.
+- Nhân viên và Quản trị phòng/ban có thêm tab **Đề xuất việc con** ngay trong panel công việc; công việc đang mở được chọn sẵn làm mục cha. Tab này không hiển thị cho Quản trị dự án hoặc Quản trị hệ thống vì các vai trò đó dùng thao tác thêm trực tiếp trên bảng. Nút đề xuất chung ngoài màn hình vẫn được giữ.
+- Bảng Gantt hiển thị thêm cột **Kết thúc thực tế**; công việc cuối nhánh đã hoàn thành hiển thị ngày nộp của lượt hoàn thành được duyệt, công việc chưa có mốc thực tế và hạng mục tổng hợp hiển thị `—`.
+- Menu quản trị **Xét duyệt** hiển thị tổng số yêu cầu cần xử lý trong ngoặc/badge, bằng tổng hàng đợi hoàn thành và đề xuất phát sinh sau khi lọc đúng phạm vi quyền của tài khoản.
 
 ## 13. Open Questions
 

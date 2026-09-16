@@ -20,6 +20,7 @@ import { ChangePasswordDialog } from '../auth/ChangePasswordDialog'
 import { useAutoRefresh } from '../../lib/useAutoRefresh'
 import { NotificationBell } from './NotificationBell'
 import { useToast } from '../../components/toastContext'
+import { approvalQueueCount, getApprovalQueue } from './approvalQueue'
 
 export function TrackerShell() {
   const { profile, signOut } = useAuth()
@@ -35,6 +36,7 @@ export function TrackerShell() {
   const [notifications, setNotifications] = useState<PersonalNotification[]>([])
   const [notificationsLoading, setNotificationsLoading] = useState(true)
   const [notificationsError, setNotificationsError] = useState('')
+  const [approvalCount, setApprovalCount] = useState(0)
   const dirtyRef = useRef(false)
   const lastHashRef = useRef(window.location.hash || routeHash('projects'))
   const confirm = useConfirm()
@@ -67,6 +69,11 @@ export function TrackerShell() {
     catch { setNotifications([]); setNotificationsError('Không tải được thông báo. Vui lòng thử lại.'); }
     finally { setNotificationsLoading(false) }
   }, [profile])
+  const refreshApprovalCount = useCallback(async () => {
+    if (!profile || !canReview) { setApprovalCount(0); return }
+    const queue = await getApprovalQueue(profile)
+    setApprovalCount(approvalQueueCount(queue))
+  }, [canReview, profile])
 
   useEffect(() => {
     let active = true
@@ -80,6 +87,8 @@ export function TrackerShell() {
     return () => window.clearTimeout(timer)
   }, [page, refreshNotifications])
   useAutoRefresh(() => refreshNotifications().catch(() => undefined), { enabled: !hasUnsavedChanges })
+  useEffect(() => { const timer = window.setTimeout(() => void refreshApprovalCount().catch(() => setApprovalCount(0)), 0); return () => window.clearTimeout(timer) }, [page, refreshApprovalCount])
+  useAutoRefresh(() => refreshApprovalCount().catch(() => undefined), { enabled: canReview && !hasUnsavedChanges })
 
   const applyRoute = useCallback(async (hash: string) => {
     if (!profile) return
@@ -226,7 +235,7 @@ export function TrackerShell() {
       <div className="navwrap"><div className="navlabel">Quản lý khảo sát mặt bằng</div><nav className="nav"><div className="sub root-sub">
         <button className={page === 'projects' ? 'on' : ''} onClick={backToPortfolio}>Danh mục dự án</button>
         {project && <><div className="cap">{project.name}</div><button className={page === 'overview' ? 'on' : ''} onClick={() => navigate('overview')}>Tổng quan dự án</button><button className={page === 'gantt' ? 'on' : ''} onClick={() => navigate('gantt')}>Tiến độ &amp; Gantt</button><button className={page === 'milestones' ? 'on' : ''} onClick={() => navigate('milestones')}>Mốc kiểm soát</button><button className={page === 'activity' ? 'on' : ''} onClick={() => navigate('activity')}><span>Nhật ký diễn biến</span>{unreadActivityCount > 0 && <span className="nav-activity-badge" title={`${unreadActivityCount} công việc có diễn biến mới`} aria-label={`${unreadActivityCount} công việc có diễn biến mới`}><i className="nav-activity-pulse" aria-hidden="true" /><b>{unreadActivityCount > 99 ? '99+' : unreadActivityCount}</b></span>}</button></>}
-      </div>{(canReview || isSystemAdmin) && <><div className="navlabel nav-section">Quản trị</div><div className="sub root-sub">{canReview && <button className={page === 'approvals' ? 'on' : ''} onClick={() => navigate('approvals')}>Xét duyệt</button>}{isSystemAdmin && <><button className={page === 'users' ? 'on' : ''} onClick={() => navigate('users')}>Quản lý người dùng</button><button className={page === 'notification-settings' ? 'on' : ''} onClick={() => navigate('notification-settings')}>Cấu hình thông báo</button></>}</div></>}</nav></div>
+      </div>{(canReview || isSystemAdmin) && <><div className="navlabel nav-section">Quản trị</div><div className="sub root-sub">{canReview && <button className={page === 'approvals' ? 'on' : ''} onClick={() => navigate('approvals')}><span>Xét duyệt</span><b>{approvalCount}</b></button>}{isSystemAdmin && <><button className={page === 'users' ? 'on' : ''} onClick={() => navigate('users')}>Quản lý người dùng</button><button className={page === 'notification-settings' ? 'on' : ''} onClick={() => navigate('notification-settings')}>Cấu hình thông báo</button></>}</div></>}</nav></div>
       <div className="clock"><b>{clock.toLocaleTimeString('vi-VN')}</b><span>{clock.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' })}</span></div>
     </aside>
       <div className="main"><header className="top"><span className="top-spacer" />{projectPage && <div className="chip">{project.code}</div>}<NotificationBell items={notifications} loading={notificationsLoading} error={notificationsError} onRetry={() => void refreshNotifications()} onOpen={openNotification} onMarkAllSeen={markAllNotificationsAsSeen} /><div className="whoami"><div><b>{profile.full_name}</b><span>{isSystemAdmin ? 'Quản trị hệ thống' : canManageProject || (page === 'approvals' && hasManagedProject === true) ? 'Quản trị dự án' : profile.is_department_admin ? 'Quản trị phòng/ban' : 'Nhân viên'}</span></div><div className="av account-department-tag">{isSystemAdmin ? 'ADMIN' : profile.department?.code || '—'}</div>{profile.username !== 'admin' && <button className="logout-mini" onClick={() => setShowChangePassword(true)}>Đổi mật khẩu</button>}<button className="logout-mini" onClick={() => void signOut()}>Đăng xuất</button></div></header>

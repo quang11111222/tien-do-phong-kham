@@ -65,6 +65,8 @@ Ghi các quyết định ảnh hưởng đến phạm vi, dữ liệu, kiến tr
 
 ## Phối hợp Codex và Claude (2026-09-14)
 
+- 2026-09-16: Bảng Gantt thêm cột **Kết thúc thực tế** cho công việc cuối nhánh; hạng mục tổng hợp không suy diễn ngày hoàn thành và hiển thị `—`. Nhân viên/Quản trị phòng có tab **Đề xuất việc con** trong panel với mục cha cố định là công việc đang mở; Quản trị dự án/hệ thống không có tab này. Menu **Xét duyệt** dùng chung bộ tải/phạm vi với màn xét duyệt để hiển thị tổng số hai hàng đợi, tránh lệch số do lọc quyền khác nhau.
+
 - 2026-09-15: Màn quản trị đổi tên từ **Chờ duyệt** thành **Xét duyệt** và tách hai tab **Duyệt hoàn thành** / **Duyệt việc phát sinh**. Giao diện lọc từng yêu cầu theo chính phạm vi backend: quản trị hệ thống, quản trị dự án đúng dự án, hoặc quản trị phòng của đơn vị chủ trì đối với hoàn thành; việc phát sinh chỉ quản trị hệ thống/quản trị dự án. Loại yêu cầu do chính tài khoản gửi khỏi hàng duyệt hoàn thành, kể cả tài khoản đó có quyền quản trị tại một dự án khác.
 
 - Bổ sung kế hoạch bằng đề xuất riêng (`work_item_proposals`), chỉ tạo `work_items` khi Quản trị dự án/hệ thống duyệt. Nhân viên/Quản trị phòng được đề xuất trong phạm vi xem chi tiết; quyền quản lý kế hoạch chính thức vẫn giữ nguyên. Duyệt bổ sung không phải duyệt hoàn thành; giữ bằng chứng cha đã nộp, đánh dấu mục mới Phát sinh, dùng trạng thái tổng hợp hiện có. Version lock và transaction chống duyệt trùng; đề xuất rút/từ chối được gửi lại và lưu sự kiện. Frontend và migration `202609140003` phải triển khai đồng bộ vì bộ cấu hình thông báo tăng từ 7 lên 10 loại.

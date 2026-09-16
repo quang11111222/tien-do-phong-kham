@@ -1,14 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { CompletionRequest, Profile, Project } from '../../types/domain'
+import type { CompletionRequest, Profile } from '../../types/domain'
 import { useConfirm } from '../../components/confirmContext'
 import { useToast } from '../../components/toastContext'
 import { useAutoRefresh } from '../../lib/useAutoRefresh'
-import { getPendingRequests, getProjects, reviewRequest } from './trackerService'
-import { getWorkProposals, reviewWorkProposal, type WorkProposal } from './workProposalService'
-import { canReviewCompletionRequest, proposalReviewProjects } from './approvalScope'
+import { reviewRequest } from './trackerService'
+import { reviewWorkProposal } from './workProposalService'
+import { getApprovalQueue, type ProposalQueueItem } from './approvalQueue'
 
 type ApprovalTab = 'completion' | 'proposal'
-type ProposalQueueItem = WorkProposal & { project: Pick<Project, 'id' | 'code' | 'name'> }
 const PAGE_SIZE = 10
 
 export function ApprovalsView({ profile }: { profile: Profile }) {
@@ -24,15 +23,9 @@ export function ApprovalsView({ profile }: { profile: Profile }) {
   const confirm = useConfirm()
 
   const load = useCallback(async () => {
-    const projects = await getProjects()
-    const managedProjectIds = new Set(projects.filter((project) => project.can_manage).map((project) => project.id))
-    const requests = await getPendingRequests()
-    const reviewProjects = proposalReviewProjects(projects, profile.role === 'manager')
-    const proposals = (await Promise.all(reviewProjects.map(async (project) =>
-      (await getWorkProposals(project.id)).filter((proposal) => proposal.status === 'pending').map((proposal) => ({ ...proposal, project }))
-    ))).flat().sort((a, b) => a.submitted_at.localeCompare(b.submitted_at))
-    setCompletionItems(requests.filter((item) => canReviewCompletionRequest(item, profile, managedProjectIds)))
-    setProposalItems(proposals)
+    const queue = await getApprovalQueue(profile)
+    setCompletionItems(queue.completionItems)
+    setProposalItems(queue.proposalItems)
   }, [profile])
 
   useEffect(() => {

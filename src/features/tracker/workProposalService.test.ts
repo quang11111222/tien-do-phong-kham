@@ -2,11 +2,16 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { WorkItem } from '../../types/domain'
 const mock = vi.hoisted(() => ({ rpc: vi.fn() }))
 vi.mock('../../lib/supabase', () => ({ supabase: mock }))
-import { inheritedProposalLead, reviewWorkProposal, submitWorkProposal, validateProposalDraft, withdrawWorkProposal, type ProposalDraft, type WorkProposal } from './workProposalService'
+import { canUseEmbeddedProposalTab, inheritedProposalLead, reviewWorkProposal, submitWorkProposal, validateProposalDraft, withdrawWorkProposal, type ProposalDraft, type WorkProposal } from './workProposalService'
 const draft = (): ProposalDraft => ({ parentId: 'parent', name: ' Phát sinh ', reason: ' Sở yêu cầu thêm ', startDate: '2026-09-14', endDate: '2026-09-16', coordinatingDepartmentIds: ['coord'], participantIds: ['employee'] })
 const proposal = { id: 'proposal', version: 2 } as WorkProposal
 describe('đề xuất bổ sung công việc', () => {
   beforeEach(() => { mock.rpc.mockReset(); mock.rpc.mockResolvedValue({ error: null }) })
+  it('shows the panel tab only to employees and department admins who are not project admins', () => {
+    expect(canUseEmbeddedProposalTab('employee', false)).toBe(true)
+    expect(canUseEmbeddedProposalTab('employee', true)).toBe(false)
+    expect(canUseEmbeddedProposalTab('manager', true)).toBe(false)
+  })
   it('finds nearest parent lead, not a coordinating department; handles incomplete/cyclic trees', () => {
     const items = [{ id: 'parent', parent_id: 'grand', lead_department_id: null }, { id: 'grand', parent_id: null, lead_department_id: 'lead' }] as WorkItem[]
     expect(inheritedProposalLead('parent', items)).toBe('lead')

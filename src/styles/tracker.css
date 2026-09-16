@@ -286,4 +286,6 @@
 .proposal-drawer .f > span { display: block; font-size: 11px; font-weight: 500; margin-bottom: 3px; color: var(--ink-3); }
 .proposal-drawer .department-chip-list.empty { padding: 0; text-align: left; }
 .proposal-drawer .dfoot { display: flex; gap: 8px; padding: 16px; flex-shrink: 0; border-top: 1px solid var(--line); }
+.proposal-embedded fieldset { border: 0; display: flex; flex-direction: column; gap: 12px; margin: 0 0 12px; min-width: 0; padding: 0; }
+.proposal-embedded .f > span { color: var(--ink-3); display: block; font-size: 11px; font-weight: 500; margin-bottom: 3px; }
 @media(max-width: 700px) { .proposal-row { flex-direction: column; } .proposal-actions { max-width: none; } }

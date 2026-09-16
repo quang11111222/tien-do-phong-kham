@@ -94,3 +94,48 @@ export function WorkProposals({ project, profile, items, parents, users, departm
       </div><footer className="dfoot"><button className="btn" type="button" disabled={busy} onClick={() => void close()}>Hủy bỏ</button><button className="btn pri" type="submit" disabled={busy || !leadId}>{busy ? 'Đang gửi…' : 'Gửi đề xuất'}</button></footer></form></aside></>}
   </section>
 }
+
+export function WorkProposalForm({ parent, items, users, departments, onChanged, onDirtyChange }: {
+  parent: WorkItem; items: WorkItem[]; users: UserProfile[]; departments: Department[]
+  onChanged: () => Promise<void>; onDirtyChange: (dirty: boolean) => void
+}) {
+  const initialDraft = (): ProposalDraft => ({ ...blank(), parentId: parent.id })
+  const [draft, setDraft] = useState<ProposalDraft>(initialDraft)
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const notify = useToast()
+  const leadId = inheritedProposalLead(parent.id, items)
+  const dirty = JSON.stringify(draft) !== JSON.stringify(initialDraft())
+  useEffect(() => { onDirtyChange(dirty); return () => onDirtyChange(false) }, [dirty, onDirtyChange])
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault()
+    if (busy) return
+    setBusy(true); setError('')
+    try {
+      await submitWorkProposal(draft)
+      setDraft(initialDraft())
+      notify('Đã gửi đề xuất. Công việc chỉ vào tiến độ sau khi được duyệt.')
+      await onChanged()
+    } catch (caught) {
+      const message = caught instanceof Error ? caught.message : 'Không gửi được đề xuất.'
+      setError(message); notify(message, 'error')
+    } finally { setBusy(false) }
+  }
+
+  return <form className="sec proposal-embedded" onSubmit={(event) => void submit(event)}>
+    <h3>Đề xuất công việc con</h3>
+    <p className="note">Công việc cha: <b>{parent.wbs}. {parent.name}</b>. Đề xuất chỉ vào kế hoạch sau khi Quản trị dự án hoặc Quản trị hệ thống duyệt.</p>
+    {error && <p role="alert" className="note warn">{error}</p>}
+    <fieldset disabled={busy}>
+      <label className="f"><span>Tên công việc</span><input autoFocus required maxLength={500} value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} /></label>
+      <label className="f"><span>Lý do phát sinh</span><textarea required maxLength={4000} value={draft.reason} onChange={(event) => setDraft({ ...draft, reason: event.target.value })} /></label>
+      <p className="tiny">Đơn vị chủ trì (kế thừa): <b>{departments.find((department) => department.id === leadId)?.name || 'Chưa có đơn vị chủ trì'}</b></p>
+      <DepartmentMultiSelect departments={departments} leadDepartmentId={leadId} selectedIds={draft.coordinatingDepartmentIds} disabled={!leadId} onChange={(ids) => setDraft({ ...draft, coordinatingDepartmentIds: ids, participantIds: retainEligibleParticipantIds(draft.participantIds, users, leadId, ids) })} />
+      <ParticipantMultiSelect users={eligibleParticipants(users.filter((user) => user.active), leadId, draft.coordinatingDepartmentIds)} selectedIds={draft.participantIds} onChange={(ids) => setDraft({ ...draft, participantIds: ids })} />
+      <label className="f"><span>Ngày bắt đầu</span><input required type="date" value={draft.startDate} onChange={(event) => setDraft({ ...draft, startDate: event.target.value })} /></label>
+      <label className="f"><span>Ngày kết thúc</span><input required type="date" min={draft.startDate} value={draft.endDate} onChange={(event) => setDraft({ ...draft, endDate: event.target.value })} /></label>
+    </fieldset>
+    <button className="btn pri" type="submit" disabled={busy || !leadId}>{busy ? 'Đang gửi…' : 'Gửi đề xuất'}</button>
+  </form>
+}

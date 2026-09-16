@@ -89,7 +89,7 @@ export function GanttView({ project, profile, initialWorkItemId, onSelectedWorkI
   }
   const leads = departments
   const startDate = minDate([project.start_date, ...allLeaves.map((item) => item.start_date), ...milestones.map((item) => item.due_date)]) || today()
-  const endDate = maxDate([project.end_date, ...allLeaves.map((item) => item.end_date), ...milestones.map((item) => item.due_date)]) || startDate
+  const endDate = maxDate([project.end_date, ...allLeaves.map((item) => item.end_date), ...allLeaves.map((item) => actualDate(item.actual_completed_at)), ...milestones.map((item) => item.due_date)]) || startDate
   const pixelsPerDay = zoom === 'day' ? 22 : zoom === 'week' ? 7 : 3
   const totalDays = Math.max(1, dayDiff(startDate, endDate) + 1)
   const width = totalDays * pixelsPerDay
@@ -165,7 +165,10 @@ export function GanttView({ project, profile, initialWorkItemId, onSelectedWorkI
       const span = ownChildren.length ? spanOf(item, scopedItems) : { start: item.start_date, end: item.end_date }
       const state = aggregateStatus(item, scopedItems, scopedChildren)
       const left = span.start ? dayDiff(startDate, span.start) * pixelsPerDay : 0
-      const barWidth = span.start && span.end ? Math.max(3, (dayDiff(span.start, span.end) + 1) * pixelsPerDay) : 0
+      const actualCompletedDate = actualDate(item.actual_completed_at)
+      const plannedBarWidth = span.start && span.end ? Math.max(3, (dayDiff(span.start, span.end) + 1) * pixelsPerDay) : 0
+      const actualBarWidth = actualCompletedDate && span.start ? Math.max(3, (dayDiff(span.start, actualCompletedDate) + 1) * pixelsPerDay) : 0
+      const barWidth = actualCompletedDate ? actualBarWidth : plannedBarWidth
       return <div className={`trow ${ownChildren.length ? 'g' : ''} ${selected === item.id ? 'sel' : ''}`} key={item.id} onClick={() => openExisting(item)}><div className="lft"><div className="cell c-wbs">{ownChildren.length > 0 && <button className="exp" onClick={(event) => { event.stopPropagation(); toggle(item.id) }}>{collapsed.has(item.id) ? '▶' : '▼'}</button>}{displayWorkItemWbs(item.wbs)}</div><div className="cell c-name" style={{ paddingLeft: 8 + depth(item, scopedItems) * 12 }}>{item.has_unseen_activity && <span className="activity-new-badge" title="Có diễn biến mới" aria-label="Có diễn biến mới"><i className="activity-pulse" aria-hidden="true" />Mới</span>}{item.name}{item.is_supplemental && <span className="proposal-status" title="Công việc phát sinh đã được duyệt bổ sung">Phát sinh</span>}</div><div className="cell c-lead" title={responsibilityLabel(item)}>{item.lead_department?.name || '—'}</div><div className="cell c-d">{date(span.start)}</div><div className="cell c-d">{date(span.end)}</div><div className="cell c-n">{span.start && span.end ? dayDiff(span.start, span.end) + 1 : '—'}</div><div className="cell c-st"><span className={`pill ${classes[state]} ${ownChildren.length ? 'status-summary' : 'status-leaf'}`} title={ownChildren.length ? 'Trạng thái tổng hợp từ các công việc cuối nhánh' : 'Trạng thái của công việc cuối nhánh'}><i />{state === 'late' ? 'Quá hạn' : labels[state]}</span></div><div className="cell c-act">{canAddChild(item) && <button className="rowbtn" title="Thêm công việc con" onClick={(event) => { event.stopPropagation(); openDraft(item) }}>+</button>}</div></div><div className="time" style={{ width, backgroundImage: `repeating-linear-gradient(90deg,var(--line-2) 0 1px,transparent 1px ${7 * pixelsPerDay}px)` }}>{barWidth > 0 && <div className={`gbar ${ownChildren.length ? 'pbar' : ''}`} style={{ left, width: barWidth, background: ownChildren.length ? undefined : statusColor(state) }}>{item.has_unseen_activity && <span className="gantt-activity-pulse" />}<span className="gbar-label">{item.name}</span></div>}<TodayLine start={startDate} pixelsPerDay={pixelsPerDay} /></div></div>
     })}{!flatRows.length && <div className="empty" role="status">{leadFilter ? `Không có công việc do ${departments.find((department) => department.id === leadFilter)?.name || 'phòng/ban đã chọn'} chủ trì khớp bộ lọc trong phạm vi bạn được xem. Hãy đổi bộ lọc hoặc phạm vi công việc.` : 'Không có đầu việc nào khớp bộ lọc.'}</div>}</div>}
     {(draftItem ?? selectedItem) && <WorkDrawer projectCanManage={canManageProject} canViewDetails={draftItem ? true : canViewDetails(selectedItem!)} canManageStructure={draftItem ? (draftItem.parent_id === null ? canManageProject : Boolean(items.find((item) => item.id === draftItem.parent_id && canAddChild(item)))) : canManageItem(selectedItem!)} canAddChild={draftItem ? false : canAddChild(selectedItem!)} key={`${(draftItem ?? selectedItem)!.id}-${(draftItem ?? selectedItem)!.version}-${(draftItem ?? selectedItem)!.attachment?.id ?? ''}`} item={(draftItem ?? selectedItem)!} items={items} users={users} departments={departments} profile={profile} isNew={Boolean(draftItem)} tab={drawerTab} onTabChange={setDrawerTab} onClose={closeDrawer} onCreated={created} onAddChild={openDraft} onChanged={load} onError={setError} onDirtyChange={reportDirty} />}
@@ -303,6 +306,7 @@ function makeDraft(projectId: string, parent: WorkItem | null, items: WorkItem[]
     lead_department: parent?.lead_department ?? null,
     coordinating_department_ids: [],
     coordinating_departments: [],
+    actual_completed_at: null,
     start_date: parent ? today() : null,
     end_date: parent ? today() : null,
     status: 'not_started',
@@ -350,6 +354,7 @@ function maxDate(values: (string | null)[]) { return values.filter((value): valu
 function dayDiff(start: string, end: string) { return Math.round((new Date(`${end}T00:00:00`).getTime() - new Date(`${start}T00:00:00`).getTime()) / 86_400_000) }
 function statusColor(value: WorkItemStatus | 'late') { return ({ not_started: 'var(--st-todo)', in_progress: 'var(--st-doing)', pending_approval: 'var(--st-pending)', completed: 'var(--st-done)', late: 'var(--st-late)' })[value] }
 function date(value: string | null) { return value ? new Intl.DateTimeFormat('vi-VN').format(new Date(`${value}T00:00:00`)) : '—' }
+function actualDate(value: string | null) { if (!value) return null; const parts = new Intl.DateTimeFormat('en', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date(value)); const year = parts.find((part) => part.type === 'year')?.value; const month = parts.find((part) => part.type === 'month')?.value; const day = parts.find((part) => part.type === 'day')?.value; return year && month && day ? `${year}-${month}-${day}` : null }
 function dateTime(value: string) { return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value)) }
 function iso(value: Date) { return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}` }
 function today() { return new Date().toISOString().slice(0, 10) }

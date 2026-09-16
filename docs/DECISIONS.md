@@ -59,6 +59,8 @@ Ghi các quyết định ảnh hưởng đến phạm vi, dữ liệu, kiến tr
 | 2026-09-12 | Thiết kế phân quyền tương lai không đóng cứng bốn vai trò hiện tại | Vận hành có thể phát sinh TGĐ, Thư ký, Trưởng phòng và các vai trò nghiệp vụ khác | Chỉ tài khoản quản trị gốc là vai trò hệ thống cố định; các vai trò nghiệp vụ dùng bộ quyền cấu hình được, còn Quản trị dự án được gắn theo từng dự án |
 | 2026-09-12 | Chuẩn hóa phản hồi sau thao tác bằng thông báo nổi | Nhiều nút chỉ đóng panel hoặc tải lại dữ liệu khiến người dùng không biết thao tác thành công hay thất bại | Dùng một hệ thống thông báo chung cho tạo, lưu, xóa, import/export, bằng chứng, diễn biến, xét duyệt, mật khẩu và quản lý tài khoản; thông báo tự ẩn, có thể đóng thủ công và không bật cho lỗi tự làm mới nền |
 
+| 2026-09-16 | Đo thực tế bằng lượt nộp được duyệt | Không cần người dùng nhập thêm ngày bắt đầu thực tế; chỉ lượt nộp được duyệt mới xác nhận công việc đã kết thúc | Ngày bắt đầu thực tế lấy từ ngày bắt đầu kế hoạch; thời điểm nộp của lượt được duyệt là ngày kết thúc thực tế. Nếu đã quá ngày kế hoạch, bắt buộc nhập và lưu lý do trễ cùng lượt nộp. Lượt bị từ chối không chốt ngày kết thúc và công việc tiếp tục tính quá hạn |
+
 | 2026-09-16 | Chuông thông báo bỏ phân trang, giữ khung cuộn tối đa 20 cập nhật | Phân trang trong popup nhỏ làm trải nghiệm nặng và không giống hành vi quen thuộc của chuông mạng xã hội | Mỗi tab hiển thị liên tục toàn bộ danh sách trong phạm vi đã lọc; danh sách cuộn trong khung cố định; backend/frontend vẫn giới hạn tối đa 20 cập nhật mới nhất |
 
 ## Phối hợp Codex và Claude (2026-09-14)

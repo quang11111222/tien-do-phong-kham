@@ -197,7 +197,7 @@ export async function getPersonalNotifications(userId: string, limit = 20): Prom
   if (!supabase) return []
   const [{ data: progress, error: progressError }, { data: requests, error: requestError }, { data: reads, error: readError }, { data: assignments, error: assignmentError }] = await Promise.all([
     supabase.from('progress_updates').select('id, work_item_id, content, created_by, created_at, author:profiles!progress_updates_created_by_fkey(full_name, username), work_item:work_items!inner(id, wbs, name, project_id, project:projects!inner(id, code, name))'),
-    supabase.from('completion_requests').select('id, work_item_id, note, status, submitted_by, submitted_at, reviewed_by, reviewed_at, review_note, submitter:profiles!completion_requests_submitted_by_fkey(full_name, username), reviewer:profiles!completion_requests_reviewed_by_fkey(full_name, username), work_item:work_items!inner(id, wbs, name, project_id, project:projects!inner(id, code, name))'),
+    supabase.from('completion_requests').select('id, work_item_id, note, late_reason, status, submitted_by, submitted_at, reviewed_by, reviewed_at, review_note, submitter:profiles!completion_requests_submitted_by_fkey(full_name, username), reviewer:profiles!completion_requests_reviewed_by_fkey(full_name, username), work_item:work_items!inner(id, wbs, name, project_id, project:projects!inner(id, code, name))'),
     supabase.from('work_item_activity_reads').select('work_item_id, last_seen_at').eq('user_id', userId),
     supabase.from('work_item_participants').select('work_item_id, assigned_at, assigned_by, assigner:profiles!work_item_participants_assigned_by_fkey(full_name, username), work_item:work_items!inner(id, wbs, name, project_id, project:projects!inner(id, code, name))').eq('user_id', userId),
   ])
@@ -275,9 +275,10 @@ export async function removeEvidence(attachment: Attachment) {
   if (error) throw error
 }
 
-export async function requestCompletion(workItemId: string, note: string) {
+export async function requestCompletion(workItemId: string, note: string, lateReason = '') {
   if (!supabase) return
-  const { error } = await supabase.rpc('submit_work_item_completion', { target_work_item_id: workItemId, submission_note: note.trim() || null })
+  const normalizedNote = note.trim() || null
+  const { error } = await supabase.rpc('submit_work_item_completion', { target_work_item_id: workItemId, submission_note: normalizedNote, late_reason: lateReason.trim() || normalizedNote })
   if (error) throw error
 }
 
@@ -307,7 +308,7 @@ export async function removeMilestone(id: string) { if (!supabase) return; const
 
 export async function getPendingRequests(): Promise<CompletionRequest[]> {
   if (!supabase) return []
-  const { data, error } = await supabase.from('completion_requests').select('id, work_item_id, attempt_no, note, status, submitted_by, submitted_at, work_item:work_items(id, project_id, wbs, name, lead_department_id, project:projects(id, code, name)), submitter:profiles!completion_requests_submitted_by_fkey(username, full_name)').eq('status', 'pending').order('submitted_at')
+  const { data, error } = await supabase.from('completion_requests').select('id, work_item_id, attempt_no, note, late_reason, status, submitted_by, submitted_at, work_item:work_items(id, project_id, wbs, name, lead_department_id, project:projects(id, code, name)), submitter:profiles!completion_requests_submitted_by_fkey(username, full_name)').eq('status', 'pending').order('submitted_at')
   if (error) throw error
   return (data ?? []).map((row) => { const work = Array.isArray(row.work_item) ? row.work_item[0] : row.work_item; const project = work && 'project' in work ? (Array.isArray(work.project) ? work.project[0] : work.project) : null; return { ...row, work_item: work, project, submitter: Array.isArray(row.submitter) ? row.submitter[0] : row.submitter } as unknown as CompletionRequest })
 }

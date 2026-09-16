@@ -4,6 +4,8 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 
 ## Trạng thái hiện tại
 
+- 2026-09-16 đã triển khai local phần theo dõi kế hoạch/thực tế: thêm `actual_completed_at` trên công việc, `late_reason` trên lượt nộp, Gantt dùng ngày được duyệt để tính độ dài thực tế, và RPC bắt lý do khi nộp sau hạn. Migration `supabase/migrations/202609160001_plan_actual_completion.sql` chưa áp dụng remote vì máy không có Supabase CLI/SQL connector; chưa push/deploy frontend để tránh gọi RPC mới khi schema production chưa có.
+
 - 2026-09-16 bản sửa nhãn ngày hôm nay đã deploy production từ commit `0f4ea7d`. GitHub Actions workflow `35049086018` (`build-and-deploy`) completed/success; production URL `https://quang11111222.github.io/tien-do-phong-kham/?qa=0f4ea7d#/projects/PK-KHETRE/gantt` mở được bản ứng dụng mới và đang yêu cầu đăng nhập. Chưa xác minh trực tiếp nhãn Gantt sau đăng nhập trong lượt này. Workflow có cảnh báo nền tảng: một số action đang target Node.js 20 và bị ép chạy Node.js 24.
 
 - 2026-09-16 đã sửa lỗi nhãn ngày hôm nay trên Gantt bị mất ký tự đầu khi đường đỏ nằm sát mép trái: `TodayLine` neo nhãn về bên trái trong vùng 18px đầu thay vì căn giữa vượt ra ngoài vùng timeline. Đã sửa `GanttView.tsx` và `prototype.css`; không đổi nghiệp vụ, database hoặc dữ liệu. GitNexus impact `TodayLine`: LOW, hai caller trực tiếp trong Gantt. Lint, type-check, 60 tests và build đạt; build vẫn có cảnh báo chunk JavaScript lớn hơn 500 kB. Chưa kiểm tra browser trực tiếp và chưa commit/push/deploy.
@@ -30,6 +32,20 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 - File chưa theo dõi: `outputs/`; vẫn còn nguyên. Khi được phép dọn, giữ Excel demo 21 phòng/ban và ba báo cáo QA/đo tải trước khi xóa phần tạm còn lại. Chưa tạo `local-artifacts/`.
 
 ## Lịch sử bàn giao (mới nhất ở trên)
+
+### 2026-09-16 - Triển khai local theo dõi kế hoạch và thực tế
+
+- Backend migration thêm `work_items.actual_completed_at` và `completion_requests.late_reason`. Lượt nộp chỉ chuyển ngày kết thúc thực tế khi được duyệt; lượt từ chối xóa mốc thực tế và tiếp tục ở trạng thái đang thực hiện/quá hạn. Nộp sau hạn không có lý do bị database từ chối.
+- Frontend/service đã đọc mốc thực tế, gửi lý do trễ qua RPC và kéo thanh Gantt của việc đã duyệt đến ngày nộp được duyệt; ghi chú nộp hiện tại được dùng làm lý do trễ nếu quá hạn.
+- Kiểm tra local: lint, type-check, 60/60 tests, build đều đạt; build còn cảnh báo chunk JavaScript khoảng 603 kB. `get_errors` không báo lỗi ở các file thay đổi.
+- Chưa áp dụng migration remote, chưa kiểm thử SQL thật và chưa deploy frontend. Cần chạy migration trước khi push bản frontend vì RPC production hiện chưa có tham số `late_reason`/cột `actual_completed_at`.
+
+### 2026-09-16 - Chốt cách đo kế hoạch và thực tế
+
+- Không thêm trường/ngày bắt đầu thực tế. Ngày bắt đầu thực tế mặc định bằng ngày bắt đầu kế hoạch.
+- Khi người dùng đã có đủ bằng chứng và bấm nộp hoàn thành, thời điểm nộp chỉ được ghi là ngày kết thúc thực tế sau khi lượt nộp được duyệt. Chỉ upload file hoặc nộp nhưng đang chờ duyệt chưa được tính là kết thúc.
+- Nếu thời điểm nộp sau ngày kết thúc kế hoạch, form bắt buộc nhập lý do trễ; lý do lưu cùng lượt nộp để người duyệt xem xét. Nếu bị từ chối, công việc tiếp tục tính quá hạn cho đến lượt nộp được duyệt.
+- Đã cập nhật `docs/PROJECT-BRIEF.md` và `docs/DECISIONS.md`. Chưa triển khai code, migration hoặc thay đổi dữ liệu.
 
 ### 2026-09-16 - Codex - Deploy sửa nhãn ngày hôm nay Gantt
 

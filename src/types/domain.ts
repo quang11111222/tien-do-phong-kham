@@ -57,6 +57,7 @@ export interface WorkItem {
   coordinating_departments: Department[]
   start_date: string | null
   end_date: string | null
+  actual_completed_at: string | null
   status: WorkItemStatus
   sort_order: number
   version: number
@@ -108,6 +109,7 @@ export interface CompletionRequest {
   status: 'pending' | 'approved' | 'rejected'
   submitted_by: string
   submitted_at: string
+  late_reason: string | null
   work_item?: Pick<WorkItem, 'id' | 'project_id' | 'wbs' | 'name' | 'lead_department_id'> | null
   submitter?: Pick<Profile, 'username' | 'full_name'> | null
   project?: Pick<Project, 'id' | 'code' | 'name'> | null

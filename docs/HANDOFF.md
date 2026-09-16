@@ -4,6 +4,12 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 
 ## Trạng thái hiện tại
 
+- 2026-09-16 Codex đã điều chỉnh UX chuông theo yêu cầu mới: bỏ phân trang thông báo, giữ khung cuộn gọn và hiển thị liên tục tối đa 20 cập nhật; hai tab Cập nhật mới/Cần chú ý vẫn giữ. Phạm vi gồm `NotificationBell`, CSS và tài liệu nghiệp vụ/decision/bàn giao; không đổi quyền, database hoặc dữ liệu. Lint, type-check, test và build đạt; browser fixture xác nhận cuộn tới mục 20 không bị cắt. Chưa commit/push/deploy.
+
+- 2026-09-16 Codex đã sửa lỗi bố cục popup chuông thông báo: panel dùng flex dọc, danh sách co giãn và cuộn trong phần còn lại nên hàng cuối không bị cắt. Không đổi giới hạn 20 cập nhật, nghiệp vụ, database hoặc dữ liệu. Lint, type-check, 60 tests và build đạt; fixture local dùng CSS thật xác nhận cuộn tới cuối hiển thị đủ mục thứ 20. Chưa kiểm tra production; chưa commit/push/deploy.
+
+- Ngày 2026-09-15 đã xóa vĩnh viễn khỏi production hai dự án thử: mã `1` (tên `1`) và `PK-DEMO-PTPK`. Giữ nguyên `PK-DEMO-QA-21`, `PK-KHETRE`, `PK-SONTAY`. Đã dọn 3 tệp Storage của `PK-DEMO-PTPK`; kiểm tra sau xóa xác nhận không còn project/work item/milestone/project administrator/proposal mồ côi, không có attachment/completion request mồ côi và hai trigger bảo vệ bằng chứng đã được bật lại.
+
 - Bản sửa màn **Xét duyệt** ngày 2026-09-15 đã deploy thành công tại commit `0aa0cf4`; workflow `34914764892` completed/success. Production đã kiểm tra đủ nhân viên thuần, tài khoản có quyền dự án động, quản trị phòng và quản trị hệ thống; không thay đổi trạng thái yêu cầu. HDSD Google Docs đã cập nhật đúng menu/hai tab.
 
 - Đã deploy và kiểm thử 2026-09-14: frontend `4f64606` trên `main`, migration `202609140003` đã áp dụng/đăng ký; GitHub Actions `34853947598` completed/success. Web production đã chạy luồng nhân viên gửi/rút/gửi lại, quản trị hệ thống từ chối/duyệt và chuông kết quả. Kiểm thử SQL sau deploy xác minh quyền quản trị phòng/dự án và bật/tắt policy; xem lịch sử mới nhất dưới đây.
@@ -20,6 +26,22 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 - File chưa theo dõi: `outputs/`; vẫn còn nguyên. Khi được phép dọn, giữ Excel demo 21 phòng/ban và ba báo cáo QA/đo tải trước khi xóa phần tạm còn lại. Chưa tạo `local-artifacts/`.
 
 ## Lịch sử bàn giao (mới nhất ở trên)
+
+### 2026-09-16 - Codex - Chuông cuộn liên tục tối đa 20 thông báo
+
+- Theo yêu cầu mới, bỏ hoàn toàn phân trang trong popup chuông; giữ hai tab Cập nhật mới/Cần chú ý và khung cuộn gọn. Cập nhật mới vẫn giới hạn 20 sự kiện sau lọc quyền/loại; không đổi database hoặc dữ liệu.
+- `NotificationBell.tsx` bỏ state/trích trang 10 dòng và footer Trước/Sau, render toàn bộ danh sách của tab. `tracker.css` giữ panel flex dọc, danh sách co giãn/cuộn độc lập và xóa selector pagination không còn dùng. Brief và Decisions đã cập nhật quy tắc UX mới.
+- GitNexus impact `NotificationBell` trước sửa: LOW, caller trực tiếp `TrackerShell`, module Tracker. FTS/BM25 vẫn cảnh báo Windows error 126 do thiếu DLL OpenSSL runtime.
+- Kiểm tra: `npm.cmd run lint`, `npm.cmd run type-check`, `npm.cmd run test` (60/60), `npm.cmd run build` đều đạt; build còn cảnh báo chunk JS 603.11 kB đã có. Browser local với fixture dùng đúng CSS ứng dụng xác nhận tab hiển thị 20 mục trong một danh sách, không có footer phân trang và cuộn tới mục 20 hiển thị trọn vẹn. Fixture tạm đã xóa; không tạo/sửa dữ liệu.
+- Chưa kiểm tra production; chưa commit, push hoặc deploy. `.gitignore`, phần thay đổi `docs/HANDOFF.md` có sẵn và `outputs/` được giữ nguyên.
+
+### 2026-09-15 - Codex - Xóa vĩnh viễn hai dự án thử trên production
+
+- Xóa đúng hai bản ghi đã được người dùng chỉ định: `1` / tên `1` (id `3d2896f8-f7ca-4c9d-b2f8-74d815a11bd2`) và `PK-DEMO-PTPK` (id `18096a6c-8e2a-4f48-a307-2cbc9ca81db1`). Thao tác có điều kiện kiểm tra đồng thời ID, mã và tên trước khi xóa.
+- Dọn trước 3 object bằng chứng trong bucket `evidence`. Khi cascade bị trigger khóa bằng chứng chặn, giao dịch đầu đã rollback hoàn toàn; giao dịch bảo trì sau đó chỉ tạm vô hiệu hai trigger liên quan, xóa metadata bằng chứng và hai project, bật lại trigger rồi mới commit.
+- Kiểm tra SQL sau xóa: project/work item/milestone/project administrator/proposal của hai project đều bằng 0; attachment và completion request mồ côi đều bằng 0; hai trigger `attachments_00_protect_locked` và `work_items_00_protect_submitted_evidence` đều ở trạng thái bật.
+- Kiểm tra production bằng tài khoản quản trị hệ thống: danh mục còn đúng 3 dự án `PK-DEMO-QA-21`, `PK-KHETRE`, `PK-SONTAY`; tab Đã xóa bằng 0. Không sửa code, không deploy và không thay đổi Khe Tre/Sơn Tây/QA-21.
+- `docs/HANDOFF.md` chỉ được cập nhật local để bàn giao; không tự commit/push. `.gitignore` và `outputs/` là thay đổi có sẵn, không thuộc thao tác này.
 
 ### 2026-09-15 - Codex - Sửa phạm vi và tách hàng đợi xét duyệt
 
@@ -135,6 +157,20 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 - Thêm quy trình chung trong `docs/AI-CONTEXT.md`, sổ bàn giao này và đường dẫn đọc/cập nhật trong cả hai file hướng dẫn.
 - Giữ nội dung GitNexus và skill sẵn có của hai công cụ, không đồng bộ lịch sử chat/MCP.
 - Không thay đổi code, cấu hình runtime, database, tài khoản hoặc dữ liệu test. Không commit/push/deploy.
+
+### 2026-09-16 - Codex - Kết nối Codex VS Code qua 9Router/XPIKI
+
+- Tạo riêng provider `XPIKI Codex` trong 9Router, prefix `xpiki-codex`, upstream OpenAI-compatible Chat tại `https://api.xpiki.com/v1`; không trộn với provider XPIKI đang phục vụ Claude.
+- Lưu connection `XPIKI Codex API` trong kho cấu hình 9Router và thêm bốn model: `gpt-5.6-sol`, `gpt-5.6-luna`, `gpt-5.6-terra`, `gpt-6-astra`. Không ghi API key vào repository hoặc tài liệu.
+- Cấu hình Codex cấp người dùng tại `C:\Users\005902\.codex\config.toml`: provider `ninerouter_xpiki`, endpoint `http://127.0.0.1:20128/v1`, model mặc định `xpiki-codex/gpt-5.6-sol`; bearer token được đọc từ biến môi trường người dùng bằng auth command. Đã tạo bản sao lưu cấu hình trước khi sửa.
+- `codex --strict-config --version` đạt; Codex CLI xác nhận đúng `model: xpiki-codex/gpt-5.6-sol`, `provider: ninerouter_xpiki` và gọi đúng `http://127.0.0.1:20128/v1/responses`, kể cả khi tiến trình hiện tại không có sẵn biến môi trường.
+- Kiểm tra connection trong giao diện 9Router đạt `Passed 1/1`. Lần kiểm tra đầu bị XPIKI trả `provider_account_unavailable`, nhưng lần kiểm tra sau bằng đúng binary của extension VS Code đã trả `OK` qua model `xpiki-codex/gpt-5.6-sol` và provider `ninerouter_xpiki`.
+- Bổ sung catalog model cục bộ `C:\Users\005902\.codex\xpiki-models.json` và khai báo `model_catalog_json` để extension không tự đổi model có prefix về model OpenAI mặc định. Đã khởi động lại riêng Extension Host; cấu hình và trạng thái model picker đều giữ `xpiki-codex/gpt-5.6-sol`.
+- Đối chiếu database thống kê 9Router sau lần gọi thành công: provider đúng connection `XPIKI Codex API`, model upstream `gpt-5.6-sol`, endpoint `/v1/responses`, trạng thái `ok`; không sử dụng tuyến OpenAI/ChatGPT cho lượt sinh nội dung này.
+- Sửa provider `XPIKI Codex` trong 9Router từ adapter Chat Completions sang Responses API. Adapter Chat làm sai tên tool (`unsupported call: functions`), khiến VS Code tưởng không có filesystem/GitNexus/Google Drive; sau khi đổi, cùng model đã gọi shell thành công.
+- GitNexus đã có global skills và MCP trong cấu hình Codex; refresh index đạt `1.365 nodes`, `3.073 edges`, `57 clusters`, `92 flows`. Plugin Google Drive đã installed/enabled và kiểm thử đọc trực tiếp tiêu đề tài liệu HDSD thành công qua `codex_apps/google_drive.fetch`.
+- Các request `/settings/user`, `/wham/usage` của giao diện VS Code vẫn có thể gọi lớp tài khoản ChatGPT để hiển thị UI, nhưng không phải request sinh nội dung. Hội thoại Codex đã mở trước khi đổi cấu hình vẫn giữ model cũ; cần tạo hội thoại mới để dùng tuyến XPIKI.
+- Không thay đổi source ứng dụng, database hay dữ liệu dự án; không commit/push/deploy.
 
 ## Mẫu cho lần bàn giao tiếp theo
 

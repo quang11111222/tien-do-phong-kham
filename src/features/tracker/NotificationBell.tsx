@@ -27,12 +27,8 @@ export function NotificationBell({ items, loading, error, onRetry, onOpen, onMar
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const [tab, setTab] = useState<'update' | 'attention'>('update')
-  const [listPage, setListPage] = useState(1)
   const attentionCount = items.filter((item) => item.category === 'attention').length
   const filtered = items.filter((item) => tab === 'attention' ? item.category === 'attention' : item.category !== 'attention')
-  const pageCount = Math.max(1, Math.ceil(filtered.length / 10))
-  const currentPage = Math.min(listPage, pageCount)
-  const visible = filtered.slice((currentPage - 1) * 10, currentPage * 10)
   const unreadCount = items.filter((item) => item.isUnread).length
 
   useEffect(() => {
@@ -52,15 +48,14 @@ export function NotificationBell({ items, loading, error, onRetry, onOpen, onMar
     </button>
     {open && <section className="notification-panel" aria-label="Danh sách thông báo">
       <header><div><b>Thông báo</b><span>{error ? 'Chưa tải được dữ liệu' : unreadCount ? `${unreadCount} chưa đọc` : 'Đã xem cập nhật mới'}</span></div>{unreadCount > 0 && <button disabled={loading} onClick={() => void onMarkAllSeen()}>Đánh dấu đã đọc</button>}</header>
-      <div className="notification-tabs">{(['update', 'attention'] as const).map((value) => <button key={value} className={tab === value ? 'on' : ''} aria-pressed={tab === value} onClick={() => { setTab(value); setListPage(1) }}>{value === 'update' ? `Cập nhật mới (${items.length - attentionCount})` : `Cần chú ý (${attentionCount})`}</button>)}</div>
+      <div className="notification-tabs">{(['update', 'attention'] as const).map((value) => <button key={value} className={tab === value ? 'on' : ''} aria-pressed={tab === value} onClick={() => setTab(value)}>{value === 'update' ? `Cập nhật mới (${items.length - attentionCount})` : `Cần chú ý (${attentionCount})`}</button>)}</div>
       {error && <div role="alert" className="notification-empty">{error}<button disabled={loading} onClick={onRetry}>Thử lại</button></div>}
       <div className="notification-list">
-        {loading && !items.length ? <div className="notification-empty">Đang tải thông báo…</div> : filtered.length ? visible.map((item) => <button className={`notification-item notification-${item.kind}${item.isUnread ? '' : ' seen'}`} key={item.id} onClick={() => void onOpen(item).then((opened) => { if (opened) setOpen(false) })}>
+        {loading && !items.length ? <div className="notification-empty">Đang tải thông báo…</div> : filtered.length ? filtered.map((item) => <button className={`notification-item notification-${item.kind}${item.isUnread ? '' : ' seen'}`} key={item.id} onClick={() => void onOpen(item).then((opened) => { if (opened) setOpen(false) })}>
           {item.isUnread && <span className="notification-dot" />}
           <span className="notification-copy"><b>{kindLabel[item.kind]}</b><strong>{item.work_item_wbs}. {item.work_item_name}</strong><span>{item.actor_name}: {item.content}</span><small>{item.project_name} · {item.category === 'attention' ? 'Lời nhắc hiện tại' : relativeTime(item.created_at)}</small></span>
         </button>) : !error && <div className="notification-empty"><b>{tab === 'attention' ? 'Không có việc cần nhắc hạn' : 'Không có thông báo'}</b><span>{tab === 'attention' ? 'Chỉ nhắc việc còn mở, đúng phạm vi và số ngày đã cấu hình.' : 'Các cập nhật được bật sẽ xuất hiện tại đây.'}</span></div>}
       </div>
-      {pageCount > 1 && <footer className="notification-pagination"><button disabled={currentPage === 1} onClick={() => setListPage(currentPage - 1)}>Trước</button><span>{currentPage}/{pageCount}</span><button disabled={currentPage === pageCount} onClick={() => setListPage(currentPage + 1)}>Sau</button></footer>}
     </section>}
   </div>
 }

@@ -18,3 +18,9 @@ export function actualCompletionDate(value: string | null): string | null {
 export function requiresLateReason(endDate: string | null, status: string, currentDate: string): boolean {
   return status !== 'completed' && status !== 'pending_approval' && Boolean(endDate && endDate < currentDate)
 }
+
+export function completionSubmissionError(hasEvidence: boolean, isOverdue: boolean, lateReason: string): string | null {
+  if (!hasEvidence) return 'Chưa thể gửi hoàn thành: hãy tải lên 1 tệp bằng chứng trước.'
+  if (isOverdue && !lateReason.trim()) return 'Chưa thể gửi hoàn thành: công việc đã quá hạn, hãy nhập lý do trễ.'
+  return null
+}

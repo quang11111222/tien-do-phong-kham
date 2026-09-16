@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { actualCompletionDate, displayWorkItemWbs, requiresLateReason } from './workItemDisplay'
+import { actualCompletionDate, completionSubmissionError, displayWorkItemWbs, requiresLateReason } from './workItemDisplay'
 
 describe('displayWorkItemWbs', () => {
   it('keeps the Roman numeral of a top-level category', () => {
@@ -30,5 +30,20 @@ describe('actual completion display', () => {
     expect(requiresLateReason('2026-09-16', 'in_progress', '2026-09-16')).toBe(false)
     expect(requiresLateReason('2026-09-15', 'pending_approval', '2026-09-16')).toBe(false)
     expect(requiresLateReason('2026-09-15', 'completed', '2026-09-16')).toBe(false)
+  })
+})
+
+describe('completion submission feedback', () => {
+  it('names the missing evidence before any other requirement', () => {
+    expect(completionSubmissionError(false, true, '')).toBe('Chưa thể gửi hoàn thành: hãy tải lên 1 tệp bằng chứng trước.')
+  })
+
+  it('explains that overdue work needs a late reason', () => {
+    expect(completionSubmissionError(true, true, '   ')).toBe('Chưa thể gửi hoàn thành: công việc đã quá hạn, hãy nhập lý do trễ.')
+  })
+
+  it('allows a valid submission without a false warning', () => {
+    expect(completionSubmissionError(true, true, 'Đợi hồ sơ từ Sở')).toBeNull()
+    expect(completionSubmissionError(true, false, '')).toBeNull()
   })
 })

@@ -4,8 +4,8 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 
 ## Trạng thái hiện tại
 
-- 2026-09-16 đã áp dụng migration `202609160001_plan_actual_completion.sql` trên Supabase production qua SQL Editor. Xác minh read-only: `actual_completed_at=1`, `late_reason=1`, RPC submit 3 tham số tồn tại `1`, dữ liệu `late_reason` hiện có `0` dòng. Frontend commit `f8e7990` đã sẵn sàng push/deploy; chưa chạy ca UI mới.
-- 2026-09-16 đã kiểm tra browser: production bằng phiên Quản trị hệ thống mở được `#/users` và hiển thị 15 tài khoản QA/demo; local bằng phiên nhân viên mở được `PK-DEMO-QA-21#/gantt`. Chưa chạy submit/review mới và không tạo/sửa dữ liệu vì migration chưa áp dụng remote; các ca đúng hạn, trước hạn, quá hạn có lý do, duyệt và từ chối còn chờ sau bước migration.
+- 2026-09-16 đã áp dụng migration `202609160001_plan_actual_completion.sql` trên Supabase production qua SQL Editor và đăng ký vào `supabase_migrations.schema_migrations`. Xác minh: `actual_completed_at=1`, `late_reason=1`, RPC submit 3 tham số tồn tại `1`, dữ liệu `late_reason` hiện có `0` dòng. Frontend commit `f8e7990` đã deploy trong workflow `35052414751` từ commit đồng bộ `c5cc7c7`.
+- 2026-09-16 đã kiểm tra browser: production bằng phiên Quản trị hệ thống mở được `#/users` và hiển thị 15 tài khoản QA/demo; local bằng phiên nhân viên mở được `PK-DEMO-QA-21#/gantt`. Các ca duyệt và rollback workflow đã kiểm tra sau khi migration áp dụng; không test ghi tại Khe Tre/Sơn Tây.
 
 - 2026-09-16 bản sửa nhãn ngày hôm nay đã deploy production từ commit `0f4ea7d`. GitHub Actions workflow `35049086018` (`build-and-deploy`) completed/success; production URL `https://quang11111222.github.io/tien-do-phong-kham/?qa=0f4ea7d#/projects/PK-KHETRE/gantt` mở được bản ứng dụng mới và đang yêu cầu đăng nhập. Chưa xác minh trực tiếp nhãn Gantt sau đăng nhập trong lượt này. Workflow có cảnh báo nền tảng: một số action đang target Node.js 20 và bị ép chạy Node.js 24.
 
@@ -33,6 +33,14 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 - File chưa theo dõi: `outputs/`; vẫn còn nguyên. Khi được phép dọn, giữ Excel demo 21 phòng/ban và ba báo cáo QA/đo tải trước khi xóa phần tạm còn lại. Chưa tạo `local-artifacts/`.
 
 ## Lịch sử bàn giao (mới nhất ở trên)
+
+### 2026-09-16 - Kiểm thử theo dõi kế hoạch và thực tế trên QA-21
+
+- Production browser với phiên Quản trị hệ thống mở `PK-DEMO-QA-21`, duyệt yêu cầu `QA EDGE - Quản trị phối hợp phải chờ duyệt`: UI chuyển Chờ duyệt → Hoàn thành, số Hoàn thành tăng, bằng chứng chuyển khóa.
+- SQL xác nhận với công việc này: `submitted_at = 2026-09-13 00:38:18+00`, `reviewed_at = 2026-09-16 03:38:49+00`, `actual_completed_at = 2026-09-13 00:38:18+00`. Như vậy ngày thực tế lấy ngày nộp, không lấy ngày duyệt.
+- Transaction rollback trên fixture `QA EDGE - Từ chối và nộp lại` đã đạt: nộp quá hạn thiếu lý do bị chặn; có lý do tạo `pending` nhưng `actual_completed_at` vẫn rỗng; từ chối trả `in_progress` và không có ngày thực tế; nộp lại rồi duyệt đặt `actual_completed_at = submitted_at`. Toàn bộ thay đổi test đã rollback; truy vấn sau test còn `late_reason` thực tế bằng 0 dòng.
+- Gantt production hiển thị trạng thái/bằng chứng đã khóa và thanh của việc đã duyệt kéo tới ngày thực tế; cột ngày kế hoạch vẫn giữ ngày kế hoạch để so sánh. Chưa có nhãn chữ riêng “sớm/trễ X ngày” trong UI.
+- Frontend deploy: workflow `35052414751` completed/success. Lint, type-check, 60/60 tests và build đạt trước push; build còn cảnh báo chunk khoảng 603 kB. Không test ghi tại Khe Tre/Sơn Tây.
 
 ### 2026-09-16 - Triển khai local theo dõi kế hoạch và thực tế
 

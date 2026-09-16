@@ -4,6 +4,8 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 
 ## Trạng thái hiện tại
 
+- 2026-09-16 bản sửa nhãn ngày hôm nay đã deploy production từ commit `0f4ea7d`. GitHub Actions workflow `35049086018` (`build-and-deploy`) completed/success; production URL `https://quang11111222.github.io/tien-do-phong-kham/?qa=0f4ea7d#/projects/PK-KHETRE/gantt` mở được bản ứng dụng mới và đang yêu cầu đăng nhập. Chưa xác minh trực tiếp nhãn Gantt sau đăng nhập trong lượt này. Workflow có cảnh báo nền tảng: một số action đang target Node.js 20 và bị ép chạy Node.js 24.
+
 - 2026-09-16 đã sửa lỗi nhãn ngày hôm nay trên Gantt bị mất ký tự đầu khi đường đỏ nằm sát mép trái: `TodayLine` neo nhãn về bên trái trong vùng 18px đầu thay vì căn giữa vượt ra ngoài vùng timeline. Đã sửa `GanttView.tsx` và `prototype.css`; không đổi nghiệp vụ, database hoặc dữ liệu. GitNexus impact `TodayLine`: LOW, hai caller trực tiếp trong Gantt. Lint, type-check, 60 tests và build đạt; build vẫn có cảnh báo chunk JavaScript lớn hơn 500 kB. Chưa kiểm tra browser trực tiếp và chưa commit/push/deploy.
 
 - 2026-09-16 Codex đã điều chỉnh UX chuông theo yêu cầu mới: bỏ phân trang thông báo, giữ khung cuộn gọn và hiển thị liên tục tối đa 20 cập nhật; hai tab Cập nhật mới/Cần chú ý vẫn giữ. Phạm vi gồm `NotificationBell`, CSS và tài liệu nghiệp vụ/decision/bàn giao; không đổi quyền, database hoặc dữ liệu. Lint, type-check, test và build đạt; browser fixture xác nhận cuộn tới mục 20 không bị cắt. Chưa commit/push/deploy.
@@ -28,6 +30,13 @@ Không ghi mật khẩu/token/dữ liệu cá nhân. Đây là trạng thái đ�
 - File chưa theo dõi: `outputs/`; vẫn còn nguyên. Khi được phép dọn, giữ Excel demo 21 phòng/ban và ba báo cáo QA/đo tải trước khi xóa phần tạm còn lại. Chưa tạo `local-artifacts/`.
 
 ## Lịch sử bàn giao (mới nhất ở trên)
+
+### 2026-09-16 - Codex - Deploy sửa nhãn ngày hôm nay Gantt
+
+- Commit frontend `0f4ea7d` đã push lên `main`; workflow [35049086018](https://github.com/quang11111222/tien-do-phong-kham/actions/runs/35049086018) completed/success, job `build-and-deploy` đạt sau 42 giây.
+- Production URL: `https://quang11111222.github.io/tien-do-phong-kham/?qa=0f4ea7d#/projects/PK-KHETRE/gantt`. Browser mở được bản mới nhưng chưa đăng nhập nên chỉ xác nhận được trang yêu cầu đăng nhập, chưa xác minh trực tiếp nhãn `16/9` trong Gantt.
+- Workflow có một warning không chặn deploy: các action `configure-pages@v5`, `deploy-pages@v4`, `setup-node@v4` và `upload-artifact` đang target Node.js 20, runner ép chạy Node.js 24. Không xử lý warning này trong phạm vi lỗi UI.
+- Sau deploy không đổi migration/database/dữ liệu. `.gitignore` và `outputs/` vẫn chưa commit; cập nhật bàn giao này cần commit đồng bộ riêng.
 
 ### 2026-09-16 - Codex - Sửa nhãn ngày hôm nay sát mép trái Gantt
 

@@ -278,7 +278,7 @@ export async function removeEvidence(attachment: Attachment) {
 export async function requestCompletion(workItemId: string, note: string, lateReason = '') {
   if (!supabase) return
   const normalizedNote = note.trim() || null
-  const { error } = await supabase.rpc('submit_work_item_completion', { target_work_item_id: workItemId, submission_note: normalizedNote, late_reason: lateReason.trim() || normalizedNote })
+  const { error } = await supabase.rpc('submit_work_item_completion', { target_work_item_id: workItemId, submission_note: normalizedNote, late_reason: lateReason.trim() || null })
   if (error) throw error
 }
 
